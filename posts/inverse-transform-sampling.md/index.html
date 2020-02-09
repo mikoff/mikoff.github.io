@@ -120,88 +120,79 @@ P(a \leq X \leq b) = F(b) - F(a)
 $$</p>
 
 <p>Let&rsquo;s experiment with normal distribution, its PDF has the following form:</p>
-
-<pre><code class="language-python">x, pi, sigma, mu = sp.symbols('x, pi, sigma, mu', positive = True)
-pdf = ((2.0 * sp.pi) ** sp.Rational(-1, 2) / sigma) * sp.exp(-0.5 * ((x - mu)/sigma) ** 2)
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>x, pi, sigma, mu <span style="color: #555555">=</span> sp<span style="color: #555555">.</span>symbols(<span style="color: #CC3300">&#39;x, pi, sigma, mu&#39;</span>, positive <span style="color: #555555">=</span> <span style="color: #336666">True</span>)
+pdf <span style="color: #555555">=</span> ((<span style="color: #FF6600">2.0</span> <span style="color: #555555">*</span> sp<span style="color: #555555">.</span>pi) <span style="color: #555555">**</span> sp<span style="color: #555555">.</span>Rational(<span style="color: #555555">-</span><span style="color: #FF6600">1</span>, <span style="color: #FF6600">2</span>) <span style="color: #555555">/</span> sigma) <span style="color: #555555">*</span> sp<span style="color: #555555">.</span>exp(<span style="color: #555555">-</span><span style="color: #FF6600">0.5</span> <span style="color: #555555">*</span> ((x <span style="color: #555555">-</span> mu)<span style="color: #555555">/</span>sigma) <span style="color: #555555">**</span> <span style="color: #FF6600">2</span>)
 display(pdf)
-</code></pre>
+</code></pre></div>
 
 <p>$\displaystyle \frac{0.707106781186548 e^{- \frac{0.5 \left(- \mu + x\right)^{2}}{\sigma^{2}}}}{\sqrt{\pi} \sigma}$</p>
 
 <p>Its CDF can be found by integration:</p>
-
-<pre><code class="language-python">cdf = sp.simplify(sp.integrate(pdf, x)) + 0.5
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>cdf <span style="color: #555555">=</span> sp<span style="color: #555555">.</span>simplify(sp<span style="color: #555555">.</span>integrate(pdf, x)) <span style="color: #555555">+</span> <span style="color: #FF6600">0.5</span>
 display(cdf)
-</code></pre>
+</code></pre></div>
 
 <p>$\displaystyle 0.5 - 0.5 \operatorname{erf}{\left(\frac{0.707106781186548 \left(\mu - x\right)}{\sigma} \right)}$</p>
 
 <p>To get 3-sigma 68-95-99.7 rule, which tells us that 68%-95%-99.7% of data lies within one-two-three standard deviation of the mean, we can just integrate the pdf on the following intervals: $[\mu - n\sigma, \mu + n\sigma]$, where $n = {1, 2, 3}$:</p>
 
 <p>Data portion within $\mu \pm \sigma$ interval:</p>
-
-<pre><code class="language-python">display(float(sp.integrate(pdf, (x, mu-sigma, mu+sigma))))
-</code></pre>
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>display(<span style="color: #336666">float</span>(sp<span style="color: #555555">.</span>integrate(pdf, (x, mu<span style="color: #555555">-</span>sigma, mu<span style="color: #555555">+</span>sigma))))
+</code></pre></div>
 
 <p>$\displaystyle 0.682689492137086$</p>
 
 <p>Data portion within $\mu \pm 2\sigma$ interval:</p>
-
-<pre><code class="language-python">display(cdf.subs({x: mu + 2 * sigma}) - cdf.subs({x: mu - 2 * sigma}))
-</code></pre>
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>display(cdf<span style="color: #555555">.</span>subs({x: mu <span style="color: #555555">+</span> <span style="color: #FF6600">2</span> <span style="color: #555555">*</span> sigma}) <span style="color: #555555">-</span> cdf<span style="color: #555555">.</span>subs({x: mu <span style="color: #555555">-</span> <span style="color: #FF6600">2</span> <span style="color: #555555">*</span> sigma}))
+</code></pre></div>
 
 <p>$\displaystyle 0.954499736103642$</p>
 
 <p>Data portion within $\mu \pm 3\sigma$ interval:</p>
-
-<pre><code class="language-python">display(cdf.subs({x: mu + 3 * sigma}) - cdf.subs({x: mu - 3 * sigma}))
-</code></pre>
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>display(cdf<span style="color: #555555">.</span>subs({x: mu <span style="color: #555555">+</span> <span style="color: #FF6600">3</span> <span style="color: #555555">*</span> sigma}) <span style="color: #555555">-</span> cdf<span style="color: #555555">.</span>subs({x: mu <span style="color: #555555">-</span> <span style="color: #FF6600">3</span> <span style="color: #555555">*</span> sigma}))
+</code></pre></div>
 
 <p>$\displaystyle 0.99730020393674$</p>
 
 <p>And now let&rsquo;s visualize it as the area under gaussian PDF within given ranges:</p>
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>gaussian_pdf <span style="color: #555555">=</span> sp<span style="color: #555555">.</span>lambdify((x, mu, sigma), pdf)
+gaussian_cdf <span style="color: #555555">=</span> sp<span style="color: #555555">.</span>lambdify((x, mu, sigma), cdf)
 
-<pre><code class="language-python">gaussian_pdf = sp.lambdify((x, mu, sigma), pdf)
-gaussian_cdf = sp.lambdify((x, mu, sigma), cdf)
+Mu, Sigma <span style="color: #555555">=</span> <span style="color: #FF6600">4.0</span>, <span style="color: #FF6600">1.0</span>
 
-Mu, Sigma = 4.0, 1.0
-
-fig, ax = plt.subplots(1, 1, figsize=(8, 4))
-spanFrom, spanTo = Mu - 4 * Sigma, Mu + 4 * Sigma
-span = np.linspace(spanFrom, spanTo, 100)
-ax.plot(span, gaussian_pdf(span, Mu, Sigma), label='pdf')
-ax.set(xlabel='$x$', ylabel='$p = f(x)$', title='$X \sim \mathcal{N} (' + str(Mu) + &quot;, &quot; + str(Sigma**2) + &quot;)$&quot;)
-for i in range(-3, 3):
-    spanStart, spanEnd = Mu + i * Sigma, Mu + (i + 1) * Sigma
-    span = np.linspace(spanStart, spanEnd, 100)
-    ax.fill_between(span, gaussian_pdf(span, Mu, Sigma), interpolate=True, alpha=0.5)
-    ax.annotate(str(np.round_(100 * (gaussian_cdf(spanEnd, Mu, Sigma) - gaussian_cdf(spanStart, Mu, Sigma)), 1)) + '%', 
-                xy=((spanStart + spanEnd) * 0.5, 0.025), ha='center')
-</code></pre>
+fig, ax <span style="color: #555555">=</span> plt<span style="color: #555555">.</span>subplots(<span style="color: #FF6600">1</span>, <span style="color: #FF6600">1</span>, figsize<span style="color: #555555">=</span>(<span style="color: #FF6600">8</span>, <span style="color: #FF6600">4</span>))
+spanFrom, spanTo <span style="color: #555555">=</span> Mu <span style="color: #555555">-</span> <span style="color: #FF6600">4</span> <span style="color: #555555">*</span> Sigma, Mu <span style="color: #555555">+</span> <span style="color: #FF6600">4</span> <span style="color: #555555">*</span> Sigma
+span <span style="color: #555555">=</span> np<span style="color: #555555">.</span>linspace(spanFrom, spanTo, <span style="color: #FF6600">100</span>)
+ax<span style="color: #555555">.</span>plot(span, gaussian_pdf(span, Mu, Sigma), label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;pdf&#39;</span>)
+ax<span style="color: #555555">.</span>set(xlabel<span style="color: #555555">=</span><span style="color: #CC3300">&#39;$x$&#39;</span>, ylabel<span style="color: #555555">=</span><span style="color: #CC3300">&#39;$p = f(x)$&#39;</span>, title<span style="color: #555555">=</span><span style="color: #CC3300">&#39;$X \sim \mathcal{N} (&#39;</span> <span style="color: #555555">+</span> <span style="color: #336666">str</span>(Mu) <span style="color: #555555">+</span> <span style="color: #CC3300">&quot;, &quot;</span> <span style="color: #555555">+</span> <span style="color: #336666">str</span>(Sigma<span style="color: #555555">**</span><span style="color: #FF6600">2</span>) <span style="color: #555555">+</span> <span style="color: #CC3300">&quot;)$&quot;</span>)
+<span style="color: #006699; font-weight: bold">for</span> i <span style="color: #000000; font-weight: bold">in</span> <span style="color: #336666">range</span>(<span style="color: #555555">-</span><span style="color: #FF6600">3</span>, <span style="color: #FF6600">3</span>):
+    spanStart, spanEnd <span style="color: #555555">=</span> Mu <span style="color: #555555">+</span> i <span style="color: #555555">*</span> Sigma, Mu <span style="color: #555555">+</span> (i <span style="color: #555555">+</span> <span style="color: #FF6600">1</span>) <span style="color: #555555">*</span> Sigma
+    span <span style="color: #555555">=</span> np<span style="color: #555555">.</span>linspace(spanStart, spanEnd, <span style="color: #FF6600">100</span>)
+    ax<span style="color: #555555">.</span>fill_between(span, gaussian_pdf(span, Mu, Sigma), interpolate<span style="color: #555555">=</span><span style="color: #336666">True</span>, alpha<span style="color: #555555">=</span><span style="color: #FF6600">0.5</span>)
+    ax<span style="color: #555555">.</span>annotate(<span style="color: #336666">str</span>(np<span style="color: #555555">.</span>round_(<span style="color: #FF6600">100</span> <span style="color: #555555">*</span> (gaussian_cdf(spanEnd, Mu, Sigma) <span style="color: #555555">-</span> gaussian_cdf(spanStart, Mu, Sigma)), <span style="color: #FF6600">1</span>)) <span style="color: #555555">+</span> <span style="color: #CC3300">&#39;%&#39;</span>, 
+                xy<span style="color: #555555">=</span>((spanStart <span style="color: #555555">+</span> spanEnd) <span style="color: #555555">*</span> <span style="color: #FF6600">0.5</span>, <span style="color: #FF6600">0.025</span>), ha<span style="color: #555555">=</span><span style="color: #CC3300">&#39;center&#39;</span>)
+</code></pre></div>
 
 <p><img src="./index_15_0.png" alt="png" /></p>
 
 <p>Let&rsquo;s find Gaussian distribution mean, or first moment, which, by definition equals to $\int_{-\infty}^\infty x f(x) dx$:</p>
-
-<pre><code class="language-python">mean = sp.integrate(pdf * x, (x, -sp.oo, sp.oo))
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>mean <span style="color: #555555">=</span> sp<span style="color: #555555">.</span>integrate(pdf <span style="color: #555555">*</span> x, (x, <span style="color: #555555">-</span>sp<span style="color: #555555">.</span>oo, sp<span style="color: #555555">.</span>oo))
 display(mean)
-</code></pre>
+</code></pre></div>
 
 <p>$\displaystyle 1.0 \mu$</p>
 
 <p>The variance can be found using second moment and mean, $Var(X) = \mathbb E[X^2] - \mathbb E [X]^2$</p>
-
-<pre><code class="language-python">variance = sp.integrate(pdf * x * x, (x, -sp.oo, sp.oo)) - mean**2
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>variance <span style="color: #555555">=</span> sp<span style="color: #555555">.</span>integrate(pdf <span style="color: #555555">*</span> x <span style="color: #555555">*</span> x, (x, <span style="color: #555555">-</span>sp<span style="color: #555555">.</span>oo, sp<span style="color: #555555">.</span>oo)) <span style="color: #555555">-</span> mean<span style="color: #555555">**</span><span style="color: #FF6600">2</span>
 display(variance)
-</code></pre>
+</code></pre></div>
 
 <p>$\displaystyle 1.0 \sigma^{2}$</p>
 
 <p>And verify that the area under the curve, or total probability should be equal to 1.0:</p>
-
-<pre><code class="language-python">area = sp.integrate(pdf, (x, -sp.oo, sp.oo))
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>area <span style="color: #555555">=</span> sp<span style="color: #555555">.</span>integrate(pdf, (x, <span style="color: #555555">-</span>sp<span style="color: #555555">.</span>oo, sp<span style="color: #555555">.</span>oo))
 display(area)
-</code></pre>
+</code></pre></div>
 
 <p>$\displaystyle 1.0$</p>
 
@@ -212,18 +203,16 @@ For example, $F^{-1}(0.5)$ is the median of the distribution, $F^{-1}(0.25)$ is 
 In other words, it answer on the following question: what is the proportion of data, which is less or equal to the given value $x$.</p>
 
 <p>Inverse CDF for gaussian distribution has the following form:</p>
-
-<pre><code class="language-python">p = sp.symbols('p')
-inverse_cdf = sp.solve(cdf - p, x)[0]
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>p <span style="color: #555555">=</span> sp<span style="color: #555555">.</span>symbols(<span style="color: #CC3300">&#39;p&#39;</span>)
+inverse_cdf <span style="color: #555555">=</span> sp<span style="color: #555555">.</span>solve(cdf <span style="color: #555555">-</span> p, x)[<span style="color: #FF6600">0</span>]
 display(inverse_cdf)
-</code></pre>
+</code></pre></div>
 
 <p>$\displaystyle \mu - 1.41421356237309 \sigma \operatorname{erfinv}{\left(1.0 - 2.0 p \right)}$</p>
 
 <p>Now wish we would like to answer on the following questions: what is the value $x$ for which the half of the data is less than it?</p>
-
-<pre><code class="language-python">display(inverse_cdf.subs({p:0.5}))
-</code></pre>
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>display(inverse_cdf<span style="color: #555555">.</span>subs({p:<span style="color: #FF6600">0.5</span>}))
+</code></pre></div>
 
 <p>$\displaystyle \mu$</p>
 
@@ -232,31 +221,30 @@ display(inverse_cdf)
 <p>The following plot helps to understand an idea:
 * CDF maps $x$ value to the portion of data, which is less or equal than $x$
 * Inverse of CDF gives an answer on the following question: for given $p$ what is the value $x$, for which $P(X \leq x) = p$ satisfies?</p>
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>Mu, Sigma <span style="color: #555555">=</span> <span style="color: #FF6600">4.0</span>, <span style="color: #FF6600">1.0</span>
 
-<pre><code class="language-python">Mu, Sigma = 4.0, 1.0
+spanFrom, spanTo <span style="color: #555555">=</span> Mu <span style="color: #555555">-</span> <span style="color: #FF6600">4</span> <span style="color: #555555">*</span> Sigma, Mu <span style="color: #555555">+</span> <span style="color: #FF6600">4</span> <span style="color: #555555">*</span> Sigma
+span <span style="color: #555555">=</span> np<span style="color: #555555">.</span>linspace(spanFrom, spanTo, <span style="color: #FF6600">100</span>)
 
-spanFrom, spanTo = Mu - 4 * Sigma, Mu + 4 * Sigma
-span = np.linspace(spanFrom, spanTo, 100)
+fig, ax <span style="color: #555555">=</span> plt<span style="color: #555555">.</span>subplots(<span style="color: #FF6600">1</span>, <span style="color: #FF6600">1</span>, figsize<span style="color: #555555">=</span>(<span style="color: #FF6600">8</span>, <span style="color: #FF6600">4</span>))
+ax<span style="color: #555555">.</span>plot(span, gaussian_cdf(span, Mu, Sigma), label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;cdf&#39;</span>)
+ax<span style="color: #555555">.</span>set(xlabel<span style="color: #555555">=</span><span style="color: #CC3300">&#39;$x = F^{-1}(p)$&#39;</span>, ylabel<span style="color: #555555">=</span><span style="color: #CC3300">&#39;$p = F(x)$&#39;</span>, title<span style="color: #555555">=</span><span style="color: #CC3300">&#39;Cumulative distribution function&#39;</span>)
 
-fig, ax = plt.subplots(1, 1, figsize=(8, 4))
-ax.plot(span, gaussian_cdf(span, Mu, Sigma), label='cdf')
-ax.set(xlabel='$x = F^{-1}(p)$', ylabel='$p = F(x)$', title='Cumulative distribution function')
+cdf_value <span style="color: #555555">=</span> <span style="color: #336666">float</span>(sp<span style="color: #555555">.</span>integrate(pdf, (x, <span style="color: #555555">-</span>sp<span style="color: #555555">.</span>oo, mu)))
+X, Y <span style="color: #555555">=</span> [Mu, Mu, spanFrom], [<span style="color: #FF6600">0.0</span>, cdf_value, cdf_value]
+ax<span style="color: #555555">.</span>quiver(X[:<span style="color: #555555">-</span><span style="color: #FF6600">1</span>], Y[:<span style="color: #555555">-</span><span style="color: #FF6600">1</span>], np<span style="color: #555555">.</span>diff(X), np<span style="color: #555555">.</span>diff(Y), angles<span style="color: #555555">=</span><span style="color: #CC3300">&#39;xy&#39;</span>, scale_units<span style="color: #555555">=</span><span style="color: #CC3300">&#39;xy&#39;</span>, scale<span style="color: #555555">=</span><span style="color: #FF6600">1</span>, width<span style="color: #555555">=</span><span style="color: #FF6600">0.005</span>, color<span style="color: #555555">=</span><span style="color: #CC3300">&#39;C1&#39;</span>, label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;CDF&#39;</span>)
 
-cdf_value = float(sp.integrate(pdf, (x, -sp.oo, mu)))
-X, Y = [Mu, Mu, spanFrom], [0.0, cdf_value, cdf_value]
-ax.quiver(X[:-1], Y[:-1], np.diff(X), np.diff(Y), angles='xy', scale_units='xy', scale=1, width=0.005, color='C1', label='CDF')
+cdf_value <span style="color: #555555">=</span> <span style="color: #336666">float</span>(sp<span style="color: #555555">.</span>integrate(pdf, (x, <span style="color: #555555">-</span>sp<span style="color: #555555">.</span>oo, mu<span style="color: #555555">-</span>sigma)))
+X, Y <span style="color: #555555">=</span> [spanFrom, Mu <span style="color: #555555">-</span> Sigma, Mu<span style="color: #555555">-</span>Sigma], [cdf_value, cdf_value, <span style="color: #FF6600">0.0</span>]
+ax<span style="color: #555555">.</span>quiver(X[:<span style="color: #555555">-</span><span style="color: #FF6600">1</span>], Y[:<span style="color: #555555">-</span><span style="color: #FF6600">1</span>], np<span style="color: #555555">.</span>diff(X), np<span style="color: #555555">.</span>diff(Y), angles<span style="color: #555555">=</span><span style="color: #CC3300">&#39;xy&#39;</span>, scale_units<span style="color: #555555">=</span><span style="color: #CC3300">&#39;xy&#39;</span>, scale<span style="color: #555555">=</span><span style="color: #FF6600">1</span>, width<span style="color: #555555">=</span><span style="color: #FF6600">0.005</span>, color<span style="color: #555555">=</span><span style="color: #CC3300">&#39;C7&#39;</span>, label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;inverse CDF&#39;</span>)
 
-cdf_value = float(sp.integrate(pdf, (x, -sp.oo, mu-sigma)))
-X, Y = [spanFrom, Mu - Sigma, Mu-Sigma], [cdf_value, cdf_value, 0.0]
-ax.quiver(X[:-1], Y[:-1], np.diff(X), np.diff(Y), angles='xy', scale_units='xy', scale=1, width=0.005, color='C7', label='inverse CDF')
+ax<span style="color: #555555">.</span>xaxis<span style="color: #555555">.</span>set_major_locator(plticker<span style="color: #555555">.</span>MultipleLocator(base<span style="color: #555555">=</span><span style="color: #FF6600">1.0</span>))
+ax<span style="color: #555555">.</span>yaxis<span style="color: #555555">.</span>set_major_locator(plticker<span style="color: #555555">.</span>MultipleLocator(base<span style="color: #555555">=</span><span style="color: #FF6600">0.1</span>))
+ax<span style="color: #555555">.</span>legend(loc<span style="color: #555555">=</span><span style="color: #CC3300">&#39;lower right&#39;</span>)
 
-ax.xaxis.set_major_locator(plticker.MultipleLocator(base=1.0))
-ax.yaxis.set_major_locator(plticker.MultipleLocator(base=0.1))
-ax.legend(loc='lower right')
-
-ax.set_xlim(spanFrom, spanTo)
-ax.set_ylim(0.0, 1.0)
-</code></pre>
+ax<span style="color: #555555">.</span>set_xlim(spanFrom, spanTo)
+ax<span style="color: #555555">.</span>set_ylim(<span style="color: #FF6600">0.0</span>, <span style="color: #FF6600">1.0</span>)
+</code></pre></div>
 
 <p>$\displaystyle \left( 0.0, \  1.0\right)$</p>
 
@@ -267,30 +255,29 @@ ax.set_ylim(0.0, 1.0)
 <p>Now, having this function, which maps $p$ to $x$ it should be obvious how to sample from our desired distribution having the samples from the uniform one.</p>
 
 <p>Let&rsquo;s illustrate the idea with the set of uniformly distributed points along $p$ and map all of them to $x$ using inverse CDF. It&rsquo;s clearly seen then after applying this transformation the points are not evenly spaced anymore.</p>
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>gaussian_inverse_cdf <span style="color: #555555">=</span> sp<span style="color: #555555">.</span>lambdify((p, mu, sigma), inverse_cdf)
 
-<pre><code class="language-python">gaussian_inverse_cdf = sp.lambdify((p, mu, sigma), inverse_cdf)
+Mu, Sigma <span style="color: #555555">=</span> <span style="color: #FF6600">3.0</span>, <span style="color: #FF6600">2.0</span>
 
-Mu, Sigma = 3.0, 2.0
+spanFrom, spanTo <span style="color: #555555">=</span> Mu <span style="color: #555555">-</span> <span style="color: #FF6600">4</span> <span style="color: #555555">*</span> Sigma, Mu <span style="color: #555555">+</span> <span style="color: #FF6600">4</span> <span style="color: #555555">*</span> Sigma
+span <span style="color: #555555">=</span> np<span style="color: #555555">.</span>linspace(spanFrom, spanTo, <span style="color: #FF6600">100</span>)
 
-spanFrom, spanTo = Mu - 4 * Sigma, Mu + 4 * Sigma
-span = np.linspace(spanFrom, spanTo, 100)
+fig, ax <span style="color: #555555">=</span> plt<span style="color: #555555">.</span>subplots(<span style="color: #FF6600">1</span>, <span style="color: #FF6600">1</span>, figsize<span style="color: #555555">=</span>(<span style="color: #FF6600">8</span>, <span style="color: #FF6600">4</span>))
+ax<span style="color: #555555">.</span>plot(span, gaussian_cdf(span, Mu, Sigma), label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;cdf&#39;</span>)
+ax<span style="color: #555555">.</span>set(xlabel<span style="color: #555555">=</span><span style="color: #CC3300">&#39;$x = F^{-1}(p)$, sample space&#39;</span>, ylabel<span style="color: #555555">=</span><span style="color: #CC3300">&#39;$p = F(x)$, uniform values&#39;</span>)
+uniform_samples <span style="color: #555555">=</span> np<span style="color: #555555">.</span>linspace(<span style="color: #FF6600">0.01</span>, <span style="color: #FF6600">0.99</span>, <span style="color: #FF6600">21</span>)
+<span style="color: #006699; font-weight: bold">for</span> sample <span style="color: #000000; font-weight: bold">in</span> uniform_samples:
+    cdfValue <span style="color: #555555">=</span> gaussian_inverse_cdf(sample, Mu, Sigma)
+    X, Y <span style="color: #555555">=</span> [spanFrom, cdfValue, cdfValue], [sample, sample, <span style="color: #FF6600">0.0</span>]
+    ax<span style="color: #555555">.</span>quiver(X[:<span style="color: #555555">-</span><span style="color: #FF6600">1</span>], Y[:<span style="color: #555555">-</span><span style="color: #FF6600">1</span>], np<span style="color: #555555">.</span>diff(X), np<span style="color: #555555">.</span>diff(Y), angles<span style="color: #555555">=</span><span style="color: #CC3300">&#39;xy&#39;</span>, scale_units<span style="color: #555555">=</span><span style="color: #CC3300">&#39;xy&#39;</span>, scale<span style="color: #555555">=</span><span style="color: #FF6600">1</span>, width<span style="color: #555555">=</span><span style="color: #FF6600">0.001</span>, color<span style="color: #555555">=</span><span style="color: #CC3300">&#39;C7&#39;</span>, label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;inverse CDF&#39;</span>,
+                headlength<span style="color: #555555">=</span><span style="color: #FF6600">30.0</span>, headwidth<span style="color: #555555">=</span><span style="color: #FF6600">20.0</span>)
 
-fig, ax = plt.subplots(1, 1, figsize=(8, 4))
-ax.plot(span, gaussian_cdf(span, Mu, Sigma), label='cdf')
-ax.set(xlabel='$x = F^{-1}(p)$, sample space', ylabel='$p = F(x)$, uniform values')
-uniform_samples = np.linspace(0.01, 0.99, 21)
-for sample in uniform_samples:
-    cdfValue = gaussian_inverse_cdf(sample, Mu, Sigma)
-    X, Y = [spanFrom, cdfValue, cdfValue], [sample, sample, 0.0]
-    ax.quiver(X[:-1], Y[:-1], np.diff(X), np.diff(Y), angles='xy', scale_units='xy', scale=1, width=0.001, color='C7', label='inverse CDF',
-                headlength=30.0, headwidth=20.0)
-
-ax.scatter(gaussian_inverse_cdf(uniform_samples, Mu, Sigma), [0] * len(uniform_samples), alpha=0.3, c = 'C2')
-ax.scatter([Mu - 3 * Sigma] * len(uniform_samples), uniform_samples, alpha=0.3, c = 'C1')
-ax.set_xlim(Mu - 3 * Sigma, Mu + 3 * Sigma)
-ax.set_ylim(0.0, 1.0)
-ax.xaxis.set_major_locator(plticker.MultipleLocator(base=1.0))
-</code></pre>
+ax<span style="color: #555555">.</span>scatter(gaussian_inverse_cdf(uniform_samples, Mu, Sigma), [<span style="color: #FF6600">0</span>] <span style="color: #555555">*</span> <span style="color: #336666">len</span>(uniform_samples), alpha<span style="color: #555555">=</span><span style="color: #FF6600">0.3</span>, c <span style="color: #555555">=</span> <span style="color: #CC3300">&#39;C2&#39;</span>)
+ax<span style="color: #555555">.</span>scatter([Mu <span style="color: #555555">-</span> <span style="color: #FF6600">3</span> <span style="color: #555555">*</span> Sigma] <span style="color: #555555">*</span> <span style="color: #336666">len</span>(uniform_samples), uniform_samples, alpha<span style="color: #555555">=</span><span style="color: #FF6600">0.3</span>, c <span style="color: #555555">=</span> <span style="color: #CC3300">&#39;C1&#39;</span>)
+ax<span style="color: #555555">.</span>set_xlim(Mu <span style="color: #555555">-</span> <span style="color: #FF6600">3</span> <span style="color: #555555">*</span> Sigma, Mu <span style="color: #555555">+</span> <span style="color: #FF6600">3</span> <span style="color: #555555">*</span> Sigma)
+ax<span style="color: #555555">.</span>set_ylim(<span style="color: #FF6600">0.0</span>, <span style="color: #FF6600">1.0</span>)
+ax<span style="color: #555555">.</span>xaxis<span style="color: #555555">.</span>set_major_locator(plticker<span style="color: #555555">.</span>MultipleLocator(base<span style="color: #555555">=</span><span style="color: #FF6600">1.0</span>))
+</code></pre></div>
 
 <p><img src="./index_33_0.png" alt="png" /></p>
 
@@ -301,38 +288,36 @@ ax.xaxis.set_major_locator(plticker.MultipleLocator(base=1.0))
 <h2 id="inverse-transform-sampling-for-normal-distribution">Inverse transform sampling for Normal distribution</h2>
 
 <p>As a first experiment, we will proceed with inverse of Gaussian CDF. To do so we sample from Uniform distribution and transform them to the Gaussian one.</p>
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span><span style="color: #006699; font-weight: bold">import</span> <span style="color: #00CCFF; font-weight: bold">seaborn</span> <span style="color: #006699; font-weight: bold">as</span> <span style="color: #00CCFF; font-weight: bold">sns</span>
 
-<pre><code class="language-python">import seaborn as sns
+Mu, Sigma <span style="color: #555555">=</span> <span style="color: #FF6600">5</span>, <span style="color: #FF6600">1</span>
 
-Mu, Sigma = 5, 1
+uniform_samples <span style="color: #555555">=</span> np<span style="color: #555555">.</span>random<span style="color: #555555">.</span>uniform(size<span style="color: #555555">=</span><span style="color: #FF6600">5000</span>)
+gaussian_samples <span style="color: #555555">=</span> gaussian_inverse_cdf(uniform_samples, Mu, Sigma)
 
-uniform_samples = np.random.uniform(size=5000)
-gaussian_samples = gaussian_inverse_cdf(uniform_samples, Mu, Sigma)
+ax <span style="color: #555555">=</span> sns<span style="color: #555555">.</span>jointplot(np<span style="color: #555555">.</span>array(gaussian_samples)<span style="color: #555555">.</span>astype(<span style="color: #336666">float</span>), uniform_samples, marginal_kws<span style="color: #555555">=</span><span style="color: #336666">dict</span>(bins<span style="color: #555555">=</span><span style="color: #FF6600">30</span>, rug<span style="color: #555555">=</span><span style="color: #336666">True</span>),
+             joint_kws<span style="color: #555555">=</span><span style="color: #336666">dict</span>(alpha<span style="color: #555555">=</span><span style="color: #FF6600">0.5</span>, linewidth<span style="color: #555555">=</span><span style="color: #336666">None</span>, marker<span style="color: #555555">=</span><span style="color: #CC3300">&#39;x&#39;</span>))
 
-ax = sns.jointplot(np.array(gaussian_samples).astype(float), uniform_samples, marginal_kws=dict(bins=30, rug=True),
-             joint_kws=dict(alpha=0.5, linewidth=None, marker='x'))
-
-spanFrom, spanTo = Mu - 4 * Sigma, Mu + 4 * Sigma
-span = np.linspace(spanFrom, spanTo, 100)
-ax.ax_joint.plot(span, gaussian_cdf(span, Mu, Sigma), color='red', label='CDF')
-ax.fig.set_figwidth(6)
-ax.fig.set_figheight(4)
-ax.set_axis_labels('Mapped to Gaussian using inverse CDF', 'Uniformly sampled points', fontsize=10)
-</code></pre>
+spanFrom, spanTo <span style="color: #555555">=</span> Mu <span style="color: #555555">-</span> <span style="color: #FF6600">4</span> <span style="color: #555555">*</span> Sigma, Mu <span style="color: #555555">+</span> <span style="color: #FF6600">4</span> <span style="color: #555555">*</span> Sigma
+span <span style="color: #555555">=</span> np<span style="color: #555555">.</span>linspace(spanFrom, spanTo, <span style="color: #FF6600">100</span>)
+ax<span style="color: #555555">.</span>ax_joint<span style="color: #555555">.</span>plot(span, gaussian_cdf(span, Mu, Sigma), color<span style="color: #555555">=</span><span style="color: #CC3300">&#39;red&#39;</span>, label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;CDF&#39;</span>)
+ax<span style="color: #555555">.</span>fig<span style="color: #555555">.</span>set_figwidth(<span style="color: #FF6600">6</span>)
+ax<span style="color: #555555">.</span>fig<span style="color: #555555">.</span>set_figheight(<span style="color: #FF6600">4</span>)
+ax<span style="color: #555555">.</span>set_axis_labels(<span style="color: #CC3300">&#39;Mapped to Gaussian using inverse CDF&#39;</span>, <span style="color: #CC3300">&#39;Uniformly sampled points&#39;</span>, fontsize<span style="color: #555555">=</span><span style="color: #FF6600">10</span>)
+</code></pre></div>
 
 <pre><code>&lt;seaborn.axisgrid.JointGrid at 0x7f2462c25b10&gt;
 </code></pre>
 
 <p><img src="./index_38_1.png" alt="png" /></p>
-
-<pre><code class="language-python">fig, ax = plt.subplots(1, 1, figsize=(6, 3))
-ax.hist(gaussian_samples, bins=31, density=True, label='Sampled using inverse transform')
-spanFrom, spanTo = Mu - 4 * Sigma, Mu + 4 * Sigma
-span = np.linspace(spanFrom, spanTo, 100)
-ax.plot(span, gaussian_pdf(span, Mu, Sigma), color='red', label='Analytical CDF')
-ax.set(xlabel='$x$', ylabel='$p = f(x)$', title='$X \sim \mathcal{N} (' + str(Mu) + &quot;, &quot; + str(Sigma**2) + &quot;)$&quot;)
-ax.legend(loc='upper left')
-</code></pre>
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>fig, ax <span style="color: #555555">=</span> plt<span style="color: #555555">.</span>subplots(<span style="color: #FF6600">1</span>, <span style="color: #FF6600">1</span>, figsize<span style="color: #555555">=</span>(<span style="color: #FF6600">6</span>, <span style="color: #FF6600">3</span>))
+ax<span style="color: #555555">.</span>hist(gaussian_samples, bins<span style="color: #555555">=</span><span style="color: #FF6600">31</span>, density<span style="color: #555555">=</span><span style="color: #336666">True</span>, label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;Sampled using inverse transform&#39;</span>)
+spanFrom, spanTo <span style="color: #555555">=</span> Mu <span style="color: #555555">-</span> <span style="color: #FF6600">4</span> <span style="color: #555555">*</span> Sigma, Mu <span style="color: #555555">+</span> <span style="color: #FF6600">4</span> <span style="color: #555555">*</span> Sigma
+span <span style="color: #555555">=</span> np<span style="color: #555555">.</span>linspace(spanFrom, spanTo, <span style="color: #FF6600">100</span>)
+ax<span style="color: #555555">.</span>plot(span, gaussian_pdf(span, Mu, Sigma), color<span style="color: #555555">=</span><span style="color: #CC3300">&#39;red&#39;</span>, label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;Analytical CDF&#39;</span>)
+ax<span style="color: #555555">.</span>set(xlabel<span style="color: #555555">=</span><span style="color: #CC3300">&#39;$x$&#39;</span>, ylabel<span style="color: #555555">=</span><span style="color: #CC3300">&#39;$p = f(x)$&#39;</span>, title<span style="color: #555555">=</span><span style="color: #CC3300">&#39;$X \sim \mathcal{N} (&#39;</span> <span style="color: #555555">+</span> <span style="color: #336666">str</span>(Mu) <span style="color: #555555">+</span> <span style="color: #CC3300">&quot;, &quot;</span> <span style="color: #555555">+</span> <span style="color: #336666">str</span>(Sigma<span style="color: #555555">**</span><span style="color: #FF6600">2</span>) <span style="color: #555555">+</span> <span style="color: #CC3300">&quot;)$&quot;</span>)
+ax<span style="color: #555555">.</span>legend(loc<span style="color: #555555">=</span><span style="color: #CC3300">&#39;upper left&#39;</span>)
+</code></pre></div>
 
 <pre><code>&lt;matplotlib.legend.Legend at 0x7f24509bdf90&gt;
 </code></pre>
@@ -342,66 +327,61 @@ ax.legend(loc='upper left')
 <h2 id="inverse-transform-sampling-for-exponential-distribution">Inverse transform sampling for Exponential distribution</h2>
 
 <p>First, define exponential distribution PDF.</p>
-
-<pre><code class="language-python">x, lambd, p = sp.symbols('x, lambda, p', positive = True)
-pdf_exponential = lambd * sp.exp(-lambd * x)
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>x, lambd, p <span style="color: #555555">=</span> sp<span style="color: #555555">.</span>symbols(<span style="color: #CC3300">&#39;x, lambda, p&#39;</span>, positive <span style="color: #555555">=</span> <span style="color: #336666">True</span>)
+pdf_exponential <span style="color: #555555">=</span> lambd <span style="color: #555555">*</span> sp<span style="color: #555555">.</span>exp(<span style="color: #555555">-</span>lambd <span style="color: #555555">*</span> x)
 display(pdf_exponential)
-</code></pre>
+</code></pre></div>
 
 <p>$\displaystyle \lambda e^{- \lambda x}$</p>
 
 <p>Second, integrate PDF to obtain CDF.</p>
-
-<pre><code class="language-python">cdf_exponential = 1.0 + sp.integrate(pdf_exponential, x)
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>cdf_exponential <span style="color: #555555">=</span> <span style="color: #FF6600">1.0</span> <span style="color: #555555">+</span> sp<span style="color: #555555">.</span>integrate(pdf_exponential, x)
 display(cdf_exponential)
-</code></pre>
+</code></pre></div>
 
 <p>$\displaystyle 1.0 - e^{- \lambda x}$</p>
 
 <p>Third, invert it.</p>
-
-<pre><code class="language-python">inverse_cdf_exponential = sp.solve(cdf_exponential - p, x)
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>inverse_cdf_exponential <span style="color: #555555">=</span> sp<span style="color: #555555">.</span>solve(cdf_exponential <span style="color: #555555">-</span> p, x)
 display(inverse_cdf_exponential)
-</code></pre>
+</code></pre></div>
 
 <p>$\displaystyle \left[ \frac{\log{\left(- \frac{1}{p - 1.0} \right)}}{\lambda}\right]$</p>
 
 <p>Now we are ready to transform samples from uniform space to the exponential one.</p>
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>Lambda <span style="color: #555555">=</span> <span style="color: #FF6600">1.25</span>
 
-<pre><code class="language-python">Lambda = 1.25
+exponential_pdf <span style="color: #555555">=</span> sp<span style="color: #555555">.</span>lambdify((x, lambd), pdf_exponential)
+exponential_cdf <span style="color: #555555">=</span> sp<span style="color: #555555">.</span>lambdify((x, lambd), cdf_exponential)
+exponential_inverse_cdf <span style="color: #555555">=</span> sp<span style="color: #555555">.</span>lambdify((p, lambd), inverse_cdf_exponential)
 
-exponential_pdf = sp.lambdify((x, lambd), pdf_exponential)
-exponential_cdf = sp.lambdify((x, lambd), cdf_exponential)
-exponential_inverse_cdf = sp.lambdify((p, lambd), inverse_cdf_exponential)
+uniform_samples <span style="color: #555555">=</span> np<span style="color: #555555">.</span>random<span style="color: #555555">.</span>uniform(size<span style="color: #555555">=</span><span style="color: #FF6600">5000</span>)
+exponential_samples <span style="color: #555555">=</span> exponential_inverse_cdf(uniform_samples, Lambda)[<span style="color: #FF6600">0</span>]
 
-uniform_samples = np.random.uniform(size=5000)
-exponential_samples = exponential_inverse_cdf(uniform_samples, Lambda)[0]
+ax <span style="color: #555555">=</span> sns<span style="color: #555555">.</span>jointplot(exponential_samples, uniform_samples, marginal_kws<span style="color: #555555">=</span><span style="color: #336666">dict</span>(bins<span style="color: #555555">=</span><span style="color: #FF6600">30</span>, rug<span style="color: #555555">=</span><span style="color: #336666">True</span>),
+             joint_kws<span style="color: #555555">=</span><span style="color: #336666">dict</span>(alpha<span style="color: #555555">=</span><span style="color: #FF6600">0.5</span>, linewidth<span style="color: #555555">=</span><span style="color: #336666">None</span>, marker<span style="color: #555555">=</span><span style="color: #CC3300">&#39;x&#39;</span>))
 
-ax = sns.jointplot(exponential_samples, uniform_samples, marginal_kws=dict(bins=30, rug=True),
-             joint_kws=dict(alpha=0.5, linewidth=None, marker='x'))
-
-spanFrom, spanTo = 0.0, exponential_inverse_cdf(0.9999, Lambda)
-span = np.linspace(spanFrom, spanTo, 100)
-ax.ax_joint.plot(span, exponential_cdf(span, Lambda), color='red', label='CDF')
-ax.fig.set_figwidth(6)
-ax.fig.set_figheight(4)
-ax.set_axis_labels('Mapped to Exponential using inverse CDF', 'Uniformly sampled points', fontsize=10)
-</code></pre>
+spanFrom, spanTo <span style="color: #555555">=</span> <span style="color: #FF6600">0.0</span>, exponential_inverse_cdf(<span style="color: #FF6600">0.9999</span>, Lambda)
+span <span style="color: #555555">=</span> np<span style="color: #555555">.</span>linspace(spanFrom, spanTo, <span style="color: #FF6600">100</span>)
+ax<span style="color: #555555">.</span>ax_joint<span style="color: #555555">.</span>plot(span, exponential_cdf(span, Lambda), color<span style="color: #555555">=</span><span style="color: #CC3300">&#39;red&#39;</span>, label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;CDF&#39;</span>)
+ax<span style="color: #555555">.</span>fig<span style="color: #555555">.</span>set_figwidth(<span style="color: #FF6600">6</span>)
+ax<span style="color: #555555">.</span>fig<span style="color: #555555">.</span>set_figheight(<span style="color: #FF6600">4</span>)
+ax<span style="color: #555555">.</span>set_axis_labels(<span style="color: #CC3300">&#39;Mapped to Exponential using inverse CDF&#39;</span>, <span style="color: #CC3300">&#39;Uniformly sampled points&#39;</span>, fontsize<span style="color: #555555">=</span><span style="color: #FF6600">10</span>)
+</code></pre></div>
 
 <pre><code>&lt;seaborn.axisgrid.JointGrid at 0x7f246350dd50&gt;
 </code></pre>
 
 <p><img src="./index_48_1.png" alt="png" /></p>
-
-<pre><code class="language-python">fig, ax = plt.subplots(1, 1, figsize=(6, 3))
-ax.hist(exponential_samples, bins=31, density=True, label='Sampled using inverse transform')
-spanFrom, spanTo = 0.0, exponential_inverse_cdf(0.9999, Lambda)
-span = np.linspace(spanFrom, spanTo, 100)
-ax.plot(span, exponential_pdf(span, Lambda), color='red', label='Analytical CDF')
-ax.set(xlabel='$x$', ylabel='$p = f(x)$', 
-       title='$X \sim Exp(' + str(Lambda) + &quot;)$&quot;)
-ax.legend(loc='upper right')
-</code></pre>
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>fig, ax <span style="color: #555555">=</span> plt<span style="color: #555555">.</span>subplots(<span style="color: #FF6600">1</span>, <span style="color: #FF6600">1</span>, figsize<span style="color: #555555">=</span>(<span style="color: #FF6600">6</span>, <span style="color: #FF6600">3</span>))
+ax<span style="color: #555555">.</span>hist(exponential_samples, bins<span style="color: #555555">=</span><span style="color: #FF6600">31</span>, density<span style="color: #555555">=</span><span style="color: #336666">True</span>, label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;Sampled using inverse transform&#39;</span>)
+spanFrom, spanTo <span style="color: #555555">=</span> <span style="color: #FF6600">0.0</span>, exponential_inverse_cdf(<span style="color: #FF6600">0.9999</span>, Lambda)
+span <span style="color: #555555">=</span> np<span style="color: #555555">.</span>linspace(spanFrom, spanTo, <span style="color: #FF6600">100</span>)
+ax<span style="color: #555555">.</span>plot(span, exponential_pdf(span, Lambda), color<span style="color: #555555">=</span><span style="color: #CC3300">&#39;red&#39;</span>, label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;Analytical CDF&#39;</span>)
+ax<span style="color: #555555">.</span>set(xlabel<span style="color: #555555">=</span><span style="color: #CC3300">&#39;$x$&#39;</span>, ylabel<span style="color: #555555">=</span><span style="color: #CC3300">&#39;$p = f(x)$&#39;</span>, 
+       title<span style="color: #555555">=</span><span style="color: #CC3300">&#39;$X \sim Exp(&#39;</span> <span style="color: #555555">+</span> <span style="color: #336666">str</span>(Lambda) <span style="color: #555555">+</span> <span style="color: #CC3300">&quot;)$&quot;</span>)
+ax<span style="color: #555555">.</span>legend(loc<span style="color: #555555">=</span><span style="color: #CC3300">&#39;upper right&#39;</span>)
+</code></pre></div>
 
 <pre><code>&lt;matplotlib.legend.Legend at 0x7f24507760d0&gt;
 </code></pre>
@@ -419,52 +399,48 @@ One of the easiest approaches can be the following:
 <p>However, finding polynom inverse analytically is not easy task. So, instead of finding it analytiall we can just solve for the root numerically each time.</p>
 
 <p>For example, let&rsquo;s simulate experimental data:</p>
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>data <span style="color: #555555">=</span> np<span style="color: #555555">.</span>hstack([np<span style="color: #555555">.</span>random<span style="color: #555555">.</span>normal(<span style="color: #FF6600">6.0</span>, <span style="color: #FF6600">1.0</span>, <span style="color: #FF6600">10000</span>), np<span style="color: #555555">.</span>random<span style="color: #555555">.</span>gumbel(<span style="color: #FF6600">1.5</span>, <span style="color: #FF6600">0.5</span>, <span style="color: #FF6600">10000</span>)])
 
-<pre><code class="language-python">data = np.hstack([np.random.normal(6.0, 1.0, 10000), np.random.gumbel(1.5, 0.5, 10000)])
-
-fig, ax = plt.subplots(1, 1, figsize=(6, 3))
-ax.hist(data, bins=100, density=True);
-</code></pre>
+fig, ax <span style="color: #555555">=</span> plt<span style="color: #555555">.</span>subplots(<span style="color: #FF6600">1</span>, <span style="color: #FF6600">1</span>, figsize<span style="color: #555555">=</span>(<span style="color: #FF6600">6</span>, <span style="color: #FF6600">3</span>))
+ax<span style="color: #555555">.</span>hist(data, bins<span style="color: #555555">=</span><span style="color: #FF6600">100</span>, density<span style="color: #555555">=</span><span style="color: #336666">True</span>);
+</code></pre></div>
 
 <p><img src="./index_52_0.png" alt="png" /></p>
 
 <p>Fit polynom to the histogram CDF and define inverse CDF as a function which finds the root:</p>
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span><span style="color: #006699; font-weight: bold">from</span> <span style="color: #00CCFF; font-weight: bold">scipy</span> <span style="color: #006699; font-weight: bold">import</span> interpolate
+<span style="color: #006699; font-weight: bold">import</span> <span style="color: #00CCFF; font-weight: bold">scipy.optimize</span> <span style="color: #006699; font-weight: bold">as</span> <span style="color: #00CCFF; font-weight: bold">scop</span>
 
-<pre><code class="language-python">from scipy import interpolate
-import scipy.optimize as scop
+heights, bins <span style="color: #555555">=</span> np<span style="color: #555555">.</span>histogram(data, bins<span style="color: #555555">=</span><span style="color: #FF6600">100</span>, density<span style="color: #555555">=</span><span style="color: #336666">True</span>)
+histogram_cdf <span style="color: #555555">=</span> np<span style="color: #555555">.</span>hstack([<span style="color: #FF6600">0</span>, np<span style="color: #555555">.</span>cumsum(heights <span style="color: #555555">*</span> np<span style="color: #555555">.</span>diff(bins))])
 
-heights, bins = np.histogram(data, bins=100, density=True)
-histogram_cdf = np.hstack([0, np.cumsum(heights * np.diff(bins))])
+experimental_cdf <span style="color: #555555">=</span> interpolate<span style="color: #555555">.</span>interp1d(bins, histogram_cdf, fill_value<span style="color: #555555">=</span><span style="color: #CC3300">&quot;extrapolate&quot;</span>)
+experimental_inverse_cdf <span style="color: #555555">=</span> <span style="color: #006699; font-weight: bold">lambda</span> p: scop<span style="color: #555555">.</span>fsolve(<span style="color: #006699; font-weight: bold">lambda</span> x : experimental_cdf(x) <span style="color: #555555">-</span> p, <span style="color: #FF6600">0.0</span>)[<span style="color: #FF6600">0</span>]
+</code></pre></div>
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>uniform_samples <span style="color: #555555">=</span> np<span style="color: #555555">.</span>random<span style="color: #555555">.</span>uniform(size<span style="color: #555555">=</span><span style="color: #FF6600">5000</span>)
+experimental_samples <span style="color: #555555">=</span> [experimental_inverse_cdf(u) <span style="color: #006699; font-weight: bold">for</span> u <span style="color: #000000; font-weight: bold">in</span> uniform_samples];
 
-experimental_cdf = interpolate.interp1d(bins, histogram_cdf, fill_value=&quot;extrapolate&quot;)
-experimental_inverse_cdf = lambda p: scop.fsolve(lambda x : experimental_cdf(x) - p, 0.0)[0]
-</code></pre>
+ax <span style="color: #555555">=</span> sns<span style="color: #555555">.</span>jointplot(experimental_samples, uniform_samples, marginal_kws<span style="color: #555555">=</span><span style="color: #336666">dict</span>(bins<span style="color: #555555">=</span><span style="color: #FF6600">30</span>, rug<span style="color: #555555">=</span><span style="color: #336666">True</span>),
+             joint_kws<span style="color: #555555">=</span><span style="color: #336666">dict</span>(alpha<span style="color: #555555">=</span><span style="color: #FF6600">0.5</span>, linewidth<span style="color: #555555">=</span><span style="color: #336666">None</span>, marker<span style="color: #555555">=</span><span style="color: #CC3300">&#39;x&#39;</span>))
 
-<pre><code class="language-python">uniform_samples = np.random.uniform(size=5000)
-experimental_samples = [experimental_inverse_cdf(u) for u in uniform_samples];
-
-ax = sns.jointplot(experimental_samples, uniform_samples, marginal_kws=dict(bins=30, rug=True),
-             joint_kws=dict(alpha=0.5, linewidth=None, marker='x'))
-
-spanFrom, spanTo = 0.0, experimental_inverse_cdf(0.9999)
-span = np.linspace(spanFrom, spanTo, 100)
-ax.ax_joint.plot(span, experimental_cdf(span), color='red', label='CDF')
-ax.fig.set_figwidth(6)
-ax.fig.set_figheight(4)
-ax.set_axis_labels('Mapped to Experimental distribution using inverse CDF', 'Uniformly sampled points', fontsize=10)
-</code></pre>
+spanFrom, spanTo <span style="color: #555555">=</span> <span style="color: #FF6600">0.0</span>, experimental_inverse_cdf(<span style="color: #FF6600">0.9999</span>)
+span <span style="color: #555555">=</span> np<span style="color: #555555">.</span>linspace(spanFrom, spanTo, <span style="color: #FF6600">100</span>)
+ax<span style="color: #555555">.</span>ax_joint<span style="color: #555555">.</span>plot(span, experimental_cdf(span), color<span style="color: #555555">=</span><span style="color: #CC3300">&#39;red&#39;</span>, label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;CDF&#39;</span>)
+ax<span style="color: #555555">.</span>fig<span style="color: #555555">.</span>set_figwidth(<span style="color: #FF6600">6</span>)
+ax<span style="color: #555555">.</span>fig<span style="color: #555555">.</span>set_figheight(<span style="color: #FF6600">4</span>)
+ax<span style="color: #555555">.</span>set_axis_labels(<span style="color: #CC3300">&#39;Mapped to Experimental distribution using inverse CDF&#39;</span>, <span style="color: #CC3300">&#39;Uniformly sampled points&#39;</span>, fontsize<span style="color: #555555">=</span><span style="color: #FF6600">10</span>)
+</code></pre></div>
 
 <pre><code>&lt;seaborn.axisgrid.JointGrid at 0x7f24508bb950&gt;
 </code></pre>
 
 <p><img src="./index_55_2.png" alt="png" /></p>
-
-<pre><code class="language-python">fig, ax = plt.subplots(1, 1, figsize=(6, 3))
-ax.hist(data, bins=31, density=True, label='True data', alpha=0.5)
-ax.hist(experimental_samples, bins=31, density=True, label='Sampled using inverse transform', alpha=0.5)
-ax.set(xlabel='$x$', ylabel='$p = f(x)$', title='Experimental data vs Sampled from experimental distribution')
-ax.legend(loc='upper right')
-</code></pre>
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>fig, ax <span style="color: #555555">=</span> plt<span style="color: #555555">.</span>subplots(<span style="color: #FF6600">1</span>, <span style="color: #FF6600">1</span>, figsize<span style="color: #555555">=</span>(<span style="color: #FF6600">6</span>, <span style="color: #FF6600">3</span>))
+ax<span style="color: #555555">.</span>hist(data, bins<span style="color: #555555">=</span><span style="color: #FF6600">31</span>, density<span style="color: #555555">=</span><span style="color: #336666">True</span>, label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;True data&#39;</span>, alpha<span style="color: #555555">=</span><span style="color: #FF6600">0.5</span>)
+ax<span style="color: #555555">.</span>hist(experimental_samples, bins<span style="color: #555555">=</span><span style="color: #FF6600">31</span>, density<span style="color: #555555">=</span><span style="color: #336666">True</span>, label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;Sampled using inverse transform&#39;</span>, alpha<span style="color: #555555">=</span><span style="color: #FF6600">0.5</span>)
+ax<span style="color: #555555">.</span>set(xlabel<span style="color: #555555">=</span><span style="color: #CC3300">&#39;$x$&#39;</span>, ylabel<span style="color: #555555">=</span><span style="color: #CC3300">&#39;$p = f(x)$&#39;</span>, title<span style="color: #555555">=</span><span style="color: #CC3300">&#39;Experimental data vs Sampled from experimental distribution&#39;</span>)
+ax<span style="color: #555555">.</span>legend(loc<span style="color: #555555">=</span><span style="color: #CC3300">&#39;upper right&#39;</span>)
+</code></pre></div>
 
 <pre><code>&lt;matplotlib.legend.Legend at 0x7f244fb17a10&gt;
 </code></pre>
@@ -472,34 +448,32 @@ ax.legend(loc='upper right')
 <p><img src="./index_56_1.png" alt="png" /></p>
 
 <p>It works, however, its not efficient, because to find inverse CDF we have to numerically solve equation $F(x) - p = 0$. To overcome this computational overhead it is much better to just swap $x$ and $y$ on interpolation step. By doing so we directly obtain required inverse CDF for newly generated dataset:</p>
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>data <span style="color: #555555">=</span> np<span style="color: #555555">.</span>hstack([np<span style="color: #555555">.</span>random<span style="color: #555555">.</span>normal(<span style="color: #FF6600">4.0</span>, <span style="color: #FF6600">2.0</span>, <span style="color: #FF6600">10000</span>), 
+                  np<span style="color: #555555">.</span>random<span style="color: #555555">.</span>gumbel(<span style="color: #FF6600">0.5</span>, <span style="color: #FF6600">0.5</span>, <span style="color: #FF6600">10000</span>), 
+                  np<span style="color: #555555">.</span>random<span style="color: #555555">.</span>gumbel(<span style="color: #FF6600">7.5</span>, <span style="color: #FF6600">1.0</span>, <span style="color: #FF6600">10000</span>),
+                  np<span style="color: #555555">.</span>random<span style="color: #555555">.</span>normal(<span style="color: #FF6600">13.5</span>, <span style="color: #FF6600">1.0</span>, <span style="color: #FF6600">10000</span>)])
 
-<pre><code class="language-python">data = np.hstack([np.random.normal(4.0, 2.0, 10000), 
-                  np.random.gumbel(0.5, 0.5, 10000), 
-                  np.random.gumbel(7.5, 1.0, 10000),
-                  np.random.normal(13.5, 1.0, 10000)])
+heights, bins <span style="color: #555555">=</span> np<span style="color: #555555">.</span>histogram(data, bins<span style="color: #555555">=</span><span style="color: #FF6600">100</span>, density<span style="color: #555555">=</span><span style="color: #336666">True</span>)
+histogram_cdf <span style="color: #555555">=</span> np<span style="color: #555555">.</span>hstack([<span style="color: #FF6600">0</span>, np<span style="color: #555555">.</span>cumsum(heights <span style="color: #555555">*</span> np<span style="color: #555555">.</span>diff(bins))])
 
-heights, bins = np.histogram(data, bins=100, density=True)
-histogram_cdf = np.hstack([0, np.cumsum(heights * np.diff(bins))])
-
-experimental_cdf = interpolate.interp1d(bins, histogram_cdf, fill_value=&quot;extrapolate&quot;)
-experimental_inverse_cdf = interpolate.interp1d(histogram_cdf, bins, fill_value=&quot;extrapolate&quot;)
-</code></pre>
+experimental_cdf <span style="color: #555555">=</span> interpolate<span style="color: #555555">.</span>interp1d(bins, histogram_cdf, fill_value<span style="color: #555555">=</span><span style="color: #CC3300">&quot;extrapolate&quot;</span>)
+experimental_inverse_cdf <span style="color: #555555">=</span> interpolate<span style="color: #555555">.</span>interp1d(histogram_cdf, bins, fill_value<span style="color: #555555">=</span><span style="color: #CC3300">&quot;extrapolate&quot;</span>)
+</code></pre></div>
 
 <p>And we can use this function directly:</p>
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>uniform_samples <span style="color: #555555">=</span> np<span style="color: #555555">.</span>random<span style="color: #555555">.</span>uniform(size<span style="color: #555555">=</span><span style="color: #FF6600">5000</span>)
+experimental_samples <span style="color: #555555">=</span> [experimental_inverse_cdf(u) <span style="color: #006699; font-weight: bold">for</span> u <span style="color: #000000; font-weight: bold">in</span> uniform_samples]
 
-<pre><code class="language-python">uniform_samples = np.random.uniform(size=5000)
-experimental_samples = [experimental_inverse_cdf(u) for u in uniform_samples]
+ax <span style="color: #555555">=</span> sns<span style="color: #555555">.</span>jointplot(experimental_samples, uniform_samples, marginal_kws<span style="color: #555555">=</span><span style="color: #336666">dict</span>(bins<span style="color: #555555">=</span><span style="color: #FF6600">30</span>, rug<span style="color: #555555">=</span><span style="color: #336666">True</span>),
+             joint_kws<span style="color: #555555">=</span><span style="color: #336666">dict</span>(alpha<span style="color: #555555">=</span><span style="color: #FF6600">0.5</span>, linewidth<span style="color: #555555">=</span><span style="color: #336666">None</span>, marker<span style="color: #555555">=</span><span style="color: #CC3300">&#39;x&#39;</span>))
 
-ax = sns.jointplot(experimental_samples, uniform_samples, marginal_kws=dict(bins=30, rug=True),
-             joint_kws=dict(alpha=0.5, linewidth=None, marker='x'))
-
-spanFrom, spanTo = 0.0, experimental_inverse_cdf(0.9999)
-span = np.linspace(spanFrom, spanTo, 100)
-ax.ax_joint.plot(span, experimental_cdf(span), color='red', label='CDF')
-ax.fig.set_figwidth(6)
-ax.fig.set_figheight(4)
-ax.set_axis_labels('Mapped to Experimental distribution using inverse CDF', 'Uniformly sampled points', fontsize=10)
-</code></pre>
+spanFrom, spanTo <span style="color: #555555">=</span> <span style="color: #FF6600">0.0</span>, experimental_inverse_cdf(<span style="color: #FF6600">0.9999</span>)
+span <span style="color: #555555">=</span> np<span style="color: #555555">.</span>linspace(spanFrom, spanTo, <span style="color: #FF6600">100</span>)
+ax<span style="color: #555555">.</span>ax_joint<span style="color: #555555">.</span>plot(span, experimental_cdf(span), color<span style="color: #555555">=</span><span style="color: #CC3300">&#39;red&#39;</span>, label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;CDF&#39;</span>)
+ax<span style="color: #555555">.</span>fig<span style="color: #555555">.</span>set_figwidth(<span style="color: #FF6600">6</span>)
+ax<span style="color: #555555">.</span>fig<span style="color: #555555">.</span>set_figheight(<span style="color: #FF6600">4</span>)
+ax<span style="color: #555555">.</span>set_axis_labels(<span style="color: #CC3300">&#39;Mapped to Experimental distribution using inverse CDF&#39;</span>, <span style="color: #CC3300">&#39;Uniformly sampled points&#39;</span>, fontsize<span style="color: #555555">=</span><span style="color: #FF6600">10</span>)
+</code></pre></div>
 
 <pre><code>&lt;seaborn.axisgrid.JointGrid at 0x7f244fa194d0&gt;
 </code></pre>
@@ -507,13 +481,12 @@ ax.set_axis_labels('Mapped to Experimental distribution using inverse CDF', 'Uni
 <p><img src="./index_60_1.png" alt="png" /></p>
 
 <p>Compare with experimental distribution:</p>
-
-<pre><code class="language-python">fig, ax = plt.subplots(1, 1, figsize=(6, 3))
-ax.hist(data, bins=31, density=True, label='True data', alpha=0.5)
-ax.hist(experimental_samples, bins=31, density=True, label='Sampled using inverse transform', alpha=0.5)
-ax.set(xlabel='$x$', ylabel='$p = f(x)$', title='Experimental data vs Sampled from experimental distribution')
-ax.legend(loc='upper right')
-</code></pre>
+<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>fig, ax <span style="color: #555555">=</span> plt<span style="color: #555555">.</span>subplots(<span style="color: #FF6600">1</span>, <span style="color: #FF6600">1</span>, figsize<span style="color: #555555">=</span>(<span style="color: #FF6600">6</span>, <span style="color: #FF6600">3</span>))
+ax<span style="color: #555555">.</span>hist(data, bins<span style="color: #555555">=</span><span style="color: #FF6600">31</span>, density<span style="color: #555555">=</span><span style="color: #336666">True</span>, label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;True data&#39;</span>, alpha<span style="color: #555555">=</span><span style="color: #FF6600">0.5</span>)
+ax<span style="color: #555555">.</span>hist(experimental_samples, bins<span style="color: #555555">=</span><span style="color: #FF6600">31</span>, density<span style="color: #555555">=</span><span style="color: #336666">True</span>, label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;Sampled using inverse transform&#39;</span>, alpha<span style="color: #555555">=</span><span style="color: #FF6600">0.5</span>)
+ax<span style="color: #555555">.</span>set(xlabel<span style="color: #555555">=</span><span style="color: #CC3300">&#39;$x$&#39;</span>, ylabel<span style="color: #555555">=</span><span style="color: #CC3300">&#39;$p = f(x)$&#39;</span>, title<span style="color: #555555">=</span><span style="color: #CC3300">&#39;Experimental data vs Sampled from experimental distribution&#39;</span>)
+ax<span style="color: #555555">.</span>legend(loc<span style="color: #555555">=</span><span style="color: #CC3300">&#39;upper right&#39;</span>)
+</code></pre></div>
 
 <pre><code>&lt;matplotlib.legend.Legend at 0x7f244f3d53d0&gt;
 </code></pre>
@@ -539,7 +512,7 @@ In the next posts I am planning to show some examples on rejection, Metropolis H
 
         		<footer>
 			<span>
-			&copy; <time datetime="2020-02-09 16:59:48.459668574 &#43;0300 MSK m=&#43;0.169459231">2020</time> . Made with <a href='https://gohugo.io'>Hugo</a> using the <a href='https://github.com/EmielH/tale-hugo/'>Tale</a> theme.
+			&copy; <time datetime="2020-02-09 17:13:44.480004526 &#43;0300 MSK m=&#43;7.808242052">2020</time> . Made with <a href='https://gohugo.io'>Hugo</a> using the <a href='https://github.com/EmielH/tale-hugo/'>Tale</a> theme.
 			</span>
 		</footer>
 
