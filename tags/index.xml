@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tags on Aleksandr Mikoff&#39;s blog</title>
+    <link>https://mikoff.github.io/tags/</link>
+    <description>Recent content in Tags on Aleksandr Mikoff&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 09 Feb 2020 14:56:13 +0300</lastBuildDate>
+    
+	<atom:link href="https://mikoff.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>sampling</title>
+      <link>https://mikoff.github.io/tags/sampling/</link>
+      <pubDate>Sun, 09 Feb 2020 14:56:13 +0300</pubDate>
+      
+      <guid>https://mikoff.github.io/tags/sampling/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>statistics</title>
+      <link>https://mikoff.github.io/tags/statistics/</link>
+      <pubDate>Sun, 09 Feb 2020 14:56:13 +0300</pubDate>
+      
+      <guid>https://mikoff.github.io/tags/statistics/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>me</title>
+      <link>https://mikoff.github.io/tags/me/</link>
+      <pubDate>Sun, 09 Feb 2020 13:40:59 +0300</pubDate>
+      
+      <guid>https://mikoff.github.io/tags/me/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>personal</title>
+      <link>https://mikoff.github.io/tags/personal/</link>
+      <pubDate>Sun, 09 Feb 2020 13:40:59 +0300</pubDate>
+      
+      <guid>https://mikoff.github.io/tags/personal/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

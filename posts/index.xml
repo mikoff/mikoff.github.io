@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Aleksandr Mikoff&#39;s blog</title>
+    <link>https://mikoff.github.io/posts/</link>
+    <description>Recent content in Posts on Aleksandr Mikoff&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 09 Feb 2020 14:56:13 +0300</lastBuildDate>
+    
+	<atom:link href="https://mikoff.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Inverse transform sampling</title>
+      <link>https://mikoff.github.io/posts/inverse-transform-sampling.md/</link>
+      <pubDate>Sun, 09 Feb 2020 14:56:13 +0300</pubDate>
+      
+      <guid>https://mikoff.github.io/posts/inverse-transform-sampling.md/</guid>
+      <description>Probability density and cumulative distribution functions Probability denisity function $f(x)$ is a function, which allows us to evaluate the probability that the sample, drawn from the distribution, will be equal to the value $X$. Also we can use PDF to calculate the probability that the randomly drawn sample from distribution will be in certain range, for example, $a \leq X \leq b$. This probability equals to the area under the PDF curve on the given interval and can be calculated by integration: $$ P(a \leq X \leq b) = \int _a^b f(x) dx $$</description>
+    </item>
+    
+    <item>
+      <title>Documenting the experience</title>
+      <link>https://mikoff.github.io/posts/documenting-the-experience/</link>
+      <pubDate>Sun, 09 Feb 2020 12:53:51 +0300</pubDate>
+      
+      <guid>https://mikoff.github.io/posts/documenting-the-experience/</guid>
+      <description>Hi there! For every engineer and developer the continious self-studying is a must. Everyday we read, try to solve problems and clarify the concepts, write the code and visualise the things, which help us to get an insights.
+I am interested in Navigation and Positioning, Statistics, Autonomous vehicles and Robotics. These topics are huge, and what is more important, they are about future of humanity.
+To summarize all the things, which I am doing and share the ideas I decided to post about it.</description>
+    </item>
+    
+  </channel>
+</rss>
