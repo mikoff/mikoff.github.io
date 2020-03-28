@@ -17,7 +17,7 @@
       <pubDate>Sun, 09 Feb 2020 14:56:13 +0300</pubDate>
       
       <guid>https://mikoff.github.io/posts/inverse-transform-sampling.md/</guid>
-      <description>Probability density and cumulative distribution functions Probability denisity function $f(x)$ is a function, which allows us to evaluate the probability that the sample, drawn from the distribution, will be equal to the value $X$. Also we can use PDF to calculate the probability that the randomly drawn sample from distribution will be in certain range, for example, $a \leq X \leq b$. This probability equals to the area under the PDF curve on the given interval and can be calculated by integration: $$ P(a \leq X \leq b) = \int _a^b f(x) dx $$</description>
+      <description>Probability density and cumulative distribution functions Probability density function $f(x)$ is a function, which allows us to evaluate the probability that the sample, drawn from the distribution, will be equal to the value $X$. Also we can use PDF to calculate the probability that the randomly drawn sample from distribution will be in certain range, for example, $a \leq X \leq b$. This probability equals to the area under the PDF curve on the given interval and can be calculated by integration: $$ P(a \leq X \leq b) = \int _a^b f(x) dx $$</description>
     </item>
     
     <item>
