@@ -17,8 +17,8 @@
       <pubDate>Tue, 31 Mar 2020 19:59:26 +0300</pubDate>
       
       <guid>https://mikoff.github.io/posts/particle-filter.md/</guid>
-      <description>Particle filter In this post I would like to show the basic implementation of the Particle filter for robot localization using distance measurements to the known anchors, or landmarks. So why particle filter is so widely used? It&amp;rsquo;s widespread use lies in its versatile and universalism. It is able to:
- Work with nonlinearities. Non-gaussian distributions. Easily fuse various information sources. Simulate the processes.  The whole implementation takes less then 100 lines of Python code and shown in the end of the following post.</description>
+      <description>Particle filter In this post I would like to show the basic implementation of the Particle filter for robot localization using distance measurements to the known anchors, or landmarks. So why particle filter is so widely used? It&amp;rsquo;s widespread application lies in its versatile nature and universalism. The filter is able to:
+ Work with nonlinearities. Handle non-gaussian distributions. Easily fuse various information sources. Simulate the processes.  My sample implementation takes less then 100 lines of Python code and can be found here.</description>
     </item>
     
   </channel>
