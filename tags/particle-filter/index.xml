@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Particle filter on Aleksandr Mikoff&#39;s blog</title>
+    <link>https://mikoff.github.io/tags/particle-filter/</link>
+    <description>Recent content in Particle filter on Aleksandr Mikoff&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 31 Mar 2020 19:59:26 +0300</lastBuildDate>
+    
+	<atom:link href="https://mikoff.github.io/tags/particle-filter/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Particle Filter: localizing the robot</title>
+      <link>https://mikoff.github.io/posts/particle-filter.md/</link>
+      <pubDate>Tue, 31 Mar 2020 19:59:26 +0300</pubDate>
+      
+      <guid>https://mikoff.github.io/posts/particle-filter.md/</guid>
+      <description>Particle filter In this post I would like to show the basic implementation of the Particle filter for robot localization using distance measurements to the known anchors, or landmarks. So why particle filter is so widely used? It&amp;rsquo;s widespread use lies in its versatile and universalism. It is able to:
+ Work with nonlinearities. Non-gaussian distributions. Easily fuse various information sources. Simulate the processes.  The whole implementation takes less then 100 lines of Python code and shown in the end of the following post.</description>
+    </item>
+    
+  </channel>
+</rss>
