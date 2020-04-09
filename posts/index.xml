@@ -6,10 +6,22 @@
     <description>Recent content in Posts on Aleksandr Mikoff&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 31 Mar 2020 19:59:26 +0300</lastBuildDate>
+    <lastBuildDate>Mon, 06 Apr 2020 21:00:00 +0300</lastBuildDate>
     
 	<atom:link href="https://mikoff.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>EKF SLAM</title>
+      <link>https://mikoff.github.io/posts/ekf-slam.md/</link>
+      <pubDate>Mon, 06 Apr 2020 21:00:00 +0300</pubDate>
+      
+      <guid>https://mikoff.github.io/posts/ekf-slam.md/</guid>
+      <description>Introduction  One of the most fundamental problems in robotics is the simultaneous localization and mapping (SLAM) problem.
+It is more difficult than localization in that the map is unknown and has to be estimated along the way. It is more difficult than mapping with known poses, since the poses are unknown and have to be estimated along the way.
+&amp;ndash; S. Thrun
+ In the following post I would like to discuss the EKF SLAM and highlight the important aspects of its implementation and convergence.</description>
+    </item>
     
     <item>
       <title>Particle Filter: localizing the robot</title>

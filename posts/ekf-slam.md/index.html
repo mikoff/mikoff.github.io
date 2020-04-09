@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Aleksandr Mikoff">
+    
+    
+
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="EKF SLAM"/>
+<meta name="twitter:description" content="Introduction  One of the most fundamental problems in robotics is the simultaneous localization and mapping (SLAM) problem.
+It is more difficult than localization in that the map is unknown and has to be estimated along the way. It is more difficult than mapping with known poses, since the poses are unknown and have to be estimated along the way.
+&ndash; S. Thrun
+ In the following post I would like to discuss the EKF SLAM and highlight the important aspects of its implementation and convergence."/>
+
+    <meta property="og:title" content="EKF SLAM" />
+<meta property="og:description" content="Introduction  One of the most fundamental problems in robotics is the simultaneous localization and mapping (SLAM) problem.
+It is more difficult than localization in that the map is unknown and has to be estimated along the way. It is more difficult than mapping with known poses, since the poses are unknown and have to be estimated along the way.
+&ndash; S. Thrun
+ In the following post I would like to discuss the EKF SLAM and highlight the important aspects of its implementation and convergence." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://mikoff.github.io/posts/ekf-slam.md/" />
+<meta property="article:published_time" content="2020-04-06T21:00:00+03:00" />
+<meta property="article:modified_time" content="2020-04-06T21:00:00+03:00" />
+
+
+    
+      <base href="https://mikoff.github.io/posts/ekf-slam.md/">
+    
+    <title>
+  EKF SLAM · Aleksandr Mikoff&#39;s blog
+</title>
+
+    
+      <link rel="canonical" href="https://mikoff.github.io/posts/ekf-slam.md/">
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+
+    
+      
+      
+      <link rel="stylesheet" href="https://mikoff.github.io/css/coder.min.a4f332213a21ce8eb521670c614470c58923aaaf385e2a73982c31dd7642decb.css" integrity="sha256-pPMyITohzo61IWcMYURwxYkjqq84XipzmCwx3XZC3ss=" crossorigin="anonymous" media="screen" />
+    
+
+    
+
+    
+      
+        
+        
+        <link rel="stylesheet" href="https://mikoff.github.io/css/coder-dark.min.83a2010dac9f59f943b3004cd6c4f230507ad036da635d3621401d42ec4e2835.css" integrity="sha256-g6IBDayfWflDswBM1sTyMFB60DbaY102IUAdQuxOKDU=" crossorigin="anonymous" media="screen" />
+      
+    
+
+    
+
+    
+
+    
+
+    <link rel="icon" type="image/png" href="https://mikoff.github.io/images/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://mikoff.github.io/images/favicon-16x16.png" sizes="16x16">
+
+    <meta name="generator" content="Hugo 0.57.2" />
+  </head>
+
+  
+  
+    
+  
+  <body class="colorscheme-auto">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="https://mikoff.github.io/">
+      Aleksandr Mikoff&#39;s blog
+    </a>
+    
+    <input type="checkbox" id="menu-toggle" />
+    <label class="menu-button float-right" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <ul class="navigation-list">
+      
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://mikoff.github.io/about/">About</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://mikoff.github.io/posts/">Posts</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://mikoff.github.io/tags">Tags</a>
+          </li>
+        
+      
+      
+    </ul>
+    
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container post">
+    <article>
+      <header>
+        <div class="post-title">
+          <h1 class="title">EKF SLAM</h1>
+        </div>
+        <div class="post-meta">
+          <div class="date">
+            <span class="posted-on">
+              <i class="fas fa-calendar"></i>
+              <time datetime='2020-04-06T21:00:00&#43;03:00'>
+                April 6, 2020
+              </time>
+            </span>
+            <span class="reading-time">
+              <i class="fas fa-clock"></i>
+              7-minute read
+            </span>
+          </div>
+          
+          <div class="tags">
+  <i class="fas fa-tag"></i>
+    <a href="https://mikoff.github.io/tags/kalman-filter/">Kalman Filter</a>
+      <span class="separator">•</span>
+    <a href="https://mikoff.github.io/tags/ekf/">EKF</a>
+      <span class="separator">•</span>
+    <a href="https://mikoff.github.io/tags/slam/">SLAM</a></div>
+
+        </div>
+      </header>
+
+      <div>
+        
+        
+
+<h1 id="introduction">Introduction</h1>
+
+<blockquote>
+<p>One of the most fundamental problems in robotics is the simultaneous localization and mapping (SLAM) problem.</p>
+
+<p>It is more difficult than localization
+in that the map is unknown and has to be estimated along the way. It is more
+difficult than mapping with known poses, since the poses are unknown and
+have to be estimated along the way.</p>
+
+<p>&ndash; <cite><a href="http://www.probabilistic-robotics.org/">S. Thrun</a></cite></p>
+</blockquote>
+
+<p>In the following post I would like to discuss the EKF SLAM and highlight
+the important aspects of its implementation and convergence. Particularly, I would like to demonstrate how the gyroscope bias causes the estimator divergence and how this can be fixed by filter state expansion. To illustrate the concepts I provide the code for visualization and EKF SLAM process.</p>
+
+<p>EKF SLAM allows to solve <em>online</em> SLAM problem: estimation of the posterior over the momentary pose along with the map:</p>
+
+<p>$$p(x_t, m | z_{1:t}, u_{1:t}).$$</p>
+
+<p>As usual, all the code is available <a href="https://github.com/mikoff/blog_projects/tree/master/ekf_slam">here</a>. The exemplary animation built with the code and random robot controller:</p>
+
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe src="//www.youtube.com/embed/ljf6kUy7hqY?autoplay=1" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
+</div>
+
+
+<h1 id="problem-formulation">Problem formulation</h1>
+
+<p>Let&rsquo;s pretend that we have a robot which state is represented by its position $(x, y)$ and orientation $\theta$. These values fully determine robot position and orientation in 2D and therefore named robot <em>pose</em>. The controller of the robot reports its forward speed and angular velocity. In addition to that, it can measure the distances and bearings to the landmarks. The robot can distinguish the measurements to one landmark from another, however, it does not know the positions $(m_x, m_y$) of the landmarks. Our task is to find the pose of the robot and the positions of the landmarks w.r.t. local coordinate frame.</p>
+
+<p>Fortunately, this task can be resolved using Kalman filter under the following assumptions:</p>
+
+<ul>
+<li>The robot motion and perception noises are Gaissian distributed.</li>
+<li>The knowledge of robot dynamic is known, and the relations between measurements $z$, pose $x_t$ and map $m$ are also known and all of them can be expressed in terms of each other. The last statement is very important &ndash; it makes the system <em>observable</em> and allows to tie all states together in covariance matrix.</li>
+</ul>
+
+<p>As usual, the Kalman filtering process consints of two repetitive steps:</p>
+
+<ol>
+<li><p><strong>Prediction.</strong></p>
+
+<p>The filter mean and covariance are being propogated according to the robot motion model:
+$$\bar{\mu} = f(\mu_{t-1}, u_t)$$
+$$\bar{\Sigma} = F_t \Sigma_{t-1} F_t^T + G Q G^T,$$
+where $f$ is the the state transition function, $F$ &ndash; is the jacobian of the state transition function $f$ w.r.t. filter state, that, in our case consists of robot pose $(x, y, \theta, \omega_b)$ and $N$ landmark positions $(m_x^j, m_y^j)$, $G$ &ndash; is the jacobian of the state transition function w.r.t control $u$. For our robot, $u$ is equal to $(v, \omega)$, where $v$ is the speed, reported by robot odometry and $\omega$ is its angular velocity, reported by robot gyroscope. $Q$ is the diagonal matrix of the process noise,typically it is equal to $diag ( [\sigma_{v}^2, \sigma_{g}^2])$.</p>
+
+<p>The errors in velocity are assumed to be distributed according to $N(0, \sigma_v)$. The errors in angular velocity are distributed according to $N(\mu_g, \sigma_g)$ meaning that the gyroscope measurements are biased. This gyroscope <em>bias</em> leads to continously growing error in orientation and, as consequence, in position. To encount for this constant bias I propose to add new variable into the filter state, this variable represents gyroscope bias $\omega_b$. Now, state transition functions have the following forms:</p>
+
+<p>$$ f(\mu_{t-1}, u_t) =
+\begin{bmatrix}
+    x_{t-1} + \Delta{t} v_t \cos{\left(\theta_{t-1} \right)} \newline
+    y_{t-1} + \Delta{t} v_t \sin{\left(\theta_{t-1} \right)} \newline
+    \theta_{t-1} + \Delta{t} (\omega_t - \omega_b)\newline
+    \omega_b \newline
+    m_x^1 \newline
+    m_y^1 \newline
+    \vdots \newline
+    m_x^N \newline
+    m_y^N
+\end{bmatrix}
+$$</p></li>
+
+<li><p><strong>Correction.</strong></p>
+
+<p>When new distance and bearing measurements are available we have to calculate the &ldquo;expected&rdquo; measurement given the current state and compare this measurements with the obtained one. For distance and bearing measurement to landmark $j$ this expected measurement can be calculated as:
+$$h(\bar{\mathbf{x}}_k) = \hat{z}_t^j =
+\begin{bmatrix}
+    \sqrt{(m_x^j - \bar{x})^2 + (m_y^j - \bar{y})^2} \newline
+    atan2(m_y^j - \bar{y}, m_x^j - \bar{x}) - \bar{\theta}
+\end{bmatrix}
+$$
+Then the observation matrix $H$ should be evaluated as Jacobian of $h(\bar{\mathbf{x}}_k)$ w.r.t. state and standard correction, or update equations for EKF can be employed.</p></li>
+</ol>
+
+<p>Now, as robot moves the uncertainty of our pose grows until we get some measurements. The measurements, however, improve not only the robot pose estimate, but also the uncertainty of landmarks previously seen by the robot. This dependence between poses and landmark positions is reflected in off-diagonal elements of the covariance matrix $\Sigma$.</p>
+
+<h1 id="implementation">Implementation</h1>
+
+<p>To see EKF SLAM in action I wrote its implementation in Python. The implementation consists of the following files:</p>
+
+<ul>
+<li><em>robot.py</em> &ndash; the robot simulator. The robot is able to move along the map and measure the distances and bearings to the landmarks which are within its sensing range (30 meters).</li>
+<li><em>ekf_slam.py</em> &ndash; the implementation of EKF SLAM algorithm, as presented in [<a href="http://www.probabilistic-robotics.org/">1</a>] with one extra state: gyroscope bias.</li>
+<li><em>animation.py</em> &ndash; the animation code to visualize the robot motion, its measurements and EKF SLAM state estimates.</li>
+</ul>
+
+<h1 id="illustration">Illustration</h1>
+
+<p>Let`s look at the EKF SLAM performance when robot sensors have the following error characteristics:</p>
+
+<ul>
+<li>Velocity measurement noise $\sigma_v = 0.1 \frac{m}{s^2}$, meaning that 99.7% of velocity measurements, or controls, lie within $v_{true} \pm 0.3 m$ range.</li>
+<li>Gyroscope measurement noise $\sigma_g = 0.5 \frac{deg}{s}$. The <em>gyroscope bias</em> is constant during the robot operations and randomly generated on a robot startup.</li>
+<li>Distance measurement noise $\sigma_{d} = 1.0 m$.</li>
+<li>Bearing measurement noise $\sigma_{b} = 5 deg$.</li>
+</ul>
+
+<p>The measurement accuracy is quite high: we know, that almost all distance measurements are accurate up to 3 meters, and bearing measurements up to 15 degrees (see 3 sigma rule).</p>
+
+<p>At first, let`s look at EKF SLAM performance when gyroscope bias is not included in its state and therefore not estimated. In the following animation the robot moves along the rectangular path while measuring the distances and bearings.
+The true landmark positions are marked with black crosses, estimated positions - with magenta circles, the landmarks position uncertainty is shown by uncertainty ellipses, which diameters are proportional to its uncertainty. The measurements are depicted with dashed lines and the points on the map indicate the recent measurements to each landmark. The uncertainty in robot position is marked with magenta ellipse around robot position estimate.</p>
+
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe src="//www.youtube.com/embed/2tpNup-rKto" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
+</div>
+
+
+<p>When the robot observes the landmarks its own pose is being corrected. The interesting thing happens around 1100 frame: the robot detects the landmark that he saw in the beginning of mapping process. This knowledge, thanks to the correlation from the covariance matrix, allows to immidiately correct not only the pose of the robot, but also the position estimates of all other landmarks. Take a look at the covariance matrix on the right part of the plot: after some time all the states in the covariance matrix become correlated, meaning that all the states can be observed.</p>
+
+<p>Now, assume, that the robot equipped with much worse sensors, which noises levels 3 times higher than before, particularly $\sigma_{d} = 3.0 m$ and $\sigma_{b} = 15 deg$. The results are much worse: the robot is simply unable to correctly estimate its own position and the positions of the landmarks, because the uncertainty both of them is too high (<em>Note</em>: of course, we are able to &ldquo;cheat&rdquo; there and set the measurement noise of measurements lower than it tend to be in real life, but as long as it is only an example, I leave everything as iss).</p>
+
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe src="//www.youtube.com/embed/OeGVxDxcNq8" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
+</div>
+
+
+<p>Now, let`s add the gyroscope bias into the filter state and allow the filter to estimate it, applying the equations, mentioned earlier. The results are even better than in the first case, when robot measurements had low noises. The filter was able to estimate gyroscope bias and, consequently, exclude this systematic error. The robot pose now drifts much slower than in two first cases, identifying the importance of correct system modelling and taking into account significant error sources. This result is especially important for SLAM with unknown landmark correspondences: the measurements clusters can be separated only if robot path drift is slow compared to the error growth rate.</p>
+
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe src="//www.youtube.com/embed/1q3GJcFnI0o" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
+</div>
+
+
+<p>To run the animations and the EKF SLAM process locally simply execute <em>run.py</em> <a href="https://github.com/mikoff/blog_projects/tree/ekf_slam/run.py">script</a>.</p>
+
+<h1 id="afterword">Afterword</h1>
+
+<p>EKF SLAM is one of the earliest algorithm that allowed to solve SLAM problem quite efficiently. The simplicity of its implementation and intuitive transparency allows to grasp in the main concepts of SLAM. The limitations of EKF SLAM is well known and discussed in the literature. Therefore, in the next articles I plan to cover other SLAM algorithms that are intended for online and offline data processing.</p>
+
+      </div>
+
+
+      <footer>
+        
+
+
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "mikoff-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        
+        
+      </footer>
+    </article>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script type="text/javascript" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"></script>
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [
+          ['$', '$'], ['\\(', '\\)']
+        ],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  </section>
+
+      </div>
+
+      <footer class="footer">
+  <section class="container">
+    
+    
+      
+        © 2020
+      
+       Aleksandr Mikoff 
+    
+    
+       · 
+      Powered by <a href="https://gohugo.io/">Hugo</a> & <a href="https://github.com/luizdepra/hugo-coder/">Coder</a>.
+    
+    
+  </section>
+</footer>
+
+    </main>
+
+    
+
+    
+
+  </body>
+
+</html>
