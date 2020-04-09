@@ -6,7 +6,7 @@
     <description>Recent content in Kalman Filter on Aleksandr Mikoff&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 06 Apr 2020 21:00:00 +0300</lastBuildDate>
+    <lastBuildDate>Thu, 09 Apr 2020 21:00:00 +0300</lastBuildDate>
     
 	<atom:link href="https://mikoff.github.io/tags/kalman-filter/index.xml" rel="self" type="application/rss+xml" />
     
@@ -14,7 +14,7 @@
     <item>
       <title>EKF SLAM</title>
       <link>https://mikoff.github.io/posts/ekf-slam.md/</link>
-      <pubDate>Mon, 06 Apr 2020 21:00:00 +0300</pubDate>
+      <pubDate>Thu, 09 Apr 2020 21:00:00 +0300</pubDate>
       
       <guid>https://mikoff.github.io/posts/ekf-slam.md/</guid>
       <description>Introduction  One of the most fundamental problems in robotics is the simultaneous localization and mapping (SLAM) problem.
