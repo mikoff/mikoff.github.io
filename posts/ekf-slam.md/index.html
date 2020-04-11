@@ -247,7 +247,7 @@ Then the observation matrix $H$ should be evaluated as Jacobian of $h(\bar{\math
 <p>The measurement accuracy is quite high: we know, that almost all distance measurements are accurate up to 3 meters, and bearing measurements up to 15 degrees (see 3 sigma rule).</p>
 
 <p>At first, let`s look at EKF SLAM performance when gyroscope bias is not included in its state and therefore not estimated. In the following animation the robot moves along the rectangular path while measuring the distances and bearings.
-The true landmark positions are marked with black crosses, estimated positions - with magenta circles, the landmarks position uncertainty is shown by uncertainty ellipses, which diameters are proportional to its uncertainty. The measurements are depicted with dashed lines and the points on the map indicate the recent measurements to each landmark. The uncertainty in robot position is marked with magenta ellipse around robot position estimate.</p>
+The true landmark positions are marked with black crosses, estimated positions - with magenta markers, the landmarks position uncertainty is shown by confidence ellipses, which diameters are proportional to its uncertainty. The measurements are depicted with dashed lines and the points on the map indicate the recent measurements to each landmark. The uncertainty in robot position is marked with magenta confidence ellipse around robot position estimate.</p>
 
 
 <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
