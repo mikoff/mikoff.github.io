@@ -6,10 +6,20 @@
     <description>Recent content on Aleksandr Mikoff&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 09 Apr 2020 21:00:00 +0300</lastBuildDate>
+    <lastBuildDate>Sat, 18 Apr 2020 10:51:21 +0300</lastBuildDate>
     
 	<atom:link href="https://mikoff.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Nonlinear estimation: Full Bayesian, MLE and MAP</title>
+      <link>https://mikoff.github.io/posts/nonlinear-estimation-mle-map.md/</link>
+      <pubDate>Sat, 18 Apr 2020 10:51:21 +0300</pubDate>
+      
+      <guid>https://mikoff.github.io/posts/nonlinear-estimation-mle-map.md/</guid>
+      <description>Intro Recently I read &amp;ldquo;State Estimation for Robotics&amp;rdquo; book and came across a good example on one-dimensional nonlinear estimation problem: the estimation of the position of a landmark from stereo-camera.
+Distance from stereo-images The camera image is a projection of the world on the image plane. The perception of depth arises from disparity of 3d point (landmark) on two images, obtained from left and right cameras. $$disparity = x_{left} - x_{right}$$</description>
+    </item>
     
     <item>
       <title>EKF SLAM</title>

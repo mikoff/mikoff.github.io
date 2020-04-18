@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Bayesian estimation on Aleksandr Mikoff&#39;s blog</title>
+    <link>https://mikoff.github.io/tags/bayesian-estimation/</link>
+    <description>Recent content in Bayesian estimation on Aleksandr Mikoff&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 18 Apr 2020 10:51:21 +0300</lastBuildDate>
+    
+	<atom:link href="https://mikoff.github.io/tags/bayesian-estimation/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Nonlinear estimation: Full Bayesian, MLE and MAP</title>
+      <link>https://mikoff.github.io/posts/nonlinear-estimation-mle-map.md/</link>
+      <pubDate>Sat, 18 Apr 2020 10:51:21 +0300</pubDate>
+      
+      <guid>https://mikoff.github.io/posts/nonlinear-estimation-mle-map.md/</guid>
+      <description>Intro Recently I read &amp;ldquo;State Estimation for Robotics&amp;rdquo; book and came across a good example on one-dimensional nonlinear estimation problem: the estimation of the position of a landmark from stereo-camera.
+Distance from stereo-images The camera image is a projection of the world on the image plane. The perception of depth arises from disparity of 3d point (landmark) on two images, obtained from left and right cameras. $$disparity = x_{left} - x_{right}$$</description>
+    </item>
+    
+  </channel>
+</rss>

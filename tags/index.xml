@@ -6,10 +6,55 @@
     <description>Recent content in Tags on Aleksandr Mikoff&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 09 Apr 2020 21:00:00 +0300</lastBuildDate>
+    <lastBuildDate>Sat, 18 Apr 2020 10:51:21 +0300</lastBuildDate>
     
 	<atom:link href="https://mikoff.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Bayesian estimation</title>
+      <link>https://mikoff.github.io/tags/bayesian-estimation/</link>
+      <pubDate>Sat, 18 Apr 2020 10:51:21 +0300</pubDate>
+      
+      <guid>https://mikoff.github.io/tags/bayesian-estimation/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>MAP</title>
+      <link>https://mikoff.github.io/tags/map/</link>
+      <pubDate>Sat, 18 Apr 2020 10:51:21 +0300</pubDate>
+      
+      <guid>https://mikoff.github.io/tags/map/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>MLE</title>
+      <link>https://mikoff.github.io/tags/mle/</link>
+      <pubDate>Sat, 18 Apr 2020 10:51:21 +0300</pubDate>
+      
+      <guid>https://mikoff.github.io/tags/mle/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Statistics</title>
+      <link>https://mikoff.github.io/tags/statistics/</link>
+      <pubDate>Sat, 18 Apr 2020 10:51:21 +0300</pubDate>
+      
+      <guid>https://mikoff.github.io/tags/statistics/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Stereo vision</title>
+      <link>https://mikoff.github.io/tags/stereo-vision/</link>
+      <pubDate>Sat, 18 Apr 2020 10:51:21 +0300</pubDate>
+      
+      <guid>https://mikoff.github.io/tags/stereo-vision/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>EKF</title>
@@ -62,15 +107,6 @@
       <pubDate>Tue, 31 Mar 2020 19:59:26 +0300</pubDate>
       
       <guid>https://mikoff.github.io/tags/sensor-fusion/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>statistics</title>
-      <link>https://mikoff.github.io/tags/statistics/</link>
-      <pubDate>Sun, 09 Feb 2020 14:56:13 +0300</pubDate>
-      
-      <guid>https://mikoff.github.io/tags/statistics/</guid>
       <description></description>
     </item>
     
