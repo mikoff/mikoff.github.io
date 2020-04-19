@@ -279,9 +279,9 @@ ax<span style="color: #555555">.</span>legend()
 <p>Talking about the maximum likelihood estimation we seek for a value that maximizes the likelihood of our measurement, or data, given the state $z$:
 $$\hat{x}_{mle} = \underset{x}{arg~max}~p(y|x),$$
 going to the $log$ space:
-$$\hat{x}_{mle} = \underset{x}{arg~min}~(-ln(p(y|x)))$$.
+$$\hat{x}_{mle} = \underset{x}{arg~min}~(-ln(p(y|x))).$$
 <em>Note</em>: if we want to find MLE for a number of measurements, or samples under assumption that they are undepended, we replace $p(y|x)$ by the product of individual samples probabilities: $\underset{i}{\prod} p(y_i|x)$. This leads to the following $\hat{x}_{mle}$:
-$$\hat{x}_{mle} = \underset{x}{arg~min}~(-\underset{i}{\sum}ln(p(y_i|x)))$$.</p>
+$$\hat{x}_{mle} = \underset{x}{arg~min}~(-\underset{i}{\sum}ln(p(y_i|x))).$$</p>
 
 <p>For stereo-camera depth estimate:
 $$\hat{z}_{mle} = \underset{z}{arg~min}~J_{mle}(z),$$
