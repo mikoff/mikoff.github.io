@@ -11,12 +11,12 @@
 
     <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Nonlinear estimation: Full Bayesian, MLE and MAP"/>
-<meta name="twitter:description" content="Intro Recently I read &ldquo;State Estimation for Robotics&rdquo; book and came across a good example on one-dimensional nonlinear estimation problem: the estimation of the position of a landmark from stereo-camera data.
-Distance from stereo-images The camera image is a projection of the world on the image plane. The perception of depth arises from disparity of 3d point (landmark) on two images, obtained from left and right cameras. $$disparity = x_{left} - x_{right}$$"/>
+<meta name="twitter:description" content="Intro Recently I have read &ldquo;State Estimation for Robotics&rdquo; book and came across a good example on one-dimensional nonlinear estimation problem: the estimation of the position of a landmark from stereo-camera data.
+Distance from stereo-images The camera image is a projection of the world on the image plane. The depth perceptions arises from disparity of 3d point (landmark) on two images, obtained from left and right cameras. $$disparity = x_{left} - x_{right}$$"/>
 
     <meta property="og:title" content="Nonlinear estimation: Full Bayesian, MLE and MAP" />
-<meta property="og:description" content="Intro Recently I read &ldquo;State Estimation for Robotics&rdquo; book and came across a good example on one-dimensional nonlinear estimation problem: the estimation of the position of a landmark from stereo-camera data.
-Distance from stereo-images The camera image is a projection of the world on the image plane. The perception of depth arises from disparity of 3d point (landmark) on two images, obtained from left and right cameras. $$disparity = x_{left} - x_{right}$$" />
+<meta property="og:description" content="Intro Recently I have read &ldquo;State Estimation for Robotics&rdquo; book and came across a good example on one-dimensional nonlinear estimation problem: the estimation of the position of a landmark from stereo-camera data.
+Distance from stereo-images The camera image is a projection of the world on the image plane. The depth perceptions arises from disparity of 3d point (landmark) on two images, obtained from left and right cameras. $$disparity = x_{left} - x_{right}$$" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://mikoff.github.io/posts/nonlinear-estimation-mle-map.md/" />
 <meta property="article:published_time" content="2020-04-18T10:51:21+03:00" />
@@ -148,25 +148,25 @@ Distance from stereo-images The camera image is a projection of the world on the
 
 <h2 id="intro">Intro</h2>
 
-<p>Recently I read <a href="https://www.cambridge.org/core/books/state-estimation-for-robotics/AC0E0AC229C55203B3C8F106BCB61F48">&ldquo;State Estimation for Robotics&rdquo;</a> book and came across a good example on one-dimensional nonlinear estimation problem: the estimation of the position of a landmark from stereo-camera data.</p>
+<p>Recently I have read <a href="https://www.cambridge.org/core/books/state-estimation-for-robotics/AC0E0AC229C55203B3C8F106BCB61F48">&ldquo;State Estimation for Robotics&rdquo;</a> book and came across a good example on one-dimensional nonlinear estimation problem: the estimation of the position of a landmark from stereo-camera data.</p>
 
 <h2 id="distance-from-stereo-images">Distance from stereo-images</h2>
 
 <p>The camera image is a projection of the world on the image plane.
-The perception of depth arises from disparity of 3d point (landmark) on two images, obtained from left and right cameras.
+The depth perceptions arises from disparity of 3d point (landmark) on two images, obtained from left and right cameras.
 $$disparity = x_{left} - x_{right}$$</p>
 
 <p><img src="./two_camera_images.svg#center" alt="svg" /></p>
 
-<p>If we have the two images and know the position of the landmark in image coordinates (pixels), it turns out that we can calculate the depth between camera and the landmark.</p>
+<p>Having two images with known landmark positions in image coordinates (pixels), it turns out that we can calculate the depth between camera and the landmark.</p>
 
-<p>To do so, let&rsquo;s draw a simple model of the two pinholes cameras&rsquo; setup and derive the equation for depth, or forward distance between the camera and the landmark.</p>
+<p>To do so, let&rsquo;s draw a simple scheme of two pinholes cameras&rsquo; setup and derive the equation for depth, or forward distance, between the camera and the landmark.</p>
 
 <p><img src="./camera_model_only.svg#center" alt="svg" /></p>
 
-<p>On the following image $l$ is the landmark. The landmark position $(x, z)$ (meters) is presented w.r.t. the left camera, $c_{left}$. We want to find $z$, depth of the landmark. By design we know the focal length $f$ (in pixels) and baseline $b$, which is the horizontal distance between left and right cameras (in meters).</p>
+<p>On the preceding image $l$ is the landmark, $(x, z)$ is the landmark position w.r.t. the left camera $c_{left}$ (meters). We want to find $z$, depth of the landmark. By design, the focal length $f$ (in pixels) and baseline $b$, which is the horizontal distance between left and right cameras (in meters) are known.</p>
 
-<p>From the  similar triangles (marked with arc) and assuming that the optical axes of the cameras are parallel we have (for simplicty $x_{left} = x_{l}, x_{right} = x_r$):
+<p>From the  similar triangles (marked with arcs) and under assumption that the optical axes of the cameras are parallel we have (for simplicty $x_{left} = x_{l}, x_{right} = x_r$):
 $$\frac{z}{f} = \frac{x}{x_{l}} = \frac{x-b}{x_{r}}.$$
 Now, expressing $x$ in terms of $x_{l}$ and $x_{r}$ gives:
 $$x x_{r} = (x - b) x_{l}$$
@@ -180,9 +180,9 @@ $$z = \frac{f b}{x_l - x_r}.$$</p>
 
 <h2 id="bayesian-model">Bayesian model</h2>
 
-<p>From the depth equation the measurement model for disparity $y = x_l - x_r$ can be written as:
-$$y = \frac{f b}{z} + n,$$
-where the state $z$ is the depth of the landmark (meters) and $n$ is the measurement noise (in pixels), all other terms were defined earlier. Despite of being simple it is a nonlinear model: $f(x + y) \neq f(x) + f(y)$.</p>
+<p>From the depth equation the measurement model for disparity $disparity = x_l - x_r$ can be written as:
+$$disparity = x_l - x_r = y = \frac{f b}{z} + n,$$
+where the state $z$ is the depth of the landmark (meters) and $n$ is the measurement noise (in pixels), all other terms were defined earlier. Despite of being simple it is a nonlinear model: $f(x_1 + x_2) \neq f(x_1) + f(x_2)$.</p>
 
 <p>This fact can be visualized by passing the state through our measurement function. After applying this transform evenly spaced samples from our state space become unevenly spaced:</p>
 <div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>fig, ax <span style="color: #555555">=</span> plt<span style="color: #555555">.</span>subplots(<span style="color: #FF6600">1</span>, <span style="color: #FF6600">1</span>, figsize <span style="color: #555555">=</span> (<span style="color: #FF6600">10</span>, <span style="color: #FF6600">3</span>))
@@ -205,12 +205,12 @@ ax<span style="color: #555555">.</span>legend()
 $$p(z|y) = \eta~p(y|z)~p(z),$$
 where $\eta =  \frac{1}{p(y)} = \frac{1}{\int p(y|z)~p(z)~dz}$ is the normalizer.</p>
 
-<p>Tu perform such update, the probabilities of $p(y|z)$ and $p(z)$ must be defined. Our choice is to define the measurement noise as zero-mean gaussian $n \sim N(0, R)$, therefore:
+<p>To perform such update, the probabilities of $p(y|z)$ and $p(z)$ must be known. Our choice is to define the measurement noise as zero-mean Gaussian $n \sim N(0, R)$. Thus:
 $$p(y|z) = N\left(\frac{f b}{z}, R\right) = \frac{1}{\sqrt{2 \pi R}} exp\left(-\frac{1}{2 R} \left(y - \frac{f b}{z}\right)^2\right).$$
-We also asssume that the prior is gaussian:
+We also asssume that the prior is Gaussian:
 $$p(z) = N(z^{-}, P^{-}) = \frac{1}{\sqrt{2 \pi P^{-}}} exp\left(-\frac{1}{2 P^{-}} (z - z^{-})^2\right).$$</p>
 
-<p>The Bayesian framework consists of the following operation sequence:
+<p>The Bayesian framework consists of the following operations:
 1. Get the prior $p(z)$ over the state space $z$, given the current estimate $z^{-}$.
 2. Obtain the measurement $y$.
 3. Calculate the measurement likelihood using $p(y|z)$.
@@ -218,10 +218,10 @@ $$p(z) = N(z^{-}, P^{-}) = \frac{1}{\sqrt{2 \pi P^{-}}} exp\left(-\frac{1}{2 P^{
 
 <h2 id="visualization">Visualization</h2>
 
-<p>To illustrate how this nonlinearity affects the pdf of the posterior let&rsquo;s perform numerical experiments. To do so assume that our prior parameters are:
+<p>To illustrate how this nonlinearity affects the pdf of the posterior it is possible to perform numerical experiments. For such an experiment, the selected parameters are the following:
 $$z^{-} = 20~[m],~P^{-} = 9~[m^2],~f = 400~[pixel],~b = 0.1~[m],~R = 0.09~[pixel^2].$$</p>
 
-<p>To calculate the posterior, the values are the following:
+<p>The parameters for posterior calculation:
 $$z_{true} = 22~[m],~y_{meas} = \frac{f b}{z_{true}} + 1~[pixel].$$</p>
 <div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span><span style="color: #0099FF; font-style: italic"># prior parameters</span>
 z_prior <span style="color: #555555">=</span> <span style="color: #FF6600">20</span>
@@ -268,9 +268,9 @@ ax<span style="color: #555555">.</span>legend()
 
 <p><img src="./index_14_1.png" alt="png" /></p>
 
-<p>The maximum likelihood estimation (MLE) approach can be employed if we want to use only the measurements and have no prior information about possible system state. It helps to find the answer to the following question: which value of $z$ is most probable given the measurement $y$?</p>
+<p>The maximum likelihood estimation (MLE) can be utilized when we want to use only the measurements and have no prior information about possible system state. It helps to find the answer to the following question: which value of $z$ is most probable given the measurement $y$?</p>
 
-<p>However, if we know the prior in addition to the likelihood, it is generally a good idea to use it. The incorporation of the measurement results in more concentrated (less uncertainty) posterior about the state than the prior.</p>
+<p>However, if we know the prior distribution of our parameter of interest, it is generally a good idea to take it into account. The incorporation of the measurement results in more concentrated (less uncertainty) posterior about the state than the prior.</p>
 
 <p>We can find the most probable posterior value for this concrete example by visual inspection of the posterior PDF. However, it is not the case for most real-life problems. To overcome this problem the maximum a posteriori (MAP) approach can be utilized. It is used to find the <em>peak</em> of the posterior.</p>
 
@@ -378,7 +378,7 @@ Variance of the error:  13.431400451884032
 
 <p><img src="./index_22_1.png" alt="png" /></p>
 
-<p>When selecting between MLE and MAP estimators it is usually a good practice to use MAP when the prior is given or can be assumed to be known from experiments or researcher&rsquo;s intuition. Also, it is important to note that if the prior is a uniform distribution, MAP becomes an equivalent to MLE.</p>
+<p>When selecting between MLE and MAP estimators it is a good practice to use MAP when the prior is given or can be inferred from experiments or researcher&rsquo;s intuition. Also, it is important to note that if the prior is a uniform distribution, MAP becomes an equivalent to MLE.</p>
 
 <p>Both MLE and MAP estimators are biased even for such vanilla example. Why it happens and what to do with that?
 There is no straightforward answer: it depends on the problem. One of approaches that tackle this problem is the Bias-Variance decomposition.</p>
