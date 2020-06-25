@@ -1,10 +1,35 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://mikoff.github.io/</loc>
-    <lastmod>2020-04-18T10:51:21+03:00</lastmod>
+    <loc>https://mikoff.github.io/tags/pcl/</loc>
+    <lastmod>2020-06-24T18:00:00+03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://mikoff.github.io/tags/point-cloud-alignment/</loc>
+    <lastmod>2020-06-24T18:00:00+03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://mikoff.github.io/posts/point-cloud-alignment.md/</loc>
+    <lastmod>2020-06-24T18:00:00+03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://mikoff.github.io/posts/</loc>
+    <lastmod>2020-06-24T18:00:00+03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://mikoff.github.io/tags/svd/</loc>
+    <lastmod>2020-06-24T18:00:00+03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://mikoff.github.io/tags/</loc>
+    <lastmod>2020-06-24T18:00:00+03:00</lastmod>
   </url>
   
   <url>
@@ -28,22 +53,12 @@
   </url>
   
   <url>
-    <loc>https://mikoff.github.io/posts/</loc>
-    <lastmod>2020-04-18T10:51:21+03:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://mikoff.github.io/tags/statistics/</loc>
     <lastmod>2020-04-18T10:51:21+03:00</lastmod>
   </url>
   
   <url>
     <loc>https://mikoff.github.io/tags/stereo-vision/</loc>
-    <lastmod>2020-04-18T10:51:21+03:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://mikoff.github.io/tags/</loc>
     <lastmod>2020-04-18T10:51:21+03:00</lastmod>
   </url>
   
@@ -94,6 +109,11 @@
   
   <url>
     <loc>https://mikoff.github.io/about/</loc>
+    <lastmod>2020-02-09T13:40:59+03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://mikoff.github.io/</loc>
     <lastmod>2020-02-09T13:40:59+03:00</lastmod>
   </url>
   

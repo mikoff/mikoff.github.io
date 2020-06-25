@@ -65,7 +65,7 @@
     <link rel="icon" type="image/png" href="https://mikoff.github.io/img/favicon-32x32.png" sizes="32x32">
     <link rel="icon" type="image/png" href="https://mikoff.github.io/img/favicon-16x16.png" sizes="16x16">
 
-    <meta name="generator" content="Hugo 0.57.2" />
+    <meta name="generator" content="Hugo 0.68.3" />
   </head>
 
   
@@ -140,36 +140,23 @@
 
       <div>
         
-        
-
-<h1 id="particle-filter">Particle filter</h1>
-
-<p><img src="./intro.png" alt="png" /></p>
-
+        <h1 id="particle-filter">Particle filter</h1>
+<p><img src="./intro.png" alt="png"></p>
 <p>In this post I would like to show the basic implementation of the Particle filter for robot localization using distance measurements to the known anchors, or landmarks. So why particle filter is so widely used? It&rsquo;s widespread application lies in its versatile nature and universalism. The filter is able to:</p>
-
 <ul>
 <li>Work with nonlinearities.</li>
 <li>Handle non-gaussian distributions.</li>
 <li>Easily fuse various information sources.</li>
 <li>Simulate the processes.</li>
 </ul>
-
 <p>My sample implementation takes less then 100 lines of Python code and can be found <a href="https://github.com/mikoff/blog_projects/tree/master/particle_filter">here</a>.</p>
-
 <h2 id="idea">Idea</h2>
-
 <p>The idea of the particle filter is to represent the probability distribution by a set $X$ of random samples drawn from the original probability distribution. These samples usually called <em>particles</em>. Every particle $x^{(i)}_t$ can be seen as the hypothesis about what true state can be at time $t$.</p>
-
 <p>In ideal world, the likelihood of getting a hypothesis $x^{(i)}_t$ shall be proportional to its Bayes posterior:
 $$x^{(i)}_t \sim p(x_t | z_{1:t}, u_{1:t}).$$</p>
-
 <p>The particle filter is the recursive one. That means that belief at time $t$ is being computed from the belief one time step earlier, $t-1$. Since the belief is represented by the particle set $X$, then the particles from $X_{t-1}$ can be transformed into the set $X_t$ based on system model.</p>
-
 <h2 id="steps">Steps</h2>
-
 <p>Each particle filter iteration cycle can be broken into three steps:</p>
-
 <ol>
 <li><strong>Prediction</strong>.
 Generate the particle set $X_t$ based on the particle set $X_{t-1}$ and the control $u_t$. If it is the initialization, then the particle set have to be generated across all possible states. Usually on this step some noise is injected into the model to accomodate for noise in control and to make particle set more distributed.</li>
@@ -178,134 +165,107 @@ Calculate the importance factor, or weight of each particle. The importance fact
 <li><strong>Resampling</strong>.
 It is done through replacing when the more unlikely hypothesis with more likely ones. The probability of drawing each particle is given by its relative importance weight (w.r.t the whole set). <em>The idea of resampling is similar to the idea in volutionary algorithms: only the fittest ones should survive.</em></li>
 </ol>
-
 <p>Notes:</p>
-
 <ol>
 <li>It is not always the best idea to sample the particles across all possible state space on the initialization. Sometimes it is better to wait for few available measurements and sample from $p(z_t|m)$, where $m$ &ndash; is the map.</li>
 <li>The resampling process is computational extensive. Therefore it is recommended to resample only when the effective number of particles is less than the given threshold $N_X$. It is shown, that the effective number of particles can be approximated as: $\hat {N}_{\mathit {eff}}={\frac {1}{\sum _{i=1}^{N}\left(w_{k}^{(i)}\right)^{2}}}$. This formula reflects the variance of particle weights.</li>
 </ol>
-
 <h2 id="importance-sampling">Importance Sampling</h2>
-
 <p>To understand the idea behind importance sampling more clearly let&rsquo;s reformulate the problem: say we would like to get a sample from target distribution $f$, from which direct sampling is very hard or even impossible.
 However, we are able to generate the samples from some probability density function $g$, called proposal distribution.</p>
-
 <p>What resampling step is able to do is to generate a new set of particles distributed according to the density function $f$ given the set of particles distributed according to density $g$.</p>
-
 <p>To illustrate this let&rsquo;s generate samples from density $g$. The samples, drawn from $g$ are shown on the bottom of the plot.</p>
-<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>N_samples <span style="color: #555555">=</span> <span style="color: #FF6600">1000</span>
-proposal_mean <span style="color: #555555">=</span> <span style="color: #FF6600">25</span>
-proposal_std <span style="color: #555555">=</span> <span style="color: #FF6600">10.0</span>
-xfrom, xto <span style="color: #555555">=</span> <span style="color: #555555">-</span><span style="color: #FF6600">10</span>, <span style="color: #FF6600">60</span>
+<div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">N_samples <span style="color:#555">=</span> <span style="color:#f60">1000</span>
+proposal_mean <span style="color:#555">=</span> <span style="color:#f60">25</span>
+proposal_std <span style="color:#555">=</span> <span style="color:#f60">10.0</span>
+xfrom, xto <span style="color:#555">=</span> <span style="color:#555">-</span><span style="color:#f60">10</span>, <span style="color:#f60">60</span>
 
-<span style="color: #006699; font-weight: bold">def</span> <span style="color: #CC00FF">target_pdf</span>(x):
-    <span style="color: #006699; font-weight: bold">return</span> <span style="color: #FF6600">0.5</span> <span style="color: #555555">*</span> norm<span style="color: #555555">.</span>pdf(x, <span style="color: #FF6600">1.0</span>, <span style="color: #FF6600">3.0</span>) <span style="color: #555555">+</span> <span style="color: #FF6600">0.5</span> <span style="color: #555555">*</span> norm<span style="color: #555555">.</span>pdf(x, <span style="color: #FF6600">12.0</span>, <span style="color: #FF6600">4.0</span>)
+<span style="color:#069;font-weight:bold">def</span> <span style="color:#c0f">target_pdf</span>(x):
+    <span style="color:#069;font-weight:bold">return</span> <span style="color:#f60">0.5</span> <span style="color:#555">*</span> norm<span style="color:#555">.</span>pdf(x, <span style="color:#f60">1.0</span>, <span style="color:#f60">3.0</span>) <span style="color:#555">+</span> <span style="color:#f60">0.5</span> <span style="color:#555">*</span> norm<span style="color:#555">.</span>pdf(x, <span style="color:#f60">12.0</span>, <span style="color:#f60">4.0</span>)
 
-proposal_samples <span style="color: #555555">=</span> np<span style="color: #555555">.</span>random<span style="color: #555555">.</span>normal(proposal_mean, proposal_std, size<span style="color: #555555">=</span>N_samples)
+proposal_samples <span style="color:#555">=</span> np<span style="color:#555">.</span>random<span style="color:#555">.</span>normal(proposal_mean, proposal_std, size<span style="color:#555">=</span>N_samples)
 
-fig, ax <span style="color: #555555">=</span> plt<span style="color: #555555">.</span>subplots(<span style="color: #FF6600">1</span>, <span style="color: #FF6600">1</span>, figsize<span style="color: #555555">=</span>(<span style="color: #FF6600">10</span>, <span style="color: #FF6600">4</span>), sharex <span style="color: #555555">=</span> <span style="color: #336666">True</span>)
-x <span style="color: #555555">=</span> np<span style="color: #555555">.</span>linspace(xfrom, xto, <span style="color: #FF6600">1000</span>)
-ax<span style="color: #555555">.</span>plot(x, norm<span style="color: #555555">.</span>pdf(x, proposal_mean, proposal_std), label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;proposal pdf, $g(x)$&#39;</span>, c<span style="color: #555555">=</span><span style="color: #CC3300">&#39;red&#39;</span>)
-ax<span style="color: #555555">.</span>plot(x, target_pdf(x), label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;target pdf, $f(x)$&#39;</span>, c<span style="color: #555555">=</span><span style="color: #CC3300">&#39;green&#39;</span>)
-<span style="color: #0099FF; font-style: italic"># plot rug plot</span>
-rel_rug_height <span style="color: #555555">=</span> ax<span style="color: #555555">.</span>get_ylim()[<span style="color: #FF6600">1</span>] <span style="color: #555555">/</span> <span style="color: #FF6600">20.0</span>
-ax<span style="color: #555555">.</span>vlines(proposal_samples, [<span style="color: #FF6600">0</span>] <span style="color: #555555">*</span> N_samples, [rel_rug_height] <span style="color: #555555">*</span> N_samples, 
-          alpha<span style="color: #555555">=</span><span style="color: #FF6600">0.05</span>, colors<span style="color: #555555">=</span><span style="color: #CC3300">&#39;red&#39;</span>, label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;proposal samples&#39;</span>, linewidths<span style="color: #555555">=</span><span style="color: #FF6600">5.0</span>)
-ax<span style="color: #555555">.</span>set_xlim([xfrom, xto])
-ax<span style="color: #555555">.</span>legend()
-</code></pre></div>
-
-<p><img src="./index_6_1.png" alt="png" /></p>
-
+fig, ax <span style="color:#555">=</span> plt<span style="color:#555">.</span>subplots(<span style="color:#f60">1</span>, <span style="color:#f60">1</span>, figsize<span style="color:#555">=</span>(<span style="color:#f60">10</span>, <span style="color:#f60">4</span>), sharex <span style="color:#555">=</span> True)
+x <span style="color:#555">=</span> np<span style="color:#555">.</span>linspace(xfrom, xto, <span style="color:#f60">1000</span>)
+ax<span style="color:#555">.</span>plot(x, norm<span style="color:#555">.</span>pdf(x, proposal_mean, proposal_std), label<span style="color:#555">=</span><span style="color:#c30">&#39;proposal pdf, $g(x)$&#39;</span>, c<span style="color:#555">=</span><span style="color:#c30">&#39;red&#39;</span>)
+ax<span style="color:#555">.</span>plot(x, target_pdf(x), label<span style="color:#555">=</span><span style="color:#c30">&#39;target pdf, $f(x)$&#39;</span>, c<span style="color:#555">=</span><span style="color:#c30">&#39;green&#39;</span>)
+<span style="color:#09f;font-style:italic"># plot rug plot</span>
+rel_rug_height <span style="color:#555">=</span> ax<span style="color:#555">.</span>get_ylim()[<span style="color:#f60">1</span>] <span style="color:#555">/</span> <span style="color:#f60">20.0</span>
+ax<span style="color:#555">.</span>vlines(proposal_samples, [<span style="color:#f60">0</span>] <span style="color:#555">*</span> N_samples, [rel_rug_height] <span style="color:#555">*</span> N_samples, 
+          alpha<span style="color:#555">=</span><span style="color:#f60">0.05</span>, colors<span style="color:#555">=</span><span style="color:#c30">&#39;red&#39;</span>, label<span style="color:#555">=</span><span style="color:#c30">&#39;proposal samples&#39;</span>, linewidths<span style="color:#555">=</span><span style="color:#f60">5.0</span>)
+ax<span style="color:#555">.</span>set_xlim([xfrom, xto])
+ax<span style="color:#555">.</span>legend()
+</code></pre></div><p><img src="./index_6_1.png" alt="png"></p>
 <p>Samples from $f$ are obtained by attaching weights $w = f(x) / g(x)$ to each sample, drawn from $g$. The following plot shows the proposal samples with their associated weights (the height of the vertical lines). Some weights became equal to zero while the others are significantly increased. For example, in spite of the fact that the proposal density in range $(20, 30)$ is high, due to the weighing these samples became insignificant.</p>
-
 <p>The combination of color intensity and the height of the vertical bars can be considered as the target probability density function. The more intensive and higher the vertical bars - the more probable the neighbourhood samples $x$ around it.
 As an alternative, weights are shown as circles where the radius of the circle reflects the particle weight and the circle color intensity due to the overlapping - is their density in the given region.</p>
-<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>target_weights <span style="color: #555555">=</span> target_pdf(proposal_samples) <span style="color: #555555">/</span> norm<span style="color: #555555">.</span>pdf(proposal_samples, proposal_mean, proposal_std)
+<div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">target_weights <span style="color:#555">=</span> target_pdf(proposal_samples) <span style="color:#555">/</span> norm<span style="color:#555">.</span>pdf(proposal_samples, proposal_mean, proposal_std)
 
-fig, ax <span style="color: #555555">=</span> plt<span style="color: #555555">.</span>subplots(<span style="color: #FF6600">1</span>, <span style="color: #FF6600">1</span>, figsize<span style="color: #555555">=</span>(<span style="color: #FF6600">10</span>, <span style="color: #FF6600">4</span>))
-ax<span style="color: #555555">.</span>set_xlim([xfrom, xto])
-ax<span style="color: #555555">.</span>vlines(proposal_samples, [<span style="color: #FF6600">0</span>] <span style="color: #555555">*</span> N_samples, target_weights <span style="color: #555555">/</span> np<span style="color: #555555">.</span>sum(target_weights), 
-          alpha<span style="color: #555555">=</span><span style="color: #FF6600">0.05</span>, colors<span style="color: #555555">=</span><span style="color: #CC3300">&#39;green&#39;</span>, label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;proposal samples with $ w = f(x) / g(x)$&#39;</span>, linewidths<span style="color: #555555">=</span><span style="color: #FF6600">5.0</span>)
-x <span style="color: #555555">=</span> np<span style="color: #555555">.</span>linspace(xfrom, xto, <span style="color: #FF6600">1000</span>)
-ax<span style="color: #555555">.</span>plot(x, target_pdf(x), label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;target pdf, $f(x)$&#39;</span>, c<span style="color: #555555">=</span><span style="color: #CC3300">&#39;green&#39;</span>)
-ax<span style="color: #555555">.</span>scatter(proposal_samples, [ax<span style="color: #555555">.</span>get_ylim()[<span style="color: #FF6600">0</span>]] <span style="color: #555555">*</span> N_samples, 
-           sizes<span style="color: #555555">=</span>target_weights <span style="color: #555555">/</span> np<span style="color: #555555">.</span>sum(target_weights) <span style="color: #555555">*</span> <span style="color: #FF6600">10000</span>, alpha<span style="color: #555555">=</span><span style="color: #FF6600">0.05</span>,
-           label<span style="color: #555555">=</span><span style="color: #CC3300">&quot;proposal sample circles with $r \sim w$&quot;</span>)
+fig, ax <span style="color:#555">=</span> plt<span style="color:#555">.</span>subplots(<span style="color:#f60">1</span>, <span style="color:#f60">1</span>, figsize<span style="color:#555">=</span>(<span style="color:#f60">10</span>, <span style="color:#f60">4</span>))
+ax<span style="color:#555">.</span>set_xlim([xfrom, xto])
+ax<span style="color:#555">.</span>vlines(proposal_samples, [<span style="color:#f60">0</span>] <span style="color:#555">*</span> N_samples, target_weights <span style="color:#555">/</span> np<span style="color:#555">.</span>sum(target_weights), 
+          alpha<span style="color:#555">=</span><span style="color:#f60">0.05</span>, colors<span style="color:#555">=</span><span style="color:#c30">&#39;green&#39;</span>, label<span style="color:#555">=</span><span style="color:#c30">&#39;proposal samples with $ w = f(x) / g(x)$&#39;</span>, linewidths<span style="color:#555">=</span><span style="color:#f60">5.0</span>)
+x <span style="color:#555">=</span> np<span style="color:#555">.</span>linspace(xfrom, xto, <span style="color:#f60">1000</span>)
+ax<span style="color:#555">.</span>plot(x, target_pdf(x), label<span style="color:#555">=</span><span style="color:#c30">&#39;target pdf, $f(x)$&#39;</span>, c<span style="color:#555">=</span><span style="color:#c30">&#39;green&#39;</span>)
+ax<span style="color:#555">.</span>scatter(proposal_samples, [ax<span style="color:#555">.</span>get_ylim()[<span style="color:#f60">0</span>]] <span style="color:#555">*</span> N_samples, 
+           sizes<span style="color:#555">=</span>target_weights <span style="color:#555">/</span> np<span style="color:#555">.</span>sum(target_weights) <span style="color:#555">*</span> <span style="color:#f60">10000</span>, alpha<span style="color:#555">=</span><span style="color:#f60">0.05</span>,
+           label<span style="color:#555">=</span><span style="color:#c30">&#34;proposal sample circles with $r \sim w$&#34;</span>)
     
-ax<span style="color: #555555">.</span>legend()
-</code></pre></div>
-
-<p><img src="./index_8_1.png" alt="png" /></p>
-
+ax<span style="color:#555">.</span>legend()
+</code></pre></div><p><img src="./index_8_1.png" alt="png"></p>
 <p>Now, if we resample from the weighted samples distribution we get the samples from our target distribution (as $N \xrightarrow{}\infty$):</p>
-<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span><span style="color: #006699; font-weight: bold">def</span> <span style="color: #CC00FF">systematic_resample</span>(weights, samples):
-    weights, samples, n_samples <span style="color: #555555">=</span> np<span style="color: #555555">.</span>array(weights), np<span style="color: #555555">.</span>array(samples), <span style="color: #336666">len</span>(samples)
-    weights <span style="color: #555555">/=</span> np<span style="color: #555555">.</span>sum(weights)
-    r, c, i <span style="color: #555555">=</span> np<span style="color: #555555">.</span>random<span style="color: #555555">.</span>uniform(<span style="color: #FF6600">0.0</span>, <span style="color: #FF6600">1.0</span> <span style="color: #555555">/</span> N_samples), weights[<span style="color: #FF6600">0</span>], <span style="color: #FF6600">0</span>
-    resampled <span style="color: #555555">=</span> []
-    <span style="color: #006699; font-weight: bold">for</span> m <span style="color: #000000; font-weight: bold">in</span> <span style="color: #336666">range</span>(<span style="color: #FF6600">0</span>, n_samples):
-        U <span style="color: #555555">=</span> r <span style="color: #555555">+</span> m <span style="color: #555555">/</span> n_samples
-        <span style="color: #006699; font-weight: bold">while</span> c <span style="color: #555555">&lt;</span> U:
-            i <span style="color: #555555">+=</span> <span style="color: #FF6600">1</span>
-            c <span style="color: #555555">+=</span> weights[i]
-        resampled<span style="color: #555555">.</span>append(deepcopy(samples[i]))
-    <span style="color: #006699; font-weight: bold">return</span> resampled
+<div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#069;font-weight:bold">def</span> <span style="color:#c0f">systematic_resample</span>(weights, samples):
+    weights, samples, n_samples <span style="color:#555">=</span> np<span style="color:#555">.</span>array(weights), np<span style="color:#555">.</span>array(samples), <span style="color:#366">len</span>(samples)
+    weights <span style="color:#555">/=</span> np<span style="color:#555">.</span>sum(weights)
+    r, c, i <span style="color:#555">=</span> np<span style="color:#555">.</span>random<span style="color:#555">.</span>uniform(<span style="color:#f60">0.0</span>, <span style="color:#f60">1.0</span> <span style="color:#555">/</span> N_samples), weights[<span style="color:#f60">0</span>], <span style="color:#f60">0</span>
+    resampled <span style="color:#555">=</span> []
+    <span style="color:#069;font-weight:bold">for</span> m <span style="color:#000;font-weight:bold">in</span> <span style="color:#366">range</span>(<span style="color:#f60">0</span>, n_samples):
+        U <span style="color:#555">=</span> r <span style="color:#555">+</span> m <span style="color:#555">/</span> n_samples
+        <span style="color:#069;font-weight:bold">while</span> c <span style="color:#555">&lt;</span> U:
+            i <span style="color:#555">+=</span> <span style="color:#f60">1</span>
+            c <span style="color:#555">+=</span> weights[i]
+        resampled<span style="color:#555">.</span>append(deepcopy(samples[i]))
+    <span style="color:#069;font-weight:bold">return</span> resampled
 
-fig, ax <span style="color: #555555">=</span> plt<span style="color: #555555">.</span>subplots(<span style="color: #FF6600">1</span>, <span style="color: #FF6600">1</span>, figsize<span style="color: #555555">=</span>(<span style="color: #FF6600">10</span>, <span style="color: #FF6600">4</span>))  
-x <span style="color: #555555">=</span> np<span style="color: #555555">.</span>linspace(xfrom, xto, <span style="color: #FF6600">200</span>)
-ax<span style="color: #555555">.</span>plot(x, target_pdf(x), label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;target pdf, $f(x)$&#39;</span>, c<span style="color: #555555">=</span><span style="color: #CC3300">&#39;green&#39;</span>)
-target_samples <span style="color: #555555">=</span> systematic_resample(target_weights, proposal_samples)
-rel_rug_height <span style="color: #555555">=</span> ax<span style="color: #555555">.</span>get_ylim()[<span style="color: #FF6600">1</span>] <span style="color: #555555">/</span> <span style="color: #FF6600">20.0</span>
-ax<span style="color: #555555">.</span>vlines(target_samples, [<span style="color: #FF6600">0</span>] <span style="color: #555555">*</span> N_samples, [rel_rug_height] <span style="color: #555555">*</span> N_samples, 
-          alpha<span style="color: #555555">=</span><span style="color: #FF6600">0.05</span>, colors<span style="color: #555555">=</span><span style="color: #CC3300">&#39;violet&#39;</span>, label<span style="color: #555555">=</span><span style="color: #CC3300">&#39;resampled&#39;</span>, linewidths<span style="color: #555555">=</span><span style="color: #FF6600">5.0</span>)
-ax<span style="color: #555555">.</span>scatter(target_samples, [ax<span style="color: #555555">.</span>get_ylim()[<span style="color: #FF6600">0</span>]] <span style="color: #555555">*</span> N_samples, 
-           s<span style="color: #555555">=</span><span style="color: #FF6600">100</span>, alpha<span style="color: #555555">=</span><span style="color: #FF6600">0.05</span>,
-           label<span style="color: #555555">=</span><span style="color: #CC3300">&quot;resampled samples with $r \sim w$&quot;</span>)
+fig, ax <span style="color:#555">=</span> plt<span style="color:#555">.</span>subplots(<span style="color:#f60">1</span>, <span style="color:#f60">1</span>, figsize<span style="color:#555">=</span>(<span style="color:#f60">10</span>, <span style="color:#f60">4</span>))  
+x <span style="color:#555">=</span> np<span style="color:#555">.</span>linspace(xfrom, xto, <span style="color:#f60">200</span>)
+ax<span style="color:#555">.</span>plot(x, target_pdf(x), label<span style="color:#555">=</span><span style="color:#c30">&#39;target pdf, $f(x)$&#39;</span>, c<span style="color:#555">=</span><span style="color:#c30">&#39;green&#39;</span>)
+target_samples <span style="color:#555">=</span> systematic_resample(target_weights, proposal_samples)
+rel_rug_height <span style="color:#555">=</span> ax<span style="color:#555">.</span>get_ylim()[<span style="color:#f60">1</span>] <span style="color:#555">/</span> <span style="color:#f60">20.0</span>
+ax<span style="color:#555">.</span>vlines(target_samples, [<span style="color:#f60">0</span>] <span style="color:#555">*</span> N_samples, [rel_rug_height] <span style="color:#555">*</span> N_samples, 
+          alpha<span style="color:#555">=</span><span style="color:#f60">0.05</span>, colors<span style="color:#555">=</span><span style="color:#c30">&#39;violet&#39;</span>, label<span style="color:#555">=</span><span style="color:#c30">&#39;resampled&#39;</span>, linewidths<span style="color:#555">=</span><span style="color:#f60">5.0</span>)
+ax<span style="color:#555">.</span>scatter(target_samples, [ax<span style="color:#555">.</span>get_ylim()[<span style="color:#f60">0</span>]] <span style="color:#555">*</span> N_samples, 
+           s<span style="color:#555">=</span><span style="color:#f60">100</span>, alpha<span style="color:#555">=</span><span style="color:#f60">0.05</span>,
+           label<span style="color:#555">=</span><span style="color:#c30">&#34;resampled samples with $r \sim w$&#34;</span>)
 
-ax<span style="color: #555555">.</span>legend()
-ax<span style="color: #555555">.</span>set_xlim([xfrom, xto])
-plt<span style="color: #555555">.</span>show()
-</code></pre></div>
-
-<p><img src="./index_10_0.png" alt="png" /></p>
-
+ax<span style="color:#555">.</span>legend()
+ax<span style="color:#555">.</span>set_xlim([xfrom, xto])
+plt<span style="color:#555">.</span>show()
+</code></pre></div><p><img src="./index_10_0.png" alt="png"></p>
 <h2 id="particle-filter-implementation">Particle filter implementation</h2>
-
 <p>Now, having all key concepts explained, we can write the particle filter implementation for robot localization.
 The filter state consists of:</p>
-
 <ul>
 <li>robot position - $(x, y)$.</li>
 <li>robot heading angle - $\theta$.</li>
 </ul>
-
 <p>The robot moves along a map and measures the distances to the known landmarks, or anchors, when they are within its sense range.</p>
-
 <p>The robot distance measurements to the landmarks and its motion controls are not perfect. To take that into account I inject the noises in particle filter process in the following forms:</p>
-
 <ul>
 <li>For predict step - the control $u_t$ that consists of $(\delta d, \delta \theta)$ is additionally pertrubated with random noise, $N(0, \sigma_{motion})$ and $N(0, \sigma_{\theta})$.</li>
 <li>For correction step. Whenever the robot measures the distances to the known landmark $n$, we can asses the measurement likelihood given our state $(x, y, \theta)$. Having the predicted $\hat{d} = \sqrt{(x - x_{landmark})^2 + (y - y_{landmark})^2}$ and measured $d_n$ distances, and the measurement noise $\sigma_d$ the likelihood can be calculated as:
 $$p(z_n|x_t) = {\frac {1}{\sigma_d {\sqrt {2\pi }}}}e^{-{\frac {1}{2}}\left({\frac {\hat{d}-d_{n} }{\sigma_d }}\right)^{2}}$$
 The current particle weight have to be multiplied with $p(z_n|x_t)$ for each available measurement.</li>
 </ul>
-
 <p>Then the weights have to be renormalized, particles - resampled, if it is neccessary.
 This process continues to evolve in iterative manner.</p>
-
 <h3 id="animation">Animation</h3>
-
 <p>To test the code and view the particle filtering process in action you can simply execute <em>run.py</em> <a href="https://github.com/mikoff/blog_projects/tree/particle_filter/run.py">script</a>:</p>
-<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>python3 run<span style="color: #555555">.</span>py
+<div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">python3 run<span style="color:#555">.</span>py
 </code></pre></div>
-
-
 <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
-  <iframe src="//www.youtube.com/embed/tHozufezrpE?autoplay=1" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
+  <iframe src="https://www.youtube.com/embed/tHozufezrpE?autoplay=1" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
 </div>
-
 
 <p>In the following animation the robot moves along a circle and measures the distances to anchors that are marked with red crosses.
 The true robot position is shown with black plus sign. The blue lines, connecting the robot and the anchors - true distance measurements between the robot and the anchors, the grey circles - the measured distances between robot and anchor.

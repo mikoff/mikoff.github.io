@@ -65,7 +65,7 @@ Distance from stereo-images The camera image is a projection of the world on the
     <link rel="icon" type="image/png" href="https://mikoff.github.io/img/favicon-32x32.png" sizes="32x32">
     <link rel="icon" type="image/png" href="https://mikoff.github.io/img/favicon-16x16.png" sizes="16x16">
 
-    <meta name="generator" content="Hugo 0.57.2" />
+    <meta name="generator" content="Hugo 0.68.3" />
   </head>
 
   
@@ -144,153 +144,122 @@ Distance from stereo-images The camera image is a projection of the world on the
 
       <div>
         
-        
-
-<h2 id="intro">Intro</h2>
-
+        <h2 id="intro">Intro</h2>
 <p>Recently I have read <a href="https://www.cambridge.org/core/books/state-estimation-for-robotics/AC0E0AC229C55203B3C8F106BCB61F48">&ldquo;State Estimation for Robotics&rdquo;</a> book and came across a good example on one-dimensional nonlinear estimation problem: the estimation of the position of a landmark from stereo-camera data.</p>
-
 <h2 id="distance-from-stereo-images">Distance from stereo-images</h2>
-
 <p>The camera image is a projection of the world on the image plane.
 The depth perceptions arises from disparity of 3d point (landmark) on two images, obtained from left and right cameras.
 $$disparity = x_{left} - x_{right}$$</p>
-
-<p><img src="./two_camera_images.svg#center" alt="svg" /></p>
-
+<p><img src="./two_camera_images.svg#center" alt="svg"></p>
 <p>Having two images with known landmark positions in image coordinates (pixels), it turns out that we can calculate the depth between camera and the landmark.</p>
-
 <p>To do so, let&rsquo;s draw a simple scheme of two pinholes cameras&rsquo; setup and derive the equation for depth, or forward distance, between the camera and the landmark.</p>
-
-<p><img src="./camera_model_only.svg#center" alt="svg" /></p>
-
+<p><img src="./camera_model_only.svg#center" alt="svg"></p>
 <p>On the preceding image $l$ is the landmark, $(x, z)$ is the landmark position w.r.t. the left camera $c_{left}$ (meters). We want to find $z$, depth of the landmark. By design, the focal length $f$ (in pixels) and baseline $b$, which is the horizontal distance between left and right cameras (in meters) are known.</p>
-
 <p>From the  similar triangles (marked with arcs) and under assumption that the optical axes of the cameras are parallel we have (for simplicty $x_{left} = x_{l}, x_{right} = x_r$):
 $$\frac{z}{f} = \frac{x}{x_{l}} = \frac{x-b}{x_{r}}.$$
 Now, expressing $x$ in terms of $x_{l}$ and $x_{r}$ gives:
 $$x x_{r} = (x - b) x_{l}$$
 $$x (x_{r} - x_{l}) = -b x_{l}$$
 $$x = \frac{b x_{l}}{x_{l} - x_{r}}$$</p>
-
 <p>Substituting it into previous equation:
 $$\frac{z}{f} = \frac{b}{x_r - x_l}$$
 we can derive the equation for depth, or $z$ as:
 $$z = \frac{f b}{x_l - x_r}.$$</p>
-
 <h2 id="bayesian-model">Bayesian model</h2>
-
 <p>From the depth equation the measurement model for disparity $disparity = x_l - x_r$ can be written as:
 $$disparity = x_l - x_r = y = \frac{f b}{z} + n,$$
 where the state $z$ is the depth of the landmark (meters) and $n$ is the measurement noise (in pixels), all other terms were defined earlier. Despite of being simple it is a nonlinear model: $f(x_1 + x_2) \neq f(x_1) + f(x_2)$.</p>
-
 <p>This fact can be visualized by passing the state through our measurement function. After applying this transform evenly spaced samples from our state space become unevenly spaced:</p>
-<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>fig, ax <span style="color: #555555">=</span> plt<span style="color: #555555">.</span>subplots(<span style="color: #FF6600">1</span>, <span style="color: #FF6600">1</span>, figsize <span style="color: #555555">=</span> (<span style="color: #FF6600">10</span>, <span style="color: #FF6600">3</span>))
+<div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">fig, ax <span style="color:#555">=</span> plt<span style="color:#555">.</span>subplots(<span style="color:#f60">1</span>, <span style="color:#f60">1</span>, figsize <span style="color:#555">=</span> (<span style="color:#f60">10</span>, <span style="color:#f60">3</span>))
 
-<span style="color: #0099FF; font-style: italic"># depth</span>
-z_space <span style="color: #555555">=</span> np<span style="color: #555555">.</span>linspace(<span style="color: #FF6600">1e-8</span>, <span style="color: #FF6600">40</span>, <span style="color: #FF6600">100</span>)
-<span style="color: #0099FF; font-style: italic"># corresponding disparity measurements</span>
+<span style="color:#09f;font-style:italic"># depth</span>
+z_space <span style="color:#555">=</span> np<span style="color:#555">.</span>linspace(<span style="color:#f60">1e-8</span>, <span style="color:#f60">40</span>, <span style="color:#f60">100</span>)
+<span style="color:#09f;font-style:italic"># corresponding disparity measurements</span>
 
-measurement_space <span style="color: #555555">=</span> <span style="color: #FF6600">400</span> <span style="color: #555555">*</span> <span style="color: #FF6600">0.1</span> <span style="color: #555555">/</span> z_space
-ax<span style="color: #555555">.</span>vlines(z_space, <span style="color: #FF6600">0</span>, <span style="color: #FF6600">0.2</span>, colors<span style="color: #555555">=</span><span style="color: #CC3300">&#39;k&#39;</span>, label <span style="color: #555555">=</span> <span style="color: #CC3300">&quot;state samples, $z$&quot;</span>, lw <span style="color: #555555">=</span> <span style="color: #FF6600">0.5</span>)
-ax<span style="color: #555555">.</span>vlines(measurement_space, <span style="color: #FF6600">0</span>, <span style="color: #FF6600">0.2</span>, colors<span style="color: #555555">=</span><span style="color: #CC3300">&#39;green&#39;</span>, label <span style="color: #555555">=</span> <span style="color: #CC3300">&quot;measurement samples, $y$&quot;</span>, lw <span style="color: #555555">=</span> <span style="color: #FF6600">0.5</span>)
-ax<span style="color: #555555">.</span>set_xlim(<span style="color: #FF6600">0</span>, <span style="color: #FF6600">40</span>)
-ax<span style="color: #555555">.</span>set_ylim(<span style="color: #555555">-</span><span style="color: #FF6600">0.2</span>, <span style="color: #FF6600">0.4</span>)
-ax<span style="color: #555555">.</span>legend()
-</code></pre></div>
-
-<p><img src="./index_9_1.png" alt="png" /></p>
-
+measurement_space <span style="color:#555">=</span> <span style="color:#f60">400</span> <span style="color:#555">*</span> <span style="color:#f60">0.1</span> <span style="color:#555">/</span> z_space
+ax<span style="color:#555">.</span>vlines(z_space, <span style="color:#f60">0</span>, <span style="color:#f60">0.2</span>, colors<span style="color:#555">=</span><span style="color:#c30">&#39;k&#39;</span>, label <span style="color:#555">=</span> <span style="color:#c30">&#34;state samples, $z$&#34;</span>, lw <span style="color:#555">=</span> <span style="color:#f60">0.5</span>)
+ax<span style="color:#555">.</span>vlines(measurement_space, <span style="color:#f60">0</span>, <span style="color:#f60">0.2</span>, colors<span style="color:#555">=</span><span style="color:#c30">&#39;green&#39;</span>, label <span style="color:#555">=</span> <span style="color:#c30">&#34;measurement samples, $y$&#34;</span>, lw <span style="color:#555">=</span> <span style="color:#f60">0.5</span>)
+ax<span style="color:#555">.</span>set_xlim(<span style="color:#f60">0</span>, <span style="color:#f60">40</span>)
+ax<span style="color:#555">.</span>set_ylim(<span style="color:#555">-</span><span style="color:#f60">0.2</span>, <span style="color:#f60">0.4</span>)
+ax<span style="color:#555">.</span>legend()
+</code></pre></div><p><img src="./index_9_1.png" alt="png"></p>
 <p>The Bayesian update is defined as:
 $$p(z|y) = \eta~p(y|z)~p(z),$$
 where $\eta =  \frac{1}{p(y)} = \frac{1}{\int p(y|z)~p(z)~dz}$ is the normalizer.</p>
-
 <p>To perform such update, the probabilities of $p(y|z)$ and $p(z)$ must be known. Our choice is to define the measurement noise as zero-mean Gaussian $n \sim N(0, R)$. Thus:
 $$p(y|z) = N\left(\frac{f b}{z}, R\right) = \frac{1}{\sqrt{2 \pi R}} exp\left(-\frac{1}{2 R} \left(y - \frac{f b}{z}\right)^2\right).$$
 We also asssume that the prior is Gaussian:
 $$p(z) = N(z^{-}, P^{-}) = \frac{1}{\sqrt{2 \pi P^{-}}} exp\left(-\frac{1}{2 P^{-}} (z - z^{-})^2\right).$$</p>
-
-<p>The Bayesian framework consists of the following operations:
-1. Get the prior $p(z)$ over the state space $z$, given the current estimate $z^{-}$.
-2. Obtain the measurement $y$.
-3. Calculate the measurement likelihood using $p(y|z)$.
-4. Calculate the posterior $p(z|y)$ using Bayes rule.</p>
-
+<p>The Bayesian framework consists of the following operations:</p>
+<ol>
+<li>Get the prior $p(z)$ over the state space $z$, given the current estimate $z^{-}$.</li>
+<li>Obtain the measurement $y$.</li>
+<li>Calculate the measurement likelihood using $p(y|z)$.</li>
+<li>Calculate the posterior $p(z|y)$ using Bayes rule.</li>
+</ol>
 <h2 id="visualization">Visualization</h2>
-
 <p>To illustrate how this nonlinearity affects the pdf of the posterior it is possible to perform numerical experiments. For such an experiment, the selected parameters are the following:
 $$z^{-} = 20~[m],~P^{-} = 9~[m^2],~f = 400~[pixel],~b = 0.1~[m],~R = 0.09~[pixel^2].$$</p>
-
 <p>The parameters for posterior calculation:
 $$z_{true} = 22~[m],~y_{meas} = \frac{f b}{z_{true}} + 1~[pixel].$$</p>
-<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span><span style="color: #0099FF; font-style: italic"># prior parameters</span>
-z_prior <span style="color: #555555">=</span> <span style="color: #FF6600">20</span>
-P_prior <span style="color: #555555">=</span> <span style="color: #FF6600">9</span>
-f <span style="color: #555555">=</span> <span style="color: #FF6600">400</span>
-b <span style="color: #555555">=</span> <span style="color: #FF6600">0.1</span>
-R <span style="color: #555555">=</span> <span style="color: #FF6600">0.09</span>
+<div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#09f;font-style:italic"># prior parameters</span>
+z_prior <span style="color:#555">=</span> <span style="color:#f60">20</span>
+P_prior <span style="color:#555">=</span> <span style="color:#f60">9</span>
+f <span style="color:#555">=</span> <span style="color:#f60">400</span>
+b <span style="color:#555">=</span> <span style="color:#f60">0.1</span>
+R <span style="color:#555">=</span> <span style="color:#f60">0.09</span>
 
-<span style="color: #0099FF; font-style: italic"># measurement parameters</span>
-z_true <span style="color: #555555">=</span> <span style="color: #FF6600">22</span>
-noise <span style="color: #555555">=</span> <span style="color: #FF6600">1.0</span>
-y_meas <span style="color: #555555">=</span> f <span style="color: #555555">*</span> b <span style="color: #555555">/</span> z_true <span style="color: #555555">+</span> noise
+<span style="color:#09f;font-style:italic"># measurement parameters</span>
+z_true <span style="color:#555">=</span> <span style="color:#f60">22</span>
+noise <span style="color:#555">=</span> <span style="color:#f60">1.0</span>
+y_meas <span style="color:#555">=</span> f <span style="color:#555">*</span> b <span style="color:#555">/</span> z_true <span style="color:#555">+</span> noise
 
-fig, ax <span style="color: #555555">=</span> plt<span style="color: #555555">.</span>subplots(<span style="color: #FF6600">1</span>, <span style="color: #FF6600">1</span>, figsize <span style="color: #555555">=</span> (<span style="color: #FF6600">15</span>, <span style="color: #FF6600">4</span>))
+fig, ax <span style="color:#555">=</span> plt<span style="color:#555">.</span>subplots(<span style="color:#f60">1</span>, <span style="color:#f60">1</span>, figsize <span style="color:#555">=</span> (<span style="color:#f60">15</span>, <span style="color:#f60">4</span>))
 
-<span style="color: #0099FF; font-style: italic"># prior</span>
-z_space <span style="color: #555555">=</span> np<span style="color: #555555">.</span>linspace(<span style="color: #FF6600">1e-8</span>, <span style="color: #FF6600">40</span>, <span style="color: #FF6600">10000</span>)
-priors <span style="color: #555555">=</span> stats<span style="color: #555555">.</span>norm<span style="color: #555555">.</span>pdf(z_space, loc <span style="color: #555555">=</span> z_prior, scale <span style="color: #555555">=</span> np<span style="color: #555555">.</span>sqrt(P_prior))
-priors <span style="color: #555555">=</span> priors <span style="color: #555555">/</span> priors<span style="color: #555555">.</span>sum()
-ax<span style="color: #555555">.</span>plot(z_space, priors, <span style="color: #CC3300">&#39;r-&#39;</span>, label <span style="color: #555555">=</span> <span style="color: #CC3300">&quot;prior&quot;</span>)
+<span style="color:#09f;font-style:italic"># prior</span>
+z_space <span style="color:#555">=</span> np<span style="color:#555">.</span>linspace(<span style="color:#f60">1e-8</span>, <span style="color:#f60">40</span>, <span style="color:#f60">10000</span>)
+priors <span style="color:#555">=</span> stats<span style="color:#555">.</span>norm<span style="color:#555">.</span>pdf(z_space, loc <span style="color:#555">=</span> z_prior, scale <span style="color:#555">=</span> np<span style="color:#555">.</span>sqrt(P_prior))
+priors <span style="color:#555">=</span> priors <span style="color:#555">/</span> priors<span style="color:#555">.</span>sum()
+ax<span style="color:#555">.</span>plot(z_space, priors, <span style="color:#c30">&#39;r-&#39;</span>, label <span style="color:#555">=</span> <span style="color:#c30">&#34;prior&#34;</span>)
 
-<span style="color: #0099FF; font-style: italic"># likelihood</span>
-measurement_space <span style="color: #555555">=</span> <span style="color: #FF6600">400</span> <span style="color: #555555">*</span> <span style="color: #FF6600">0.1</span> <span style="color: #555555">/</span> z_space
-likelihoods <span style="color: #555555">=</span> stats<span style="color: #555555">.</span>norm<span style="color: #555555">.</span>pdf(measurement_space, loc <span style="color: #555555">=</span> y_meas, scale <span style="color: #555555">=</span> np<span style="color: #555555">.</span>sqrt(R))
-likelihoods <span style="color: #555555">=</span> likelihoods <span style="color: #555555">/</span> likelihoods<span style="color: #555555">.</span>sum()
-ax<span style="color: #555555">.</span>plot(z_space, likelihoods, <span style="color: #CC3300">&#39;g--&#39;</span>, label <span style="color: #555555">=</span> <span style="color: #CC3300">&quot;likelihood&quot;</span>)
+<span style="color:#09f;font-style:italic"># likelihood</span>
+measurement_space <span style="color:#555">=</span> <span style="color:#f60">400</span> <span style="color:#555">*</span> <span style="color:#f60">0.1</span> <span style="color:#555">/</span> z_space
+likelihoods <span style="color:#555">=</span> stats<span style="color:#555">.</span>norm<span style="color:#555">.</span>pdf(measurement_space, loc <span style="color:#555">=</span> y_meas, scale <span style="color:#555">=</span> np<span style="color:#555">.</span>sqrt(R))
+likelihoods <span style="color:#555">=</span> likelihoods <span style="color:#555">/</span> likelihoods<span style="color:#555">.</span>sum()
+ax<span style="color:#555">.</span>plot(z_space, likelihoods, <span style="color:#c30">&#39;g--&#39;</span>, label <span style="color:#555">=</span> <span style="color:#c30">&#34;likelihood&#34;</span>)
 
-<span style="color: #0099FF; font-style: italic"># posterior</span>
-posteriors <span style="color: #555555">=</span> priors <span style="color: #555555">*</span> likelihoods
-posteriors <span style="color: #555555">=</span> posteriors <span style="color: #555555">/</span> np<span style="color: #555555">.</span>sum(posteriors)
-ax<span style="color: #555555">.</span>plot(z_space, posteriors, <span style="color: #CC3300">&#39;b-.&#39;</span>, label <span style="color: #555555">=</span> <span style="color: #CC3300">&quot;posterior&quot;</span>)
+<span style="color:#09f;font-style:italic"># posterior</span>
+posteriors <span style="color:#555">=</span> priors <span style="color:#555">*</span> likelihoods
+posteriors <span style="color:#555">=</span> posteriors <span style="color:#555">/</span> np<span style="color:#555">.</span>sum(posteriors)
+ax<span style="color:#555">.</span>plot(z_space, posteriors, <span style="color:#c30">&#39;b-.&#39;</span>, label <span style="color:#555">=</span> <span style="color:#c30">&#34;posterior&#34;</span>)
 
-ymin, ymax <span style="color: #555555">=</span> ax<span style="color: #555555">.</span>get_ylim()
-ax<span style="color: #555555">.</span>vlines([z_true], ymin, ymax, colors <span style="color: #555555">=</span> <span style="color: #CC3300">&#39;magenta&#39;</span>, linestyles <span style="color: #555555">=</span> <span style="color: #CC3300">&#39;dotted&#39;</span>, label <span style="color: #555555">=</span> <span style="color: #CC3300">&#39;$z_{true}$&#39;</span>)
+ymin, ymax <span style="color:#555">=</span> ax<span style="color:#555">.</span>get_ylim()
+ax<span style="color:#555">.</span>vlines([z_true], ymin, ymax, colors <span style="color:#555">=</span> <span style="color:#c30">&#39;magenta&#39;</span>, linestyles <span style="color:#555">=</span> <span style="color:#c30">&#39;dotted&#39;</span>, label <span style="color:#555">=</span> <span style="color:#c30">&#39;$z_{true}$&#39;</span>)
 
-zFromMeas <span style="color: #555555">=</span> f <span style="color: #555555">*</span> b <span style="color: #555555">/</span> y_meas
-ax<span style="color: #555555">.</span>vlines([zFromMeas], ymin, ymax, colors <span style="color: #555555">=</span> <span style="color: #CC3300">&#39;brown&#39;</span>, linestyles <span style="color: #555555">=</span> <span style="color: #CC3300">&#39;dotted&#39;</span>, label <span style="color: #555555">=</span> <span style="color: #CC3300">&#39;$g^{-1}(y_{meas})$&#39;</span>)
+zFromMeas <span style="color:#555">=</span> f <span style="color:#555">*</span> b <span style="color:#555">/</span> y_meas
+ax<span style="color:#555">.</span>vlines([zFromMeas], ymin, ymax, colors <span style="color:#555">=</span> <span style="color:#c30">&#39;brown&#39;</span>, linestyles <span style="color:#555">=</span> <span style="color:#c30">&#39;dotted&#39;</span>, label <span style="color:#555">=</span> <span style="color:#c30">&#39;$g^{-1}(y_{meas})$&#39;</span>)
 
-maxPosterior <span style="color: #555555">=</span> np<span style="color: #555555">.</span>argmax(posteriors)
-ax<span style="color: #555555">.</span>vlines([z_space[maxPosterior]], ymin, ymax, colors <span style="color: #555555">=</span> <span style="color: #CC3300">&#39;blue&#39;</span>, linestyles <span style="color: #555555">=</span> <span style="color: #CC3300">&#39;dotted&#39;</span>, label <span style="color: #555555">=</span> <span style="color: #CC3300">&#39;$z^{+}$&#39;</span>)
+maxPosterior <span style="color:#555">=</span> np<span style="color:#555">.</span>argmax(posteriors)
+ax<span style="color:#555">.</span>vlines([z_space[maxPosterior]], ymin, ymax, colors <span style="color:#555">=</span> <span style="color:#c30">&#39;blue&#39;</span>, linestyles <span style="color:#555">=</span> <span style="color:#c30">&#39;dotted&#39;</span>, label <span style="color:#555">=</span> <span style="color:#c30">&#39;$z^{+}$&#39;</span>)
 
-ax<span style="color: #555555">.</span>legend()
-</code></pre></div>
-
-<p><img src="./index_14_1.png" alt="png" /></p>
-
+ax<span style="color:#555">.</span>legend()
+</code></pre></div><p><img src="./index_14_1.png" alt="png"></p>
 <p>The maximum likelihood estimation (MLE) can be utilized when we want to use only the measurements and have no prior information about possible system state. It helps to find the answer to the following question: which value of $z$ is most probable given the measurement $y$?</p>
-
 <p>However, if we know the prior distribution of our parameter of interest, it is generally a good idea to take it into account. The incorporation of the measurement results in more concentrated (less uncertainty) posterior about the state than the prior.</p>
-
 <p>We can find the most probable posterior value for this concrete example by visual inspection of the posterior PDF. However, it is not the case for most real-life problems. To overcome this problem the maximum a posteriori (MAP) approach can be utilized. It is used to find the <em>peak</em> of the posterior.</p>
-
 <h2 id="maximum-likelihood-estimation">Maximum Likelihood estimation</h2>
-
 <p>Talking about the maximum likelihood estimation we seek for a value that maximizes the likelihood of our measurement, or data, given the state $z$:
 $$\hat{x}_{mle} = \underset{x}{arg~max}~p(y|x),$$
 going to the $log$ space:
 $$\hat{x}_{mle} = \underset{x}{arg~min}~(-ln(p(y|x))).$$
 <em>Note</em>: if we want to find MLE for a number of measurements, or samples under assumption that they are undepended, we replace $p(y|x)$ by the product of individual samples probabilities: $\underset{i}{\prod} p(y_i|x)$. This leads to the following $\hat{x}_{mle}$:
 $$\hat{x}_{mle} = \underset{x}{arg~min}~(-\underset{i}{\sum}ln(p(y_i|x))).$$</p>
-
 <p>For stereo-camera depth estimate:
 $$\hat{z}_{mle} = \underset{z}{arg~min}~J_{mle}(z),$$
 where $J_{mle}(z)$ can be found as:
 $$J_{mle}(z) = \frac{1}{2 R} \left(y - \frac{f b}{z}\right)^2,$$
 after dropping the constants that do not depend on $x$.</p>
-
 <h2 id="maximum-a-posteriori-estimation">Maximum a Posteriori estimation</h2>
-
 <p>When we are talking about maximum a posteriori estimation we assume that we want to find the single state value $x$ that maximizes the true posterior:
 $$\hat{x}_{map} = \underset{x}{arg~max}~p(x|y),$$
 or, alternatively, because $log$ is the monotolically increasing function:
@@ -298,91 +267,78 @@ $$\hat{x}_{map} = \underset{x}{arg~min}~(-ln(p(x|y))).$$
 Applying the Bayes rule we have:
 $$\hat{x}_{map} = \underset{x}{arg~min}~(-ln(p(y|x)) - ln(p(x))),$$
 where $p(y)$ is being dropped because it does not depend on $x$. Again, if we have a number of measurements $y_i$, we have to add their product that leads to the sum after switching to the $log$ space.</p>
-
 <p>In the stereo-camera depth estimate we can write:
 $$\hat{z}_{map} = \underset{z}{arg~min}~J_{map}(z),$$
 where $J(z)$ is obtained by dropping the constants that do not depend on $x$:
 $$J_{map}(z) = \frac{1}{2 R} \left(y - \frac{f b}{z}\right)^2 + \frac{1}{2 P^{-}} \left(z^{-} - z\right)^2$$</p>
-
 <p>Both MLE and MAP estimates can be found using a number of numerical optimization techniques by minimizing our target cost functions $J_{mle}$ or $J_{map}$.</p>
-
 <p>Let&rsquo;s go back and find the MLE and MAP estimates of $z$:</p>
-<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span><span style="color: #006699; font-weight: bold">from</span> <span style="color: #00CCFF; font-weight: bold">scipy.optimize</span> <span style="color: #006699; font-weight: bold">import</span> minimize
+<div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#069;font-weight:bold">from</span> <span style="color:#0cf;font-weight:bold">scipy.optimize</span> <span style="color:#069;font-weight:bold">import</span> minimize
 
-Jz_mle <span style="color: #555555">=</span> <span style="color: #006699; font-weight: bold">lambda</span> z: <span style="color: #FF6600">1.0</span> <span style="color: #555555">/</span> (<span style="color: #FF6600">2.0</span> <span style="color: #555555">*</span> R) <span style="color: #555555">*</span> (y_meas <span style="color: #555555">-</span> f <span style="color: #555555">*</span> b <span style="color: #555555">/</span> z) <span style="color: #555555">**</span> <span style="color: #FF6600">2</span>
+Jz_mle <span style="color:#555">=</span> <span style="color:#069;font-weight:bold">lambda</span> z: <span style="color:#f60">1.0</span> <span style="color:#555">/</span> (<span style="color:#f60">2.0</span> <span style="color:#555">*</span> R) <span style="color:#555">*</span> (y_meas <span style="color:#555">-</span> f <span style="color:#555">*</span> b <span style="color:#555">/</span> z) <span style="color:#555">**</span> <span style="color:#f60">2</span>
 
-ml_estimate <span style="color: #555555">=</span> minimize(Jz_mle, <span style="color: #FF6600">1e-8</span>)<span style="color: #555555">.</span>x[<span style="color: #FF6600">0</span>]
+ml_estimate <span style="color:#555">=</span> minimize(Jz_mle, <span style="color:#f60">1e-8</span>)<span style="color:#555">.</span>x[<span style="color:#f60">0</span>]
 
-<span style="color: #006699; font-weight: bold">print</span>(<span style="color: #CC3300">&quot;ML estimate:&quot;</span>, ml_estimate)
+<span style="color:#069;font-weight:bold">print</span>(<span style="color:#c30">&#34;ML estimate:&#34;</span>, ml_estimate)
 
-Jz_map <span style="color: #555555">=</span> <span style="color: #006699; font-weight: bold">lambda</span> z: <span style="color: #FF6600">1.0</span> <span style="color: #555555">/</span> (<span style="color: #FF6600">2.0</span> <span style="color: #555555">*</span> R) <span style="color: #555555">*</span> (y_meas <span style="color: #555555">-</span> f <span style="color: #555555">*</span> b <span style="color: #555555">/</span> z) <span style="color: #555555">**</span> <span style="color: #FF6600">2</span> <span style="color: #555555">+</span> \
-        <span style="color: #FF6600">1.0</span> <span style="color: #555555">/</span> (<span style="color: #FF6600">2.0</span> <span style="color: #555555">*</span> P_prior) <span style="color: #555555">*</span> (z_prior <span style="color: #555555">-</span> z) <span style="color: #555555">**</span> <span style="color: #FF6600">2</span>
+Jz_map <span style="color:#555">=</span> <span style="color:#069;font-weight:bold">lambda</span> z: <span style="color:#f60">1.0</span> <span style="color:#555">/</span> (<span style="color:#f60">2.0</span> <span style="color:#555">*</span> R) <span style="color:#555">*</span> (y_meas <span style="color:#555">-</span> f <span style="color:#555">*</span> b <span style="color:#555">/</span> z) <span style="color:#555">**</span> <span style="color:#f60">2</span> <span style="color:#555">+</span> \
+        <span style="color:#f60">1.0</span> <span style="color:#555">/</span> (<span style="color:#f60">2.0</span> <span style="color:#555">*</span> P_prior) <span style="color:#555">*</span> (z_prior <span style="color:#555">-</span> z) <span style="color:#555">**</span> <span style="color:#f60">2</span>
 
-map_estimate <span style="color: #555555">=</span> minimize(Jz_map, <span style="color: #FF6600">1e-8</span>)<span style="color: #555555">.</span>x[<span style="color: #FF6600">0</span>]
-<span style="color: #006699; font-weight: bold">print</span>(<span style="color: #CC3300">&quot;MAP estimate: &quot;</span>, map_estimate)
+map_estimate <span style="color:#555">=</span> minimize(Jz_map, <span style="color:#f60">1e-8</span>)<span style="color:#555">.</span>x[<span style="color:#f60">0</span>]
+<span style="color:#069;font-weight:bold">print</span>(<span style="color:#c30">&#34;MAP estimate: &#34;</span>, map_estimate)
 
-ax<span style="color: #555555">.</span>vlines([ml_estimate], ymin, ymax, colors <span style="color: #555555">=</span> <span style="color: #CC3300">&#39;green&#39;</span>, linestyles <span style="color: #555555">=</span> <span style="color: #CC3300">&#39;-&#39;</span>, label <span style="color: #555555">=</span> <span style="color: #CC3300">&#39;$z_{ml}$&#39;</span>)
-ax<span style="color: #555555">.</span>legend()
+ax<span style="color:#555">.</span>vlines([ml_estimate], ymin, ymax, colors <span style="color:#555">=</span> <span style="color:#c30">&#39;green&#39;</span>, linestyles <span style="color:#555">=</span> <span style="color:#c30">&#39;-&#39;</span>, label <span style="color:#555">=</span> <span style="color:#c30">&#39;$z_{ml}$&#39;</span>)
+ax<span style="color:#555">.</span>legend()
 
-ax<span style="color: #555555">.</span>vlines([map_estimate], ymin, ymax, colors <span style="color: #555555">=</span> <span style="color: #CC3300">&#39;blue&#39;</span>, linestyles <span style="color: #555555">=</span> <span style="color: #CC3300">&#39;-&#39;</span>, label <span style="color: #555555">=</span> <span style="color: #CC3300">&#39;$z_{map}$&#39;</span>)
-ax<span style="color: #555555">.</span>legend()
+ax<span style="color:#555">.</span>vlines([map_estimate], ymin, ymax, colors <span style="color:#555">=</span> <span style="color:#c30">&#39;blue&#39;</span>, linestyles <span style="color:#555">=</span> <span style="color:#c30">&#39;-&#39;</span>, label <span style="color:#555">=</span> <span style="color:#c30">&#39;$z_{map}$&#39;</span>)
+ax<span style="color:#555">.</span>legend()
 
-IPython<span style="color: #555555">.</span>display<span style="color: #555555">.</span>display(fig)
-</code></pre></div>
-
-<pre><code>ML estimate: 14.19354712952584
+IPython<span style="color:#555">.</span>display<span style="color:#555">.</span>display(fig)
+</code></pre></div><pre><code>ML estimate: 14.19354712952584
 MAP estimate:  15.671431302257346
 </code></pre>
-
-<p><img src="./index_20_1.png" alt="png" /></p>
-
+<p><img src="./index_20_1.png" alt="png"></p>
 <p>To test whether or not the estimators find the true value of $z$ the simulations can be performed, estimating the residual between true and estimated states.</p>
-<div class="highlight" style="background: #f0f3f3"><pre style="line-height: 125%"><code class="language-python" data-lang="python"><span></span>results <span style="color: #555555">=</span> {<span style="color: #CC3300">&#39;true_state&#39;</span> : [], <span style="color: #CC3300">&#39;measurement&#39;</span> : [], <span style="color: #CC3300">&quot;map_estimate&quot;</span> : [], <span style="color: #CC3300">&quot;mle_estimate&quot;</span> : []}
+<div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">results <span style="color:#555">=</span> {<span style="color:#c30">&#39;true_state&#39;</span> : [], <span style="color:#c30">&#39;measurement&#39;</span> : [], <span style="color:#c30">&#34;map_estimate&#34;</span> : [], <span style="color:#c30">&#34;mle_estimate&#34;</span> : []}
 
-<span style="color: #006699; font-weight: bold">for</span> i <span style="color: #000000; font-weight: bold">in</span> <span style="color: #336666">range</span>(<span style="color: #FF6600">0</span>, <span style="color: #FF6600">10000</span>):
-    z_true <span style="color: #555555">=</span> np<span style="color: #555555">.</span>random<span style="color: #555555">.</span>normal(z_prior, np<span style="color: #555555">.</span>sqrt(P_prior))
-    y_meas <span style="color: #555555">=</span> np<span style="color: #555555">.</span>random<span style="color: #555555">.</span>normal(f <span style="color: #555555">*</span> b <span style="color: #555555">/</span> z_true, np<span style="color: #555555">.</span>sqrt(R))
+<span style="color:#069;font-weight:bold">for</span> i <span style="color:#000;font-weight:bold">in</span> <span style="color:#366">range</span>(<span style="color:#f60">0</span>, <span style="color:#f60">10000</span>):
+    z_true <span style="color:#555">=</span> np<span style="color:#555">.</span>random<span style="color:#555">.</span>normal(z_prior, np<span style="color:#555">.</span>sqrt(P_prior))
+    y_meas <span style="color:#555">=</span> np<span style="color:#555">.</span>random<span style="color:#555">.</span>normal(f <span style="color:#555">*</span> b <span style="color:#555">/</span> z_true, np<span style="color:#555">.</span>sqrt(R))
     
-    Jz_mle <span style="color: #555555">=</span> <span style="color: #006699; font-weight: bold">lambda</span> z: <span style="color: #FF6600">1.0</span> <span style="color: #555555">/</span> (<span style="color: #FF6600">2.0</span> <span style="color: #555555">*</span> R) <span style="color: #555555">*</span> (y_meas <span style="color: #555555">-</span> f <span style="color: #555555">*</span> b <span style="color: #555555">/</span> z) <span style="color: #555555">**</span> <span style="color: #FF6600">2</span>
-    mle_estimate <span style="color: #555555">=</span> minimize(Jz_mle, <span style="color: #FF6600">1e-8</span>)<span style="color: #555555">.</span>x[<span style="color: #FF6600">0</span>]
+    Jz_mle <span style="color:#555">=</span> <span style="color:#069;font-weight:bold">lambda</span> z: <span style="color:#f60">1.0</span> <span style="color:#555">/</span> (<span style="color:#f60">2.0</span> <span style="color:#555">*</span> R) <span style="color:#555">*</span> (y_meas <span style="color:#555">-</span> f <span style="color:#555">*</span> b <span style="color:#555">/</span> z) <span style="color:#555">**</span> <span style="color:#f60">2</span>
+    mle_estimate <span style="color:#555">=</span> minimize(Jz_mle, <span style="color:#f60">1e-8</span>)<span style="color:#555">.</span>x[<span style="color:#f60">0</span>]
     
-    Jz_map <span style="color: #555555">=</span> <span style="color: #006699; font-weight: bold">lambda</span> z: <span style="color: #FF6600">1.0</span> <span style="color: #555555">/</span> (<span style="color: #FF6600">2.0</span> <span style="color: #555555">*</span> R) <span style="color: #555555">*</span> (y_meas <span style="color: #555555">-</span> f <span style="color: #555555">*</span> b <span style="color: #555555">/</span> z) <span style="color: #555555">**</span> <span style="color: #FF6600">2</span> <span style="color: #555555">+</span> \
-        <span style="color: #FF6600">1.0</span> <span style="color: #555555">/</span> (<span style="color: #FF6600">2.0</span> <span style="color: #555555">*</span> P_prior) <span style="color: #555555">*</span> (z_prior <span style="color: #555555">-</span> z) <span style="color: #555555">**</span> <span style="color: #FF6600">2</span>
-    map_estimate <span style="color: #555555">=</span> minimize(Jz_map, <span style="color: #FF6600">1e-8</span>)<span style="color: #555555">.</span>x[<span style="color: #FF6600">0</span>]
+    Jz_map <span style="color:#555">=</span> <span style="color:#069;font-weight:bold">lambda</span> z: <span style="color:#f60">1.0</span> <span style="color:#555">/</span> (<span style="color:#f60">2.0</span> <span style="color:#555">*</span> R) <span style="color:#555">*</span> (y_meas <span style="color:#555">-</span> f <span style="color:#555">*</span> b <span style="color:#555">/</span> z) <span style="color:#555">**</span> <span style="color:#f60">2</span> <span style="color:#555">+</span> \
+        <span style="color:#f60">1.0</span> <span style="color:#555">/</span> (<span style="color:#f60">2.0</span> <span style="color:#555">*</span> P_prior) <span style="color:#555">*</span> (z_prior <span style="color:#555">-</span> z) <span style="color:#555">**</span> <span style="color:#f60">2</span>
+    map_estimate <span style="color:#555">=</span> minimize(Jz_map, <span style="color:#f60">1e-8</span>)<span style="color:#555">.</span>x[<span style="color:#f60">0</span>]
 
-    results[<span style="color: #CC3300">&#39;true_state&#39;</span>]<span style="color: #555555">.</span>append(z_true)
-    results[<span style="color: #CC3300">&#39;mle_estimate&#39;</span>]<span style="color: #555555">.</span>append(mle_estimate)
-    results[<span style="color: #CC3300">&#39;map_estimate&#39;</span>]<span style="color: #555555">.</span>append(map_estimate)
+    results[<span style="color:#c30">&#39;true_state&#39;</span>]<span style="color:#555">.</span>append(z_true)
+    results[<span style="color:#c30">&#39;mle_estimate&#39;</span>]<span style="color:#555">.</span>append(mle_estimate)
+    results[<span style="color:#c30">&#39;map_estimate&#39;</span>]<span style="color:#555">.</span>append(map_estimate)
     
-true_results <span style="color: #555555">=</span> np<span style="color: #555555">.</span>array(results[<span style="color: #CC3300">&#39;true_state&#39;</span>])
-mle_results <span style="color: #555555">=</span> np<span style="color: #555555">.</span>array(results[<span style="color: #CC3300">&#39;mle_estimate&#39;</span>])
-map_results <span style="color: #555555">=</span> np<span style="color: #555555">.</span>array(results[<span style="color: #CC3300">&#39;map_estimate&#39;</span>])
+true_results <span style="color:#555">=</span> np<span style="color:#555">.</span>array(results[<span style="color:#c30">&#39;true_state&#39;</span>])
+mle_results <span style="color:#555">=</span> np<span style="color:#555">.</span>array(results[<span style="color:#c30">&#39;mle_estimate&#39;</span>])
+map_results <span style="color:#555">=</span> np<span style="color:#555">.</span>array(results[<span style="color:#c30">&#39;map_estimate&#39;</span>])
 
-fig, ax <span style="color: #555555">=</span> plt<span style="color: #555555">.</span>subplots(<span style="color: #FF6600">1</span>, <span style="color: #FF6600">1</span>, figsize <span style="color: #555555">=</span> (<span style="color: #FF6600">15</span>, <span style="color: #FF6600">4</span>))
-ax<span style="color: #555555">.</span>hist(mle_results, bins<span style="color: #555555">=</span><span style="color: #FF6600">50</span>, alpha <span style="color: #555555">=</span> <span style="color: #FF6600">0.5</span>, density <span style="color: #555555">=</span> <span style="color: #336666">True</span>, label <span style="color: #555555">=</span> <span style="color: #CC3300">&quot;MLE estimate&quot;</span>);
-ax<span style="color: #555555">.</span>hist(map_results, bins<span style="color: #555555">=</span><span style="color: #FF6600">50</span>, alpha <span style="color: #555555">=</span> <span style="color: #FF6600">0.5</span>, density <span style="color: #555555">=</span> <span style="color: #336666">True</span>, label <span style="color: #555555">=</span> <span style="color: #CC3300">&quot;MAP estimate&quot;</span>);
-ax<span style="color: #555555">.</span>legend()
+fig, ax <span style="color:#555">=</span> plt<span style="color:#555">.</span>subplots(<span style="color:#f60">1</span>, <span style="color:#f60">1</span>, figsize <span style="color:#555">=</span> (<span style="color:#f60">15</span>, <span style="color:#f60">4</span>))
+ax<span style="color:#555">.</span>hist(mle_results, bins<span style="color:#555">=</span><span style="color:#f60">50</span>, alpha <span style="color:#555">=</span> <span style="color:#f60">0.5</span>, density <span style="color:#555">=</span> True, label <span style="color:#555">=</span> <span style="color:#c30">&#34;MLE estimate&#34;</span>);
+ax<span style="color:#555">.</span>hist(map_results, bins<span style="color:#555">=</span><span style="color:#f60">50</span>, alpha <span style="color:#555">=</span> <span style="color:#f60">0.5</span>, density <span style="color:#555">=</span> True, label <span style="color:#555">=</span> <span style="color:#c30">&#34;MAP estimate&#34;</span>);
+ax<span style="color:#555">.</span>legend()
 
-<span style="color: #006699; font-weight: bold">print</span>(<span style="color: #CC3300">&quot;Mean error MAP and true state:&quot;</span>, np<span style="color: #555555">.</span>mean(map_results <span style="color: #555555">-</span> true_results))
-<span style="color: #006699; font-weight: bold">print</span>(<span style="color: #CC3300">&quot;Variance of the error: &quot;</span>, np<span style="color: #555555">.</span>mean((map_results  <span style="color: #555555">-</span> true_results) <span style="color: #555555">**</span> <span style="color: #FF6600">2</span>))
+<span style="color:#069;font-weight:bold">print</span>(<span style="color:#c30">&#34;Mean error MAP and true state:&#34;</span>, np<span style="color:#555">.</span>mean(map_results <span style="color:#555">-</span> true_results))
+<span style="color:#069;font-weight:bold">print</span>(<span style="color:#c30">&#34;Variance of the error: &#34;</span>, np<span style="color:#555">.</span>mean((map_results  <span style="color:#555">-</span> true_results) <span style="color:#555">**</span> <span style="color:#f60">2</span>))
 
-<span style="color: #006699; font-weight: bold">print</span>(<span style="color: #CC3300">&quot;Mean error MLE and true state:&quot;</span>, np<span style="color: #555555">.</span>mean(mle_results <span style="color: #555555">-</span> true_results))
-<span style="color: #006699; font-weight: bold">print</span>(<span style="color: #CC3300">&quot;Variance of the error: &quot;</span>, np<span style="color: #555555">.</span>mean((mle_results  <span style="color: #555555">-</span> true_results) <span style="color: #555555">**</span> <span style="color: #FF6600">2</span>))
-</code></pre></div>
-
-<pre><code>Mean error MAP and true state: -0.3708958146195719
+<span style="color:#069;font-weight:bold">print</span>(<span style="color:#c30">&#34;Mean error MLE and true state:&#34;</span>, np<span style="color:#555">.</span>mean(mle_results <span style="color:#555">-</span> true_results))
+<span style="color:#069;font-weight:bold">print</span>(<span style="color:#c30">&#34;Variance of the error: &#34;</span>, np<span style="color:#555">.</span>mean((mle_results  <span style="color:#555">-</span> true_results) <span style="color:#555">**</span> <span style="color:#f60">2</span>))
+</code></pre></div><pre><code>Mean error MAP and true state: -0.3708958146195719
 Variance of the error:  4.335754086406355
 Mean error MLE and true state: 0.475211450081065
 Variance of the error:  13.431400451884032
 </code></pre>
-
-<p><img src="./index_22_1.png" alt="png" /></p>
-
+<p><img src="./index_22_1.png" alt="png"></p>
 <p>When selecting between MLE and MAP estimators it is a good practice to use MAP when the prior is given or can be inferred from experiments or researcher&rsquo;s intuition. Also, it is important to note that if the prior is a uniform distribution, MAP becomes an equivalent to MLE.</p>
-
 <p>Both MLE and MAP estimators are biased even for such vanilla example. Why it happens and what to do with that?
 There is no straightforward answer: it depends on the problem. One of approaches that tackle this problem is the Bias-Variance decomposition.</p>
-
 <p>Jupyter notebook is available <a href="https://github.com/mikoff/blog_projects/blob/master/notebooks/Nonlinear%20estimation%20of%20stereo-vision%20problem%20using%20MLE%20and%20%20MAP/Nonlinear%20estimation%20of%20stereo-vision%20problem%20using%20MLE%2C%20MAP.ipynb">here</a>.</p>
 
       </div>

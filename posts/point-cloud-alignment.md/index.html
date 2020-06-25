@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Aleksandr Mikoff">
+    
+    
+
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Point cloud alignment and SVD"/>
+<meta name="twitter:description" content="Point cloud alignment and SVD Singular value decomposition Recently I studied the problem of finding the rotation and translation between two point sets and decided to write the post about it. The key here is singular value decomposition, or SVD.
+It is extremely popular technique in many types of linear problems. It should be not surprised, that the point cloud alignment problem can be solved with its help. My aim here is to show all accommpanying theory and provide the point cloud alignment algorithm that takes not more than 10 lines of code in Python."/>
+
+    <meta property="og:title" content="Point cloud alignment and SVD" />
+<meta property="og:description" content="Point cloud alignment and SVD Singular value decomposition Recently I studied the problem of finding the rotation and translation between two point sets and decided to write the post about it. The key here is singular value decomposition, or SVD.
+It is extremely popular technique in many types of linear problems. It should be not surprised, that the point cloud alignment problem can be solved with its help. My aim here is to show all accommpanying theory and provide the point cloud alignment algorithm that takes not more than 10 lines of code in Python." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://mikoff.github.io/posts/point-cloud-alignment.md/" />
+<meta property="article:published_time" content="2020-06-24T18:00:00+03:00" />
+<meta property="article:modified_time" content="2020-06-24T18:00:00+03:00" />
+
+
+    
+      <base href="https://mikoff.github.io/posts/point-cloud-alignment.md/">
+    
+    <title>
+  Point cloud alignment and SVD · Aleksandr Mikoff&#39;s blog
+</title>
+
+    
+      <link rel="canonical" href="https://mikoff.github.io/posts/point-cloud-alignment.md/">
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+
+    
+      
+      
+      <link rel="stylesheet" href="https://mikoff.github.io/css/coder.min.a4f332213a21ce8eb521670c614470c58923aaaf385e2a73982c31dd7642decb.css" integrity="sha256-pPMyITohzo61IWcMYURwxYkjqq84XipzmCwx3XZC3ss=" crossorigin="anonymous" media="screen" />
+    
+
+    
+
+    
+      
+        
+        
+        <link rel="stylesheet" href="https://mikoff.github.io/css/coder-dark.min.83a2010dac9f59f943b3004cd6c4f230507ad036da635d3621401d42ec4e2835.css" integrity="sha256-g6IBDayfWflDswBM1sTyMFB60DbaY102IUAdQuxOKDU=" crossorigin="anonymous" media="screen" />
+      
+    
+
+    
+      <link rel="stylesheet" href="https://mikoff.github.io/css/image.css" />
+    
+
+    
+
+    
+
+    <link rel="icon" type="image/png" href="https://mikoff.github.io/img/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://mikoff.github.io/img/favicon-16x16.png" sizes="16x16">
+
+    <meta name="generator" content="Hugo 0.68.3" />
+  </head>
+
+  
+  
+    
+  
+  <body class="colorscheme-auto">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="https://mikoff.github.io/">
+      Aleksandr Mikoff&#39;s blog
+    </a>
+    
+    <input type="checkbox" id="menu-toggle" />
+    <label class="menu-button float-right" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <ul class="navigation-list">
+      
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://mikoff.github.io/about/">About</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://mikoff.github.io/posts/">Posts</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://mikoff.github.io/tags">Tags</a>
+          </li>
+        
+      
+      
+    </ul>
+    
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container post">
+    <article>
+      <header>
+        <div class="post-title">
+          <h1 class="title">Point cloud alignment and SVD</h1>
+        </div>
+        <div class="post-meta">
+          <div class="date">
+            <span class="posted-on">
+              <i class="fas fa-calendar"></i>
+              <time datetime='2020-06-24T18:00:00&#43;03:00'>
+                June 24, 2020
+              </time>
+            </span>
+            <span class="reading-time">
+              <i class="fas fa-clock"></i>
+              7-minute read
+            </span>
+          </div>
+          
+          <div class="tags">
+  <i class="fas fa-tag"></i>
+    <a href="https://mikoff.github.io/tags/point-cloud-alignment/">Point cloud alignment</a>
+      <span class="separator">•</span>
+    <a href="https://mikoff.github.io/tags/svd/">SVD</a>
+      <span class="separator">•</span>
+    <a href="https://mikoff.github.io/tags/pcl/">PCL</a></div>
+
+        </div>
+      </header>
+
+      <div>
+        
+        <h1 id="point-cloud-alignment-and-svd">Point cloud alignment and SVD</h1>
+<h2 id="singular-value-decomposition">Singular value decomposition</h2>
+<p>Recently I studied the problem of finding the rotation and translation between two point sets and decided to write the post about it. The key here is <em>singular value decomposition</em>, or SVD.</p>
+<p>It is extremely popular technique in many types of linear problems. It should be not surprised, that the point cloud alignment problem can be solved with its help.
+My aim here is to show all accommpanying theory and provide the point cloud alignment algorithm that takes not more than 10 lines of code in Python.</p>
+<p>I would like to start from SVD.
+It is convinient to think about any matrix as a function, action, or transformation $A$, that maps points $\vec{x} \in R^n$ to points $\vec{y} = A\vec{x} \in R^m$. Intuitively, we can raise the question: what happens to the geometry of $R^n$ after action $A$. If our initial column space $R^n$ is represented by orthonormal basis, that can be visualzed as a grid, then we ask the following questions: what happens with our grid&rsquo;s <em>squares</em> after transformation $A$.</p>
+<p>Let&rsquo;s illustrate this problem with simple graphics.</p>
+<div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#069;font-weight:bold">def</span> <span style="color:#c0f">genRMatrix</span>(theta):
+    <span style="color:#069;font-weight:bold">return</span> np<span style="color:#555">.</span>array([[np<span style="color:#555">.</span>cos(theta), <span style="color:#555">-</span>np<span style="color:#555">.</span>sin(theta)], [np<span style="color:#555">.</span>sin(theta), np<span style="color:#555">.</span>cos(theta)]])
+
+<span style="color:#069;font-weight:bold">def</span> <span style="color:#c0f">transform</span>(A, X, Y):
+    mult <span style="color:#555">=</span> A <span style="color:#555">@</span> np<span style="color:#555">.</span>array([X<span style="color:#555">.</span>ravel(), Y<span style="color:#555">.</span>ravel()])
+    <span style="color:#069;font-weight:bold">return</span> mult[<span style="color:#f60">0</span>,:]<span style="color:#555">.</span>reshape(X<span style="color:#555">.</span>shape), mult[<span style="color:#f60">1</span>,:]<span style="color:#555">.</span>reshape(Y<span style="color:#555">.</span>shape)
+
+<span style="color:#069;font-weight:bold">def</span> <span style="color:#c0f">visualise</span>(ax, X, Y, title):
+    ax<span style="color:#555">.</span>scatter(X, Y)
+    ax<span style="color:#555">.</span>axis(<span style="color:#c30">&#34;equal&#34;</span>)
+    ax<span style="color:#555">.</span>set_xlim(<span style="color:#555">-</span><span style="color:#f60">7</span>, <span style="color:#f60">7</span>)
+    ax<span style="color:#555">.</span>set_ylim(<span style="color:#555">-</span><span style="color:#f60">7</span>, <span style="color:#f60">7</span>)
+    ax<span style="color:#555">.</span>set(adjustable<span style="color:#555">=</span><span style="color:#c30">&#39;box&#39;</span>, aspect<span style="color:#555">=</span><span style="color:#c30">&#39;equal&#39;</span>)
+    ax<span style="color:#555">.</span>set_title(title)
+
+x <span style="color:#555">=</span> np<span style="color:#555">.</span>linspace(<span style="color:#555">-</span><span style="color:#f60">5</span>, <span style="color:#f60">5</span>, <span style="color:#f60">11</span>)
+y <span style="color:#555">=</span> np<span style="color:#555">.</span>linspace(<span style="color:#555">-</span><span style="color:#f60">5</span>, <span style="color:#f60">5</span>, <span style="color:#f60">11</span>)
+X, Y <span style="color:#555">=</span> np<span style="color:#555">.</span>meshgrid(x, y, sparse<span style="color:#555">=</span><span style="color:#069;font-weight:bold">False</span>)
+fig, ax <span style="color:#555">=</span> plt<span style="color:#555">.</span>subplots(<span style="color:#f60">1</span>, <span style="color:#f60">4</span>, figsize <span style="color:#555">=</span> (<span style="color:#f60">24</span>, <span style="color:#f60">5</span>), subplot_kw<span style="color:#555">=</span><span style="color:#366">dict</span>(aspect<span style="color:#555">=</span><span style="color:#c30">&#39;equal&#39;</span>), 
+                       gridspec_kw<span style="color:#555">=</span><span style="color:#366">dict</span>(width_ratios<span style="color:#555">=</span>[<span style="color:#f60">1</span>,<span style="color:#f60">1</span>,<span style="color:#f60">1</span>,<span style="color:#f60">1</span>]))
+visualise(ax[<span style="color:#f60">0</span>], X, Y, <span style="color:#c30">&#34;Initial grid $G$&#34;</span>)
+
+alphaV <span style="color:#555">=</span> np<span style="color:#555">.</span>deg2rad(<span style="color:#f60">30</span>)
+VT <span style="color:#555">=</span> genRMatrix(alphaV)<span style="color:#555">.</span>T
+XVT, YVT <span style="color:#555">=</span> transform(VT, X, Y)
+visualise(ax[<span style="color:#f60">1</span>], XVT, YVT, <span style="color:#c30">&#34;$G$ transformed by $V^T$&#34;</span>)
+
+S <span style="color:#555">=</span> np<span style="color:#555">.</span>array([[<span style="color:#f60">0.5</span>, <span style="color:#f60">0</span>], [<span style="color:#f60">0</span>, <span style="color:#f60">0.75</span>]])
+XSVT, YSVT <span style="color:#555">=</span> transform(S <span style="color:#555">@</span> VT, XVT, YVT)
+visualise(ax[<span style="color:#f60">2</span>], XSVT, YSVT, <span style="color:#c30">&#34;$G$ transformed by $\Sigma V^T$&#34;</span>)
+
+alphaU <span style="color:#555">=</span> np<span style="color:#555">.</span>deg2rad(<span style="color:#f60">45</span>)
+U <span style="color:#555">=</span> genRMatrix(alphaU)
+A <span style="color:#555">=</span> USVT <span style="color:#555">=</span> U <span style="color:#555">@</span> S <span style="color:#555">@</span> VT
+XUSVT, YUSVT <span style="color:#555">=</span> transform(A, X, Y)
+visualise(ax[<span style="color:#f60">3</span>], XUSVT, YUSVT, <span style="color:#c30">&#34;$G$ transformed by $U \Sigma V^T$&#34;</span>)
+</code></pre></div><p><img src="output_4_0.png" alt="png"></p>
+<p>The SVD is very helpful because it is always exists for any matrix $A \in R^{m \times n}$. From geometric standpoint the SVD can be seen as a composition of isometry, followed by a scale in each coordinate axis and a second isometry. The isometry means that $U$ and $V$ are orthogonal: their action preserves lengths and the angles.</p>
+<p>Let&rsquo;s solve the reverse problem: find the SVD factorization for our matrix $A$:</p>
+<div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3">u, s, v <span style="color:#555">=</span> np<span style="color:#555">.</span>linalg<span style="color:#555">.</span>svd(A)
+<span style="color:#366">print</span>(<span style="color:#c30">&#34;U:</span><span style="color:#c30;font-weight:bold">\n</span><span style="color:#c30">&#34;</span>, u)
+<span style="color:#366">print</span>(<span style="color:#c30">&#34;S:</span><span style="color:#c30;font-weight:bold">\n</span><span style="color:#c30">&#34;</span>, s)
+<span style="color:#366">print</span>(<span style="color:#c30">&#34;V:</span><span style="color:#c30;font-weight:bold">\n</span><span style="color:#c30">&#34;</span>, v)
+</code></pre></div><pre><code>U:
+ [[-0.70710678  0.70710678]
+ [ 0.70710678  0.70710678]]
+S:
+ [0.75 0.5 ]
+V:
+ [[-0.5        0.8660254]
+ [ 0.8660254  0.5      ]]
+</code></pre>
+<p>We can note that the order is different. It happens because usually the math libraries return left and singular vectors $U$ and $V$, and the corresponding singular values in sorted order, such as $\sigma_1 \geq \sigma_2 \geq \dots \sigma_n \geq 0$.</p>
+<h3 id="svd-computation">SVD computation</h3>
+<p>It is valuable to note why SVD computation is costly:</p>
+<ul>
+<li>The columns of $V$ are the eigenvectors of $A^T A$ (that can be computed, by example, using QR iteration).</li>
+<li>Then, rewriting $A = U \Sigma V^T$ as $AV = U \Sigma$ we can make the observation that the columns of $U$ corresponding to $\sigma_i \neq 0$ are normalized columns of $AV$.</li>
+<li>The remaining columns satisfy the following property: $AA^T\vec{u}_i = 0$. They can be computed through LU factorization.</li>
+</ul>
+<h2 id="point-cloud-alignment-the-procrustes-problem">Point cloud alignment, the Procrustes problem</h2>
+<p>The problem of the shape alignment arises quite often in computer vision problems. For example, we can have the lidar scan results that consist of two point clouds of the same object from different views. A task here is to align these points, or to find the rotation matrix $R$ and translation $\vec{t}$ that align one point set to another. It is assumed that the points correspondences are known (in our case - the corresponding points have the same indices).</p>
+<p>Mathematically, this problem can be formulated in the following way:</p>
+<ul>
+<li>Having $n$ overlapping points from two point clouds we can store them in two matrices $X_1, X_2 \in R^{m \times n}$, where $m$ is the number of degrees of freedom of the point.</li>
+<li>Then, for each point $x_{1i}$ of $X_1$ and $x_{2i}$ of $X_2$ the following equality should hold:
+$$R \vec{x}_{1i} + \vec{t} = \vec{x}_{2i}$$</li>
+<li>Because of the errors, the following energy function should be minimized:
+$$E(R, \vec{t}) = \sum_{i} || R \vec{x}_{1i} + \vec{t} - \vec{x}_{2i}||^2.$$</li>
+<li>The minimum of the objective function can be found by taking the derivative w.r.t. $R$ and $\vec{t}$.</li>
+</ul>
+<h2 id="translational-component">Translational component</h2>
+<p>To find the optimal $\vec{t}$ value we have to fix $R$ and find the derivative w.r.t. $\vec{t}$:
+$$
+\begin{array}{c}
+\sum_{i} || R \vec{x}_{1i} + \vec{t} - \vec{x}_{2i}||^2 = \\<br>
+= \sum_{i} (R \vec{x}_{1i} + \vec{t} - \vec{x}_{2i}) \cdot (R \vec{x}_{1i} + \vec{t} - \vec{x}_{2i}) \\<br>
+= \sum_{i} (R \vec{x}_{1i} + \vec{t} - \vec{x}_{2i})^T (R \vec{x}_{1i} + \vec{t} - \vec{x}_{2i}) = \\<br>
+= \sum_{i} (\vec{x}_{2i}^T R^T R \vec{x}_{1i} + \vec{x}_{1i}^T R^T \vec{t} - \vec{x}_{1i}^T R^T \vec{x}_{2i} + \vec{t} R \vec{x}_{1i} + \vec{t}^T \vec{t} - \vec{t} \vec{x}_{2i} - \vec{2}_{1i}^T R \vec{x}_{1i} - \vec{x}_{2i}^T \vec{t} + \vec{x}_{2i}^T \vec{x}_{2i})
+\end{array}
+$$
+The gradient of this expression w.r.t. $\vec{t}$ must be zero at the minimum, therefore, dropping out the terms, do not depending on $\vec{t}$ we have:
+$$
+\begin{array}{c}
+\frac{\delta E}{\delta \vec{t}} = \frac{\delta}{\delta \vec{t}}\sum_{i} (2 \vec{t}^T R \vec{x}_{1i} - 2 \vec{t}^T \vec{x}_{2i} + \vec{t}^T \vec{t}) = \\<br>
+= \sum_{i} (2 R \vec{x}_{1i} - 2 \vec{x}_{2i} + 2 \vec{t}) = \\<br>
+= 2 n\vec{t} + \sum_{i}(2 R \vec{x}_{1i} - 2\vec{x}_{2i}) = \\<br>
+= n\vec{t} + \sum_{i}(R \vec{x}_{1i} - \vec{x}_{2i})
+\end{array}
+$$
+Setting to zero at critical point:
+$$
+\begin{array}{c}
+n\vec{t} + \sum_{i}(R \vec{x}_{1i} - \vec{x}_{2i}) = 0 \\<br>
+n\vec{t} = \sum_{i}(\vec{x}_{2i} - R \vec{x}_{1i}) \\<br>
+n\vec{t} = \sum_{i}(\vec{x}_{2i} - R \vec{x}_{1i}) \\<br>
+\vec{t} = \frac{\sum_{i}(\vec{x}_{2i} - R \vec{x}_{1i})}{n}
+\end{array}
+$$</p>
+<h2 id="rotational-component">Rotational component</h2>
+<p>To find the optimal $R$ we have to fix $\vec{t}$ and find the $R$ subject to constraint that $R$ is an orthogonal matrix: $R^T R = I_{3}$. See the detailed description and the derivation of the problem solution <a href="https://simonensemble.github.io/2018-10-27-orthogonal-procrustes/">here</a>.</p>
+<p>The orthogonal matrix $R$ minimizing the $||RX - Y||^2$ is given by $V U^T$, where SVD is applied to find out $XY^T = U\Sigma V^T$.</p>
+<h2 id="alternation">Alternation</h2>
+<p>Now, knowing how both the components can be found, one of the most typical strategies is the alternation (that is used in EM algorithm, clustering method and other iterative algorithms):</p>
+<ol>
+<li>Fix $R$ and minimize $E$ w.r.t. $\vec{t}$.</li>
+<li>Fix the newly found $\vec{t}$ and minimize $E$ w.r.t. $R$ under $R^T R = I_3$ constraint.</li>
+<li>Go to step 1 until convergence.</li>
+</ol>
+<p>Since in this procedure the $R$ and $\vec{t}$ are not optimized simultaneously, there is no guarantee that we reach the globally optimal solution, but in practice it works well.</p>
+<h2 id="example">Example</h2>
+<p>Suppose we have a set of 2d points $X_1$, and let&rsquo;s rotate and translate them randomly, generating point set $X_2$:</p>
+<div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#09f;font-style:italic"># generate points for X1 set</span>
+x1part1 <span style="color:#555">=</span> np<span style="color:#555">.</span>array([[<span style="color:#f60">0</span>, <span style="color:#f60">0</span>], [<span style="color:#f60">4</span>, <span style="color:#f60">4</span>], [<span style="color:#f60">4</span>, <span style="color:#f60">0</span>], [<span style="color:#f60">0</span>, <span style="color:#f60">4</span>], [<span style="color:#f60">2.</span>, <span style="color:#f60">6.</span>], [<span style="color:#f60">1</span>, <span style="color:#f60">1</span>], [<span style="color:#f60">1</span>, <span style="color:#f60">3</span>], [<span style="color:#f60">3</span>, <span style="color:#f60">3</span>], [<span style="color:#f60">3</span>, <span style="color:#f60">1</span>]])<span style="color:#555">.</span>T
+thetas <span style="color:#555">=</span> np<span style="color:#555">.</span>linspace(<span style="color:#f60">0</span>, <span style="color:#f60">2</span> <span style="color:#555">*</span> np<span style="color:#555">.</span>pi, <span style="color:#f60">24</span>)
+x1part2 <span style="color:#555">=</span> np<span style="color:#555">.</span>vstack([np<span style="color:#555">.</span>sin(thetas) <span style="color:#555">*</span> <span style="color:#f60">3</span> <span style="color:#555">+</span> <span style="color:#f60">8</span>, np<span style="color:#555">.</span>cos(thetas) <span style="color:#555">*</span> <span style="color:#f60">3</span> <span style="color:#555">+</span> <span style="color:#f60">2</span>])
+x1part3 <span style="color:#555">=</span> np<span style="color:#555">.</span>vstack([np<span style="color:#555">.</span>sin(thetas) <span style="color:#555">*</span> <span style="color:#f60">4</span> <span style="color:#555">+</span> <span style="color:#f60">12</span>, np<span style="color:#555">.</span>cos(thetas) <span style="color:#555">*</span> <span style="color:#f60">3</span> <span style="color:#555">+</span> <span style="color:#f60">4</span>])
+X1 <span style="color:#555">=</span> np<span style="color:#555">.</span>hstack([x1part1, x1part2, x1part3])
+
+<span style="color:#09f;font-style:italic"># randomly pick angle and translation</span>
+rotationAngle <span style="color:#555">=</span> np<span style="color:#555">.</span>deg2rad(np<span style="color:#555">.</span>random<span style="color:#555">.</span>randint(<span style="color:#555">-</span><span style="color:#f60">180</span>, <span style="color:#f60">180</span>, <span style="color:#f60">1</span>)[<span style="color:#f60">0</span>])
+rotation <span style="color:#555">=</span> genRMatrix(rotationAngle)
+translation <span style="color:#555">=</span> np<span style="color:#555">.</span>random<span style="color:#555">.</span>randint(<span style="color:#555">-</span><span style="color:#f60">10</span>, <span style="color:#f60">10</span>, <span style="color:#f60">2</span>)<span style="color:#555">.</span>reshape((<span style="color:#f60">2</span>, <span style="color:#f60">1</span>))
+
+<span style="color:#09f;font-style:italic"># rotate our original point set X1</span>
+X2 <span style="color:#555">=</span> rotation <span style="color:#555">@</span> X1 <span style="color:#555">+</span> translation
+</code></pre></div><p>Our alternation step for $R$ and $t$ estimation is defined in <code>pointCloudAlignmentStep</code> function, the residual calculation between two point clouds, that is used as termination condition - in <code>pointCloudResidual</code> function.</p>
+<div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#069;font-weight:bold">def</span> <span style="color:#c0f">pointCloudAlignmentStep</span>(R, t, X1, X2):
+    foundTransl <span style="color:#555">=</span> np<span style="color:#555">.</span>mean((X2 <span style="color:#555">-</span> R <span style="color:#555">@</span> X1), axis<span style="color:#555">=</span><span style="color:#f60">1</span>)<span style="color:#555">.</span>reshape((<span style="color:#f60">2</span>, <span style="color:#f60">1</span>))
+    u, s, v <span style="color:#555">=</span> np<span style="color:#555">.</span>linalg<span style="color:#555">.</span>svd(X1 <span style="color:#555">@</span> (X2 <span style="color:#555">-</span> foundTransl)<span style="color:#555">.</span>T)
+    foundRot <span style="color:#555">=</span> v <span style="color:#555">@</span> u<span style="color:#555">.</span>T
+    <span style="color:#069;font-weight:bold">return</span> foundRot, foundTransl
+
+<span style="color:#069;font-weight:bold">def</span> <span style="color:#c0f">pointCloudResidual</span>(R, t, X1, X2):
+    X2f <span style="color:#555">=</span> R <span style="color:#555">@</span> X1 <span style="color:#555">+</span> t
+    <span style="color:#069;font-weight:bold">return</span> np<span style="color:#555">.</span>linalg<span style="color:#555">.</span>norm(X2 <span style="color:#555">-</span> X2f)
+</code></pre></div><div class="highlight"><pre style="background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#09f;font-style:italic"># initial values</span>
+R <span style="color:#555">=</span> np<span style="color:#555">.</span>eye(<span style="color:#f60">2</span>)
+t <span style="color:#555">=</span> np<span style="color:#555">.</span>zeros((<span style="color:#f60">2</span>, <span style="color:#f60">1</span>))
+MIN_RESIDUAL_TO_TERMINATE <span style="color:#555">=</span> <span style="color:#f60">1e-8</span>
+
+<span style="color:#09f;font-style:italic"># find the translation and rotation between two point clouds iteratively</span>
+<span style="color:#069;font-weight:bold">while</span> pointCloudResidual(R, t, X1, X2) <span style="color:#555">&gt;</span> MIN_RESIDUAL_TO_TERMINATE:
+    R, t <span style="color:#555">=</span> pointCloudAlignmentStep(R, t, X1, X2)
+    
+<span style="color:#366">print</span>(<span style="color:#c30">&#34;True rotation and translation between point sets.</span><span style="color:#c30;font-weight:bold">\n</span><span style="color:#c30">R:</span><span style="color:#c30;font-weight:bold">\n</span><span style="color:#c30">&#34;</span>, rotation, <span style="color:#c30">&#34;</span><span style="color:#c30;font-weight:bold">\n</span><span style="color:#c30">t:</span><span style="color:#c30;font-weight:bold">\n</span><span style="color:#c30">&#34;</span>, translation)
+<span style="color:#366">print</span>(<span style="color:#c30">&#34;Estimated rotation and translation between point sets.</span><span style="color:#c30;font-weight:bold">\n</span><span style="color:#c30">R:</span><span style="color:#c30;font-weight:bold">\n</span><span style="color:#c30">&#34;</span>, R, <span style="color:#c30">&#34;</span><span style="color:#c30;font-weight:bold">\n</span><span style="color:#c30">t:</span><span style="color:#c30;font-weight:bold">\n</span><span style="color:#c30">&#34;</span>, t)
+</code></pre></div><pre><code>True rotation and translation between point sets.
+R:
+ [[ 0.98162718  0.190809  ]
+ [-0.190809    0.98162718]] 
+t:
+ [[9]
+ [7]]
+Estimated rotation and translation between point sets.
+R:
+ [[ 0.98162718  0.190809  ]
+ [-0.190809    0.98162718]] 
+t:
+ [[9.]
+ [7.]]
+</code></pre>
+<p>In the end let&rsquo;s visialize the algorithm actions:
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe src="https://www.youtube.com/embed/8_DBYDAuQF0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
+</div>
+</p>
+<p>If you are interested in more complex topic or want to find the ready-to-use solution for your problem do not forget to check <a href="https://pointclouds.org/">Point Cloud Library</a>.</p>
+<p>The jupyter notebook is available <a href="https://github.com/mikoff/blog_projects/tree/master/notebooks/Point%20cloud%20alignment%20and%20SVD">here</a>.</p>
+
+      </div>
+
+
+      <footer>
+        
+
+
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "mikoff-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        
+        
+      </footer>
+    </article>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script type="text/javascript" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"></script>
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [
+          ['$', '$'], ['\\(', '\\)']
+        ],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  </section>
+
+      </div>
+
+      <footer class="footer">
+  <section class="container">
+    
+    
+      
+        © 2020
+      
+       Aleksandr Mikoff 
+    
+    
+       · 
+      Powered by <a href="https://gohugo.io/">Hugo</a> & <a href="https://github.com/luizdepra/hugo-coder/">Coder</a>.
+    
+    
+  </section>
+</footer>
+
+    </main>
+
+    
+
+    
+
+  </body>
+
+</html>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>SLAM on Aleksandr Mikoff&#39;s blog</title>
@@ -19,8 +19,7 @@
       <guid>https://mikoff.github.io/posts/ekf-slam.md/</guid>
       <description>Introduction  One of the most fundamental problems in robotics is the simultaneous localization and mapping (SLAM) problem.
 It is more difficult than localization in that the map is unknown and has to be estimated along the way. It is more difficult than mapping with known poses, since the poses are unknown and have to be estimated along the way.
-&amp;ndash; S. Thrun
- In the following post I would like to discuss the EKF SLAM and highlight the important aspects of its implementation and convergence.</description>
+&amp;ndash; S. Thrun In the following post I would like to discuss the EKF SLAM and highlight the important aspects of its implementation and convergence.</description>
     </item>
     
   </channel>
