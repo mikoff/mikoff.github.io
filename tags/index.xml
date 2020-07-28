@@ -6,10 +6,46 @@
     <description>Recent content in Tags on Aleksandr Mikoff&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 24 Jun 2020 18:00:00 +0300</lastBuildDate>
+    <lastBuildDate>Mon, 27 Jul 2020 19:30:00 +0300</lastBuildDate>
     
 	<atom:link href="https://mikoff.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Iterative closest point</title>
+      <link>https://mikoff.github.io/tags/iterative-closest-point/</link>
+      <pubDate>Mon, 27 Jul 2020 19:30:00 +0300</pubDate>
+      
+      <guid>https://mikoff.github.io/tags/iterative-closest-point/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Lie algebra</title>
+      <link>https://mikoff.github.io/tags/lie-algebra/</link>
+      <pubDate>Mon, 27 Jul 2020 19:30:00 +0300</pubDate>
+      
+      <guid>https://mikoff.github.io/tags/lie-algebra/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Lie groups</title>
+      <link>https://mikoff.github.io/tags/lie-groups/</link>
+      <pubDate>Mon, 27 Jul 2020 19:30:00 +0300</pubDate>
+      
+      <guid>https://mikoff.github.io/tags/lie-groups/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Point cloud alignment</title>
+      <link>https://mikoff.github.io/tags/point-cloud-alignment/</link>
+      <pubDate>Mon, 27 Jul 2020 19:30:00 +0300</pubDate>
+      
+      <guid>https://mikoff.github.io/tags/point-cloud-alignment/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>PCL</title>
@@ -17,15 +53,6 @@
       <pubDate>Wed, 24 Jun 2020 18:00:00 +0300</pubDate>
       
       <guid>https://mikoff.github.io/tags/pcl/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Point cloud alignment</title>
-      <link>https://mikoff.github.io/tags/point-cloud-alignment/</link>
-      <pubDate>Wed, 24 Jun 2020 18:00:00 +0300</pubDate>
-      
-      <guid>https://mikoff.github.io/tags/point-cloud-alignment/</guid>
       <description></description>
     </item>
     

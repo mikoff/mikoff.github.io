@@ -3,12 +3,42 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://mikoff.github.io/tags/pcl/</loc>
-    <lastmod>2020-06-24T18:00:00+03:00</lastmod>
+    <loc>https://mikoff.github.io/tags/iterative-closest-point/</loc>
+    <lastmod>2020-07-27T19:30:00+03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://mikoff.github.io/tags/lie-algebra/</loc>
+    <lastmod>2020-07-27T19:30:00+03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://mikoff.github.io/tags/lie-groups/</loc>
+    <lastmod>2020-07-27T19:30:00+03:00</lastmod>
   </url>
   
   <url>
     <loc>https://mikoff.github.io/tags/point-cloud-alignment/</loc>
+    <lastmod>2020-07-27T19:30:00+03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://mikoff.github.io/posts/point-cloud-alignment-and-lie-algebra.md/</loc>
+    <lastmod>2020-07-27T19:30:00+03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://mikoff.github.io/posts/</loc>
+    <lastmod>2020-07-27T19:30:00+03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://mikoff.github.io/tags/</loc>
+    <lastmod>2020-07-27T19:30:00+03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://mikoff.github.io/tags/pcl/</loc>
     <lastmod>2020-06-24T18:00:00+03:00</lastmod>
   </url>
   
@@ -18,17 +48,7 @@
   </url>
   
   <url>
-    <loc>https://mikoff.github.io/posts/</loc>
-    <lastmod>2020-06-24T18:00:00+03:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://mikoff.github.io/tags/svd/</loc>
-    <lastmod>2020-06-24T18:00:00+03:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://mikoff.github.io/tags/</loc>
     <lastmod>2020-06-24T18:00:00+03:00</lastmod>
   </url>
   
