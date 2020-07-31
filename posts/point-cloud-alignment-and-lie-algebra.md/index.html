@@ -170,16 +170,16 @@ $$
 $$</p>
 <p>The exponential map is the key that helps us to switch from our Lie algebra to the associated Lie group.
 This relationship between a vector space $\mathfrak{so}(3)$ and Lie group is what allows us to convert the rotation matrices optimization problems to linear algebra problems and vice versa (the intuition behind is greatly discussed in this <a href="https://www.youtube.com/watch?v=mvmuCPvRoWQ">video</a>).</p>
-<p>To verify that the Lie algebra element structure, let&rsquo;s assume that we are not aware of its form and only know that it is some arbitrary matrix $\mathbf{C} \in \mathbb{R}^{3\times3}$. By the definition of SO(3) it should fullfill the following properties:</p>
+<p>To verify the Lie algebra element structure, let&rsquo;s assume that we are not aware of its form and only know that it is some arbitrary matrix $\mathbf{C} \in \mathbb{R}^{3\times3}$. By the definition of SO(3) it should fullfill the following properties:</p>
 <ul>
 <li>$\exp(\mathbf{C}) \exp(\mathbf{C})^T = \mathbf{1}$</li>
 <li>$\det(\exp(\mathbf{C})) = 1.$</li>
 </ul>
-<p>For the first property, it is easy to show through Taylor serios expansion that $\exp(\mathbf{C})^T = \exp(\mathbf{C^T})$ for any matrix. Also we know that $\exp(\mathbf{0}) = \mathbf{1}$. Therefore:
+<p>For the first property, it is easy to show through Taylor series expansion that $\exp(\mathbf{C})^T = \exp(\mathbf{C^T})$ is valid for any matrix. Also we know that $\exp(\mathbf{0}) = \mathbf{1}$. Therefore:
 $$
-\exp(\mathbf{C}) \exp(\mathbf{C})^T = \mathbf{1}\<br>
-\exp(\mathbf{C} + \mathbf{C}^T) = \exp(\mathbf{0})\<br>
-\mathbf{C} + \mathbf{C}^T = \mathbf{0}\<br>
+\exp(\mathbf{C}) \exp(\mathbf{C})^T = \mathbf{1}\ \newline
+\exp(\mathbf{C} + \mathbf{C}^T) = \exp(\mathbf{0})\ \newline
+\mathbf{C} + \mathbf{C}^T = \mathbf{0}\ \newline
 \mathbf{C} = - \mathbf{C}^T
 $$
 We see, that the first property leads us the the neccessitiy for our Lie algebra to be skew-symmetric.</p>
