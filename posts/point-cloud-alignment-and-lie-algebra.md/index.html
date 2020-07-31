@@ -170,20 +170,20 @@ $$
 $$</p>
 <p>The exponential map is the key that helps us to switch from our Lie algebra to the associated Lie group.
 This relationship between a vector space $\mathfrak{so}(3)$ and Lie group is what allows us to convert the rotation matrices optimization problems to linear algebra problems and vice versa (the intuition behind is greatly discussed in this <a href="https://www.youtube.com/watch?v=mvmuCPvRoWQ">video</a>).</p>
-<p>To verify the Lie algebra element structure, let&rsquo;s assume that we are not aware of its form and only know that it is some arbitrary matrix $\mathbf{C} \in \mathbb{R}^{3\times3}$. By the definition of SO(3) it should fullfill the following properties:</p>
+<p>To verify the Lie algebra element structure, let&rsquo;s assume that we are not aware of its form and only know that it is some arbitrary matrix $\mathbf{M} \in \mathbb{R}^{3\times3}$. By the definition of SO(3) it should fullfill the following properties:</p>
 <ul>
-<li>$\exp(\mathbf{C}) \exp(\mathbf{C})^T = \mathbf{1}$</li>
-<li>$\det(\exp(\mathbf{C})) = 1.$</li>
+<li>$\exp(\mathbf{M}) \exp(\mathbf{M})^T = \mathbf{1}$</li>
+<li>$\det(\exp(\mathbf{M})) = 1.$</li>
 </ul>
-<p>For the first property, it is easy to show through Taylor series expansion that $\exp(\mathbf{C})^T = \exp(\mathbf{C^T})$ is valid for any matrix. Also we know that $\exp(\mathbf{0}) = \mathbf{1}$. Therefore:
-$$\exp(\mathbf{C}) \exp(\mathbf{C})^T = \mathbf{1}$$
-$$\exp(\mathbf{C} + \mathbf{C}^T) = \exp(\mathbf{0})$$
-$$\mathbf{C} + \mathbf{C}^T = \mathbf{0} $$
-$$\mathbf{C} = - \mathbf{C}^T$$
+<p>For the first property, it is easy to show through Taylor series expansion that $\exp(\mathbf{M})^T = \exp(\mathbf{M^T})$ is valid for any matrix. Also we know that $\exp(\mathbf{0}) = \mathbf{1}$. Therefore:
+$$\exp(\mathbf{M}) \exp(\mathbf{M})^T = \mathbf{1}$$
+$$\exp(\mathbf{M} + \mathbf{M}^T) = \exp(\mathbf{0})$$
+$$\mathbf{M} + \mathbf{M}^T = \mathbf{0} $$
+$$\mathbf{M} = - \mathbf{M}^T$$
 We see, that the first property leads us the the neccessitiy for our Lie algebra to be skew-symmetric.</p>
 <p>To check the second property let&rsquo;s recall the following identity:
 $$
-\det(\exp(\mathbf{C})) = \exp(\mathrm{tr}(\mathbf{C}))
+\det(\exp(\mathbf{M})) = \exp(\mathrm{tr}(\mathbf{M}))
 $$
 It can only happen when the trace of our matrix is equal to 0. Any skew-symmetric matrix fullfills this property.</p>
 <h2 id="point-cloud-alignment-with-known-correspondences">Point cloud alignment with known correspondences</h2>
