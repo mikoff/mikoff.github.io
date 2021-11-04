@@ -1,43 +1,174 @@
-<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="Aleksandr Mikoff"><meta name=twitter:card content="summary"><meta name=twitter:title content="Point cloud alignment using Lie algebra machinery"><meta name=twitter:description content="Point cloud alignment using Lie algebra machinery Special Orthogonal group and vectorspaces Today I would like to cover the importance of Lie groups to the problems, that often arises in robotics field. The pose of the robot can be described through rotation and translation. Rotations, however, do not belong to the vector space: we are not allowed to sum the rotations or multiply them by a scalar, because the resulting element will not belong to SO(3) group."><meta property="og:title" content="Point cloud alignment using Lie algebra machinery"><meta property="og:description" content="Point cloud alignment using Lie algebra machinery Special Orthogonal group and vectorspaces Today I would like to cover the importance of Lie groups to the problems, that often arises in robotics field. The pose of the robot can be described through rotation and translation. Rotations, however, do not belong to the vector space: we are not allowed to sum the rotations or multiply them by a scalar, because the resulting element will not belong to SO(3) group."><meta property="og:type" content="article"><meta property="og:url" content="https://mikoff.github.io/posts/point-cloud-alignment-and-lie-algebra.md/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2020-07-27T19:30:00+03:00"><meta property="article:modified_time" content="2020-07-27T19:30:00+03:00"><base href=https://mikoff.github.io/posts/point-cloud-alignment-and-lie-algebra.md/><title>Point cloud alignment using Lie algebra machinery · Aleksandr Mikoff's blog</title><link rel=canonical href=https://mikoff.github.io/posts/point-cloud-alignment-and-lie-algebra.md/><link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap" rel=stylesheet><link rel=stylesheet href=https://use.fontawesome.com/releases/v5.11.2/css/all.css integrity=sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin=anonymous><link rel=stylesheet href=https://mikoff.github.io/fontdata/css/academicons.min.css><link rel=stylesheet href=https://mikoff.github.io/css/coder.min.a4f332213a21ce8eb521670c614470c58923aaaf385e2a73982c31dd7642decb.css integrity="sha256-pPMyITohzo61IWcMYURwxYkjqq84XipzmCwx3XZC3ss=" crossorigin=anonymous media=screen><link rel=stylesheet href=https://mikoff.github.io/css/coder-dark.min.83a2010dac9f59f943b3004cd6c4f230507ad036da635d3621401d42ec4e2835.css integrity="sha256-g6IBDayfWflDswBM1sTyMFB60DbaY102IUAdQuxOKDU=" crossorigin=anonymous media=screen><link rel=stylesheet href=https://mikoff.github.io/css/image.css><link rel=icon type=image/png href=https://mikoff.github.io/img/favicon-32x32.png sizes=32x32><link rel=icon type=image/png href=https://mikoff.github.io/img/favicon-16x16.png sizes=16x16><meta name=generator content="Hugo 0.85.0"></head><body class=colorscheme-auto><main class=wrapper><nav class=navigation><section class=container><a class=navigation-title href=https://mikoff.github.io/>Aleksandr Mikoff's blog</a>
+<!doctype html><html lang=en>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=author content="Aleksandr Mikoff">
+<meta name=twitter:card content="summary">
+<meta name=twitter:title content="Point cloud alignment using Lie algebra machinery">
+<meta name=twitter:description content="Point cloud alignment using Lie algebra machinery Special Orthogonal group and vectorspaces Today I would like to cover the importance of Lie groups to the problems, that often arises in robotics field. The pose of the robot can be described through rotation and translation. Rotations, however, do not belong to the vector space: we are not allowed to sum the rotations or multiply them by a scalar, because the resulting element will not belong to SO(3) group.">
+<meta property="og:title" content="Point cloud alignment using Lie algebra machinery">
+<meta property="og:description" content="Point cloud alignment using Lie algebra machinery Special Orthogonal group and vectorspaces Today I would like to cover the importance of Lie groups to the problems, that often arises in robotics field. The pose of the robot can be described through rotation and translation. Rotations, however, do not belong to the vector space: we are not allowed to sum the rotations or multiply them by a scalar, because the resulting element will not belong to SO(3) group.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://mikoff.github.io/posts/point-cloud-alignment-and-lie-algebra.md/"><meta property="article:section" content="posts">
+<meta property="article:published_time" content="2020-07-27T19:30:00+03:00">
+<meta property="article:modified_time" content="2020-07-27T19:30:00+03:00">
+<base href=https://mikoff.github.io/posts/point-cloud-alignment-and-lie-algebra.md/>
+<title>
+Point cloud alignment using Lie algebra machinery · Aleksandr Mikoff's blog
+</title>
+<link rel=canonical href=https://mikoff.github.io/posts/point-cloud-alignment-and-lie-algebra.md/>
+<link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap" rel=stylesheet>
+<link rel=stylesheet href=https://use.fontawesome.com/releases/v5.11.2/css/all.css integrity=sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN crossorigin=anonymous>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin=anonymous>
+<link rel=stylesheet href=https://mikoff.github.io/fontdata/css/academicons.min.css>
+<link rel=stylesheet href=https://mikoff.github.io/css/coder.min.a4f332213a21ce8eb521670c614470c58923aaaf385e2a73982c31dd7642decb.css integrity="sha256-pPMyITohzo61IWcMYURwxYkjqq84XipzmCwx3XZC3ss=" crossorigin=anonymous media=screen>
+<link rel=stylesheet href=https://mikoff.github.io/css/coder-dark.min.83a2010dac9f59f943b3004cd6c4f230507ad036da635d3621401d42ec4e2835.css integrity="sha256-g6IBDayfWflDswBM1sTyMFB60DbaY102IUAdQuxOKDU=" crossorigin=anonymous media=screen>
+<link rel=stylesheet href=https://mikoff.github.io/css/image.css>
+<link rel=stylesheet href=https://mikoff.github.io/css/spoiler.css>
+<script src=https://mikoff.github.io/js/spoiler.js></script>
+<link rel=icon type=image/png href=https://mikoff.github.io/img/favicon-32x32.png sizes=32x32>
+<link rel=icon type=image/png href=https://mikoff.github.io/img/favicon-16x16.png sizes=16x16>
+<meta name=generator content="Hugo 0.89.0">
+</head>
+<body class=colorscheme-auto>
+<main class=wrapper>
+<nav class=navigation>
+<section class=container>
+<a class=navigation-title href=https://mikoff.github.io/>
+Aleksandr Mikoff's blog
+</a>
 <input type=checkbox id=menu-toggle>
-<label class="menu-button float-right" for=menu-toggle><i class="fas fa-bars"></i></label><ul class=navigation-list><li class=navigation-item><a class=navigation-link href=https://mikoff.github.io/about/>About</a></li><li class=navigation-item><a class=navigation-link href=https://mikoff.github.io/posts/>Posts</a></li><li class=navigation-item><a class=navigation-link href=https://mikoff.github.io/tags>Tags</a></li></ul></section></nav><div class=content><section class="container post"><article><header><div class=post-title><h1 class=title>Point cloud alignment using Lie algebra machinery</h1></div><div class=post-meta><div class=date><span class=posted-on><i class="fas fa-calendar"></i>
-<time datetime=2020-07-27T19:30:00+03:00>July 27, 2020</time></span>
-<span class=reading-time><i class="fas fa-clock"></i>
-8-minute read</span></div><div class=tags><i class="fas fa-tag"></i>
+<label class="menu-button float-right" for=menu-toggle><i class="fas fa-bars"></i></label>
+<ul class=navigation-list>
+<li class=navigation-item>
+<a class=navigation-link href=https://mikoff.github.io/about/>About</a>
+</li>
+<li class=navigation-item>
+<a class=navigation-link href=https://mikoff.github.io/posts/>Posts</a>
+</li>
+<li class=navigation-item>
+<a class=navigation-link href=https://mikoff.github.io/tags>Tags</a>
+</li>
+</ul>
+</section>
+</nav>
+<script src=//cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.slim.min.js></script>
+<div class=content>
+<section class="container post">
+<article>
+<header>
+<div class=post-title>
+<h1 class=title>Point cloud alignment using Lie algebra machinery</h1>
+</div>
+<div class=post-meta>
+<div class=date>
+<span class=posted-on>
+<i class="fas fa-calendar"></i>
+<time datetime=2020-07-27T19:30:00+03:00>
+July 27, 2020
+</time>
+</span>
+<span class=reading-time>
+<i class="fas fa-clock"></i>
+8-minute read
+</span>
+</div>
+<div class=tags>
+<i class="fas fa-tag"></i>
 <a href=https://mikoff.github.io/tags/iterative-closest-point/>Iterative closest point</a>
 <span class=separator>•</span>
 <a href=https://mikoff.github.io/tags/point-cloud-alignment/>Point cloud alignment</a>
 <span class=separator>•</span>
 <a href=https://mikoff.github.io/tags/lie-groups/>Lie groups</a>
 <span class=separator>•</span>
-<a href=https://mikoff.github.io/tags/lie-algebra/>Lie algebra</a></div></div></header><div><h1 id=point-cloud-alignment-using-lie-algebra-machinery>Point cloud alignment using Lie algebra machinery</h1><h2 id=special-orthogonal-group-and-vectorspaces>Special Orthogonal group and vectorspaces</h2><p>Today I would like to cover the importance of Lie groups to the problems, that often arises in robotics field.
-The <em>pose</em> of the robot can be described through <em>rotation</em> and <em>translation</em>. <em>Rotations</em>, however, do not belong to the vector space: we are not allowed to sum the rotations or multiply them by a scalar, because the resulting element will not belong to SO(3) group.</p><p>Why it stands up a problem? Quite often we need to use the optimization algorithms to find some optimal element. Most of these algorithms start from some initial guess and update it in some direction $y$:
+<a href=https://mikoff.github.io/tags/lie-algebra/>Lie algebra</a></div>
+</div>
+</header>
+<div>
+<h1 id=point-cloud-alignment-using-lie-algebra-machinery>Point cloud alignment using Lie algebra machinery</h1>
+<h2 id=special-orthogonal-group-and-vectorspaces>Special Orthogonal group and vectorspaces</h2>
+<p>Today I would like to cover the importance of Lie groups to the problems, that often arises in robotics field.
+The <em>pose</em> of the robot can be described through <em>rotation</em> and <em>translation</em>. <em>Rotations</em>, however, do not belong to the vector space: we are not allowed to sum the rotations or multiply them by a scalar, because the resulting element will not belong to SO(3) group.</p>
+<p>Why it stands up a problem? Quite often we need to use the optimization algorithms to find some optimal element. Most of these algorithms start from some initial guess and update it in some direction $y$:
 $$
 x = x + \epsilon y
 $$
-This equation does not make any sense if we operate not in the vectorspace!</p><p>While SO(3) is not a vector space, it can be shown to be matrix Lie group:</p><ul><li>It is a set of all valid rotation matrices ${\mathbf{C} \in \mathbb{R}^{3\times3}~|~\mathbf{C}\mathbf{C}^T = \mathbf{1},~\det\mathbf{C} = 1}$</li><li>satisfying the the four properties: closure, associativity, identity and invertability.</li></ul><p>The Lie group theory allows us associate a <em>Lie algebra</em> with every Lie group. This Lie algebra consists of a vectorspace, that provides a standard way to parameterize the rotation matrices and their errors.</p><h2 id=lie-algebra>Lie Algebra</h2><p>The vectorspace of a Lie algebra $\mathfrak{so}(3)$ is the tangent space of the associated Lie group, and it completely describes the local structure of the group.</p><p>The lie algebra, associated with $SO(3)$ is given by</p><ul><li>vectorspace $\mathfrak{so}(3) = {\mathbf{\Phi} = \mathbf{\phi}^{\wedge}~\in~\mathbb{R}^{3\times3}~|~\mathbf{\phi} \in \mathbb{R}^3},$</li><li>field $\mathbb{R}$,</li><li>Lie bracket: $[\mathbf{\Phi}_1, \mathbf{\Phi}_2] = \mathbf{\Phi}_1 \mathbf{\Phi}_2 - \mathbf{\Phi}_2, \mathbf{\Phi}_1,$</li></ul><p>where
+This equation does not make any sense if we operate not in the vectorspace!</p>
+<p>While SO(3) is not a vector space, it can be shown to be matrix Lie group:</p>
+<ul>
+<li>It is a set of all valid rotation matrices ${\mathbf{C} \in \mathbb{R}^{3\times3}~|~\mathbf{C}\mathbf{C}^T = \mathbf{1},~\det\mathbf{C} = 1}$</li>
+<li>satisfying the the four properties: closure, associativity, identity and invertability.</li>
+</ul>
+<p>The Lie group theory allows us associate a <em>Lie algebra</em> with every Lie group. This Lie algebra consists of a vectorspace, that provides a standard way to parameterize the rotation matrices and their errors.</p>
+<h2 id=lie-algebra>Lie Algebra</h2>
+<p>The vectorspace of a Lie algebra $\mathfrak{so}(3)$ is the tangent space of the associated Lie group, and it completely describes the local structure of the group.</p>
+<p>The lie algebra, associated with $SO(3)$ is given by</p>
+<ul>
+<li>vectorspace $\mathfrak{so}(3) = {\mathbf{\Phi} = \mathbf{\phi}^{\wedge}~\in~\mathbb{R}^{3\times3}~|~\mathbf{\phi} \in \mathbb{R}^3},$</li>
+<li>field $\mathbb{R}$,</li>
+<li>Lie bracket: $[\mathbf{\Phi}_1, \mathbf{\Phi}_2] = \mathbf{\Phi}_1 \mathbf{\Phi}_2 - \mathbf{\Phi}_2, \mathbf{\Phi}_1,$</li>
+</ul>
+<p>where
 $$
 \mathbf{\phi}^{\wedge} = {\begin{bmatrix} \phi_1 \newline \phi_2 \newline \phi_3 \end{bmatrix}}^{\wedge} =
 \begin{bmatrix} 0 & -\phi_3 & \phi_2 \newline \phi_3 & 0 & -\phi_1 \newline -\phi_2 & \phi_1 & 0 \end{bmatrix}
-$$</p><p>The exponential map is the key that helps us to switch from our Lie algebra to the associated Lie group.
-This relationship between a vector space $\mathfrak{so}(3)$ and Lie group is what allows us to convert the rotation matrices optimization problems to linear algebra problems and vice versa (the intuition behind is greatly discussed in this <a href="https://www.youtube.com/watch?v=mvmuCPvRoWQ">video</a>).</p><p>To verify the Lie algebra element structure, let&rsquo;s assume that we are not aware of its form and only know that it is some arbitrary matrix $\mathbf{M} \in \mathbb{R}^{3\times3}$. By the definition of SO(3) it should fullfill the following properties:</p><ul><li>$\exp(\mathbf{M}) \exp(\mathbf{M})^T = \mathbf{1}$</li><li>$\det(\exp(\mathbf{M})) = 1.$</li></ul><p>For the first property, it is easy to show through Taylor series expansion that $\exp(\mathbf{M})^T = \exp(\mathbf{M^T})$ is valid for any matrix. Also we know that $\exp(\mathbf{0}) = \mathbf{1}$. Therefore:
+$$</p>
+<p>The exponential map is the key that helps us to switch from our Lie algebra to the associated Lie group.
+This relationship between a vector space $\mathfrak{so}(3)$ and Lie group is what allows us to convert the rotation matrices optimization problems to linear algebra problems and vice versa (the intuition behind is greatly discussed in this <a href="https://www.youtube.com/watch?v=mvmuCPvRoWQ">video</a>).</p>
+<p>To verify the Lie algebra element structure, let&rsquo;s assume that we are not aware of its form and only know that it is some arbitrary matrix $\mathbf{M} \in \mathbb{R}^{3\times3}$. By the definition of SO(3) it should fullfill the following properties:</p>
+<ul>
+<li>$\exp(\mathbf{M}) \exp(\mathbf{M})^T = \mathbf{1}$</li>
+<li>$\det(\exp(\mathbf{M})) = 1.$</li>
+</ul>
+<p>For the first property, it is easy to show through Taylor series expansion that $\exp(\mathbf{M})^T = \exp(\mathbf{M^T})$ is valid for any matrix. Also we know that $\exp(\mathbf{0}) = \mathbf{1}$. Therefore:
 $$\exp(\mathbf{M}) \exp(\mathbf{M})^T = \mathbf{1}$$
 $$\exp(\mathbf{M} + \mathbf{M}^T) = \exp(\mathbf{0})$$
 $$\mathbf{M} + \mathbf{M}^T = \mathbf{0} $$
 $$\mathbf{M} = - \mathbf{M}^T$$
-We see, that the first property leads us the the neccessitiy for our Lie algebra to be skew-symmetric.</p><p>To check the second property let&rsquo;s recall the following identity:
+We see, that the first property leads us the the neccessitiy for our Lie algebra to be skew-symmetric.</p>
+<p>To check the second property let&rsquo;s recall the following identity:
 $$
 \det(\exp(\mathbf{M})) = \exp(\mathrm{tr}(\mathbf{M}))
 $$
-It can only happen when the trace of our matrix is equal to 0. Any skew-symmetric matrix fullfills this property.</p><h2 id=point-cloud-alignment-with-known-correspondences>Point cloud alignment with known correspondences</h2><p>The implemented approach is greatly discussed <a href=http://asrl.utias.utoronto.ca/~tdb/bib/barfoot_ser17.pdf>here</a>. I will just point out some key ideas:</p><ul><li>Since the optimization is unconstrained, the SVD or eigen decomposition is not required.</li><li>The result is not optimal globally, but locally. However, if there is a unique global minimum, there is no any local minima.</li></ul><p>Let&rsquo;s pretend that we have:</p><ul><li>$M$ measurements $\mathbf{y}_j = \mathbf{r}_{v_k}^{p_j v_k}$, where $j = 1\dots M$, of points from the vehicle (expressed in vehicle frame).</li><li>The coordinates of these points in non-moving frame $i$: $\mathbf{p}_j = \mathbf{r}_{i}^{p_j i}$.</li></ul><p>Our goal is to align a collection of points, expressed in two reference frames: find the rotation and translation between them.</p><p>To solve the problem we require the following:</p><ul><li><p>$\mathbf{W} = \frac{1}{w} \sum_{j=1}^M w_j (\mathbf{y}_j - \mathbf{y})(\mathbf{p}_j - \mathbf{p})^T,$</p><p>that captures the spread of the points and where $w_j$ is the scalar weight for point pair $j$.</p></li><li><p>$\mathbf{I} = -\frac{1}{w} \sum_{j=1}^M w_j (\mathbf{p}_j - \mathbf{p})^\wedge (\mathbf{p}_j - \mathbf{p})^\wedge.$</p></li><li><p>$\mathbf{b} = [\mathrm{tr}(\mathbf{1}_i^\wedge \mathbf{C}_{op}) \mathbf{W}^T)]_i,$</p><p>where $i$ is the $i$-th column of the identity matrix and the corresponding $i$-th row of column vector $\mathbf{b}$.</p></li></ul><p>The update for our goal rotation matrix $\mathbf{C}_{op}$ can be written as:
+It can only happen when the trace of our matrix is equal to 0. Any skew-symmetric matrix fullfills this property.</p>
+<h2 id=point-cloud-alignment-with-known-correspondences>Point cloud alignment with known correspondences</h2>
+<p>The implemented approach is greatly discussed <a href=http://asrl.utias.utoronto.ca/~tdb/bib/barfoot_ser17.pdf>here</a>. I will just point out some key ideas:</p>
+<ul>
+<li>Since the optimization is unconstrained, the SVD or eigen decomposition is not required.</li>
+<li>The result is not optimal globally, but locally. However, if there is a unique global minimum, there is no any local minima.</li>
+</ul>
+<p>Let&rsquo;s pretend that we have:</p>
+<ul>
+<li>$M$ measurements $\mathbf{y}_j = \mathbf{r}_{v_k}^{p_j v_k}$, where $j = 1\dots M$, of points from the vehicle (expressed in vehicle frame).</li>
+<li>The coordinates of these points in non-moving frame $i$: $\mathbf{p}_j = \mathbf{r}_{i}^{p_j i}$.</li>
+</ul>
+<p>Our goal is to align a collection of points, expressed in two reference frames: find the rotation and translation between them.</p>
+<p>To solve the problem we require the following:</p>
+<ul>
+<li>
+<p>$\mathbf{W} = \frac{1}{w} \sum_{j=1}^M w_j (\mathbf{y}_j - \mathbf{y})(\mathbf{p}_j - \mathbf{p})^T,$</p>
+<p>that captures the spread of the points and where $w_j$ is the scalar weight for point pair $j$.</p>
+</li>
+<li>
+<p>$\mathbf{I} = -\frac{1}{w} \sum_{j=1}^M w_j (\mathbf{p}_j - \mathbf{p})^\wedge (\mathbf{p}_j - \mathbf{p})^\wedge.$</p>
+</li>
+<li>
+<p>$\mathbf{b} = [\mathrm{tr}(\mathbf{1}_i^\wedge \mathbf{C}_{op}) \mathbf{W}^T)]_i,$</p>
+<p>where $i$ is the $i$-th column of the identity matrix and the corresponding $i$-th row of column vector $\mathbf{b}$.</p>
+</li>
+</ul>
+<p>The update for our goal rotation matrix $\mathbf{C}_{op}$ can be written as:
 $$
 \mathbf{C}_{op} \leftarrow \exp \left(\mathbf{\psi}^{{*}^{\wedge}} \right)\mathbf{C}_{op},
 $$
 where the optimal update for $\mathbf{\psi}^{*}$ is defined as:
 $$
 \mathbf{\psi}^{*} = \mathbf{C}_{op} \mathbf{I}^{-1} \mathbf{C}_{op}^T \mathbf{b}.
-$$</p><p>The following sequence is itereated until convergence, where $\hat{\mathbf{C}}_{v_k i} = \mathbf{C}_{op}$. Then the translation can be found as:
-$\hat{\mathbf{r}}_i^{v_k i} = \mathbf{p} - \hat{\mathbf{C}}_{v_k i} \mathbf{y}$.</p><p>Now let&rsquo;s move the example:</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python3 data-lang=python3><span style=color:#069;font-weight:700>import</span> <span style=color:#0cf;font-weight:700>numpy</span> <span style=color:#069;font-weight:700>as</span> <span style=color:#0cf;font-weight:700>np</span>
+$$</p>
+<p>The following sequence is itereated until convergence, where $\hat{\mathbf{C}}_{v_k i} = \mathbf{C}_{op}$. Then the translation can be found as:
+$\hat{\mathbf{r}}_i^{v_k i} = \mathbf{p} - \hat{\mathbf{C}}_{v_k i} \mathbf{y}$.</p>
+<p>Now let&rsquo;s move the example:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python3 data-lang=python3><span style=color:#069;font-weight:700>import</span> <span style=color:#0cf;font-weight:700>numpy</span> <span style=color:#069;font-weight:700>as</span> <span style=color:#0cf;font-weight:700>np</span>
 <span style=color:#069;font-weight:700>from</span> <span style=color:#0cf;font-weight:700>scipy.linalg</span> <span style=color:#069;font-weight:700>import</span> fractional_matrix_power
 np<span style=color:#555>.</span>set_printoptions(precision<span style=color:#555>=</span><span style=color:#f60>3</span>)
 np<span style=color:#555>.</span>set_printoptions(suppress<span style=color:#555>=</span><span style=color:#069;font-weight:700>True</span>)
@@ -56,7 +187,7 @@ np<span style=color:#555>.</span>set_printoptions(suppress<span style=color:#555
     psiNorm <span style=color:#555>=</span> np<span style=color:#555>.</span>linalg<span style=color:#555>.</span>norm(psi)
     a <span style=color:#555>=</span> np<span style=color:#555>.</span>array(psi) <span style=color:#555>/</span> psiNorm
     <span style=color:#069;font-weight:700>return</span> np<span style=color:#555>.</span>cos(psiNorm) <span style=color:#555>*</span> np<span style=color:#555>.</span>eye(<span style=color:#f60>3</span>) <span style=color:#555>+</span> (<span style=color:#f60>1</span> <span style=color:#555>-</span> np<span style=color:#555>.</span>cos(psiNorm)) <span style=color:#555>*</span> a <span style=color:#555>@</span> a<span style=color:#555>.</span>T <span style=color:#555>+</span> np<span style=color:#555>.</span>sin(psiNorm) <span style=color:#555>*</span> skew(a)
-</code></pre></div><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python3 data-lang=python3><span style=color:#09f;font-style:italic># define point set P: the point coordinates in non-moving frame</span>
+</code></pre></div><div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python3 data-lang=python3><span style=color:#09f;font-style:italic># define point set P: the point coordinates in non-moving frame</span>
 P <span style=color:#555>=</span> np<span style=color:#555>.</span>array(
       [[ <span style=color:#f60>3.</span>,  <span style=color:#f60>0.</span>,  <span style=color:#f60>0.</span>, <span style=color:#555>-</span><span style=color:#f60>3.</span>, <span style=color:#555>-</span><span style=color:#f60>0.</span>, <span style=color:#555>-</span><span style=color:#f60>0.</span>],
        [ <span style=color:#f60>0.</span>,  <span style=color:#f60>2.</span>,  <span style=color:#f60>0.</span>, <span style=color:#555>-</span><span style=color:#f60>0.</span>, <span style=color:#555>-</span><span style=color:#f60>2.</span>, <span style=color:#555>-</span><span style=color:#f60>0.</span>],
@@ -114,8 +245,11 @@ t <span style=color:#555>=</span> meanP <span style=color:#555>-</span> C_op<spa
 [[100.]
  [200.]
  [300.]]
-</code></pre><h2 id=point-cloud-alignment-without-correspondences>Point cloud alignment without correspondences</h2><p>If we the correspondences between points are not known, then we can use, for example, the Iterative Closest Point algorithm where the correspondences are determined by finding the closest point from the model to the observed point.
-I would like to present a piece of code for this scenario too.</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python3 data-lang=python3><span style=color:#069;font-weight:700>def</span> <span style=color:#c0f>nearest_point</span>(P, Y):
+</code></pre>
+<h2 id=point-cloud-alignment-without-correspondences>Point cloud alignment without correspondences</h2>
+<p>If we the correspondences between points are not known, then we can use, for example, the Iterative Closest Point algorithm where the correspondences are determined by finding the closest point from the model to the observed point.
+I would like to present a piece of code for this scenario too.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python3 data-lang=python3><span style=color:#069;font-weight:700>def</span> <span style=color:#c0f>nearest_point</span>(P, Y):
     P <span style=color:#555>=</span> np<span style=color:#555>.</span>array(P)
     Y <span style=color:#555>=</span> np<span style=color:#555>.</span>array(Y)
     distances <span style=color:#555>=</span> np<span style=color:#555>.</span>zeros(P<span style=color:#555>.</span>shape[<span style=color:#f60>1</span>])
@@ -130,7 +264,14 @@ I would like to present a piece of code for this scenario too.</p><div class=hig
                 index[i] <span style=color:#555>=</span> j
         distances[i] <span style=color:#555>=</span> minDist
     <span style=color:#069;font-weight:700>return</span> distances, index
-</code></pre></div><p>In this simplest ICP form we assume that the number of points is the same and we use all of them for fitting. It is always a good thing to remember that it is not always the case, to solve the problem with outliers and large number of points the following things could be added to the algorithm implementation:</p><ul><li>Randomly select the subset from each point set.</li><li>Split the aligned points to inliers and outliers based on some statistic criteria.</li><li>Throw away the outliers from cloud alignment procedure.</li></ul><p>However, for our illustration purposes this vanilla ICP algorithm should work fine. Let&rsquo;s verify it.</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python3 data-lang=python3><span style=color:#09f;font-style:italic># read the rabbit data and make it column-wise</span>
+</code></pre></div><p>In this simplest ICP form we assume that the number of points is the same and we use all of them for fitting. It is always a good thing to remember that it is not always the case, to solve the problem with outliers and large number of points the following things could be added to the algorithm implementation:</p>
+<ul>
+<li>Randomly select the subset from each point set.</li>
+<li>Split the aligned points to inliers and outliers based on some statistic criteria.</li>
+<li>Throw away the outliers from cloud alignment procedure.</li>
+</ul>
+<p>However, for our illustration purposes this vanilla ICP algorithm should work fine. Let&rsquo;s verify it.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python3 data-lang=python3><span style=color:#09f;font-style:italic># read the rabbit data and make it column-wise</span>
 P <span style=color:#555>=</span> np<span style=color:#555>.</span>loadtxt(<span style=color:#c30>&#34;data.xyz&#34;</span>)<span style=color:#555>.</span>T <span style=color:#555>*</span> <span style=color:#f60>200</span>
 
 <span style=color:#09f;font-style:italic># generate random rotation and translation</span>
@@ -194,8 +335,10 @@ iteration <span style=color:#555>=</span> <span style=color:#f60>0</span>
 [[ 9.995]
  [20.001]
  [30.   ]]
-</code></pre><p>If we are talking about the vehicle positioning, then we have found the rotation matrix $\hat{\mathbf{C}}_{v_k i}$ and the translation $\hat{\mathbf{r}}_i^{v_k i}$.
-Now we can apply the found rotation and translation to the transformed dataset to visually check the algorithm performance.</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python3 data-lang=python3><span style=color:#069;font-weight:700>from</span> <span style=color:#0cf;font-weight:700>mpl_toolkits.mplot3d.axes3d</span> <span style=color:#069;font-weight:700>import</span> Axes3D
+</code></pre>
+<p>If we are talking about the vehicle positioning, then we have found the rotation matrix $\hat{\mathbf{C}}_{v_k i}$ and the translation $\hat{\mathbf{r}}_i^{v_k i}$.
+Now we can apply the found rotation and translation to the transformed dataset to visually check the algorithm performance.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python3 data-lang=python3><span style=color:#069;font-weight:700>from</span> <span style=color:#0cf;font-weight:700>mpl_toolkits.mplot3d.axes3d</span> <span style=color:#069;font-weight:700>import</span> Axes3D
 <span style=color:#069;font-weight:700>import</span> <span style=color:#0cf;font-weight:700>matplotlib.pyplot</span> <span style=color:#069;font-weight:700>as</span> <span style=color:#0cf;font-weight:700>plt</span>
 
 fig, ax <span style=color:#555>=</span> plt<span style=color:#555>.</span>subplots(<span style=color:#f60>1</span>, <span style=color:#f60>2</span>, subplot_kw<span style=color:#555>=</span>{<span style=color:#c30>&#39;projection&#39;</span>: <span style=color:#c30>&#39;3d&#39;</span>}, figsize<span style=color:#555>=</span>(<span style=color:#f60>8</span>, <span style=color:#f60>4</span>))
@@ -212,8 +355,31 @@ ax[<span style=color:#f60>1</span>]<span style=color:#555>.</span>auto_scale_xyz
 
 ax[<span style=color:#f60>0</span>]<span style=color:#555>.</span>view_init(elev<span style=color:#555>=</span><span style=color:#f60>10.</span>, azim<span style=color:#555>=-</span><span style=color:#f60>215</span>)
 ax[<span style=color:#f60>1</span>]<span style=color:#555>.</span>view_init(elev<span style=color:#555>=</span><span style=color:#f60>10.</span>, azim<span style=color:#555>=</span><span style=color:#f60>215</span>)
-</code></pre></div><p><img src=output_11_0.png alt=png></p><p>They are quite close!
-Jupyter notebook is available <a href=https://github.com/mikoff/blog_projects/blob/master/notebooks/Point_cloud_alignment_and_Lie_algebra_machinery>here</a>.</p></div><footer><div id=disqus_thread></div><script type=application/javascript>var disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return}var b=document,a=b.createElement('script');a.async=!0,a.src='//mikoff-github-io.disqus.com/embed.js',a.setAttribute('data-timestamp',+new Date),(b.head||b.body).appendChild(a)})()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></footer></article><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type=text/javascript async src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js></script><script src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js id=MathJax-script></script><script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],processEscapes:!0,processEnvironments:!0},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}}</script></section></div><footer class=footer><section class=container>© 2021
+</code></pre></div><p><img src=output_11_0.png alt=png></p>
+<p>They are quite close!
+Jupyter notebook is available <a href=https://github.com/mikoff/blog_projects/blob/master/notebooks/Point_cloud_alignment_and_Lie_algebra_machinery>here</a>.</p>
+</div>
+<footer>
+<div id=disqus_thread></div>
+<script type=application/javascript>var disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return}var b=document,a=b.createElement('script');a.async=!0,a.src='//mikoff-github-io.disqus.com/embed.js',a.setAttribute('data-timestamp',+new Date),(b.head||b.body).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+<a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a>
+</footer>
+</article>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type=text/javascript async src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js></script>
+<script src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js id=MathJax-script></script>
+<script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],processEscapes:!0,processEnvironments:!0},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}}</script>
+</section>
+</div>
+<footer class=footer>
+<section class=container>
+© 2021
 Aleksandr Mikoff
 ·
-Powered by <a href=https://gohugo.io/>Hugo</a> & <a href=https://github.com/luizdepra/hugo-coder/>Coder</a>.</section></footer></main></body></html>
+Powered by <a href=https://gohugo.io/>Hugo</a> & <a href=https://github.com/luizdepra/hugo-coder/>Coder</a>.
+</section>
+</footer>
+</main>
+</body>
+</html>

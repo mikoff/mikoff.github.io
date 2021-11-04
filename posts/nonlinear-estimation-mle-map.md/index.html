@@ -1,11 +1,82 @@
-<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="Aleksandr Mikoff"><meta name=twitter:card content="summary"><meta name=twitter:title content="Nonlinear estimation: Full Bayesian, MLE and MAP"><meta name=twitter:description content="Intro Recently I have read &ldquo;State Estimation for Robotics&rdquo; book and came across a good example on one-dimensional nonlinear estimation problem: the estimation of the position of a landmark from stereo-camera data.
-Distance from stereo-images The camera image is a projection of the world on the image plane. The depth perceptions arises from disparity of 3d point (landmark) on two images, obtained from left and right cameras. $$disparity = x_{left} - x_{right}$$"><meta property="og:title" content="Nonlinear estimation: Full Bayesian, MLE and MAP"><meta property="og:description" content="Intro Recently I have read &ldquo;State Estimation for Robotics&rdquo; book and came across a good example on one-dimensional nonlinear estimation problem: the estimation of the position of a landmark from stereo-camera data.
-Distance from stereo-images The camera image is a projection of the world on the image plane. The depth perceptions arises from disparity of 3d point (landmark) on two images, obtained from left and right cameras. $$disparity = x_{left} - x_{right}$$"><meta property="og:type" content="article"><meta property="og:url" content="https://mikoff.github.io/posts/nonlinear-estimation-mle-map.md/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2020-04-18T10:51:21+03:00"><meta property="article:modified_time" content="2020-04-18T10:51:21+03:00"><base href=https://mikoff.github.io/posts/nonlinear-estimation-mle-map.md/><title>Nonlinear estimation: Full Bayesian, MLE and MAP · Aleksandr Mikoff's blog</title><link rel=canonical href=https://mikoff.github.io/posts/nonlinear-estimation-mle-map.md/><link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap" rel=stylesheet><link rel=stylesheet href=https://use.fontawesome.com/releases/v5.11.2/css/all.css integrity=sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin=anonymous><link rel=stylesheet href=https://mikoff.github.io/fontdata/css/academicons.min.css><link rel=stylesheet href=https://mikoff.github.io/css/coder.min.a4f332213a21ce8eb521670c614470c58923aaaf385e2a73982c31dd7642decb.css integrity="sha256-pPMyITohzo61IWcMYURwxYkjqq84XipzmCwx3XZC3ss=" crossorigin=anonymous media=screen><link rel=stylesheet href=https://mikoff.github.io/css/coder-dark.min.83a2010dac9f59f943b3004cd6c4f230507ad036da635d3621401d42ec4e2835.css integrity="sha256-g6IBDayfWflDswBM1sTyMFB60DbaY102IUAdQuxOKDU=" crossorigin=anonymous media=screen><link rel=stylesheet href=https://mikoff.github.io/css/image.css><link rel=icon type=image/png href=https://mikoff.github.io/img/favicon-32x32.png sizes=32x32><link rel=icon type=image/png href=https://mikoff.github.io/img/favicon-16x16.png sizes=16x16><meta name=generator content="Hugo 0.85.0"></head><body class=colorscheme-auto><main class=wrapper><nav class=navigation><section class=container><a class=navigation-title href=https://mikoff.github.io/>Aleksandr Mikoff's blog</a>
+<!doctype html><html lang=en>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=author content="Aleksandr Mikoff">
+<meta name=twitter:card content="summary">
+<meta name=twitter:title content="Nonlinear estimation: Full Bayesian, MLE and MAP">
+<meta name=twitter:description content="Intro Recently I have read &ldquo;State Estimation for Robotics&rdquo; book and came across a good example on one-dimensional nonlinear estimation problem: the estimation of the position of a landmark from stereo-camera data.
+Distance from stereo-images The camera image is a projection of the world on the image plane. The depth perceptions arises from disparity of 3d point (landmark) on two images, obtained from left and right cameras. $$disparity = x_{left} - x_{right}$$">
+<meta property="og:title" content="Nonlinear estimation: Full Bayesian, MLE and MAP">
+<meta property="og:description" content="Intro Recently I have read &ldquo;State Estimation for Robotics&rdquo; book and came across a good example on one-dimensional nonlinear estimation problem: the estimation of the position of a landmark from stereo-camera data.
+Distance from stereo-images The camera image is a projection of the world on the image plane. The depth perceptions arises from disparity of 3d point (landmark) on two images, obtained from left and right cameras. $$disparity = x_{left} - x_{right}$$">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://mikoff.github.io/posts/nonlinear-estimation-mle-map.md/"><meta property="article:section" content="posts">
+<meta property="article:published_time" content="2020-04-18T10:51:21+03:00">
+<meta property="article:modified_time" content="2020-04-18T10:51:21+03:00">
+<base href=https://mikoff.github.io/posts/nonlinear-estimation-mle-map.md/>
+<title>
+Nonlinear estimation: Full Bayesian, MLE and MAP · Aleksandr Mikoff's blog
+</title>
+<link rel=canonical href=https://mikoff.github.io/posts/nonlinear-estimation-mle-map.md/>
+<link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap" rel=stylesheet>
+<link rel=stylesheet href=https://use.fontawesome.com/releases/v5.11.2/css/all.css integrity=sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN crossorigin=anonymous>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin=anonymous>
+<link rel=stylesheet href=https://mikoff.github.io/fontdata/css/academicons.min.css>
+<link rel=stylesheet href=https://mikoff.github.io/css/coder.min.a4f332213a21ce8eb521670c614470c58923aaaf385e2a73982c31dd7642decb.css integrity="sha256-pPMyITohzo61IWcMYURwxYkjqq84XipzmCwx3XZC3ss=" crossorigin=anonymous media=screen>
+<link rel=stylesheet href=https://mikoff.github.io/css/coder-dark.min.83a2010dac9f59f943b3004cd6c4f230507ad036da635d3621401d42ec4e2835.css integrity="sha256-g6IBDayfWflDswBM1sTyMFB60DbaY102IUAdQuxOKDU=" crossorigin=anonymous media=screen>
+<link rel=stylesheet href=https://mikoff.github.io/css/image.css>
+<link rel=stylesheet href=https://mikoff.github.io/css/spoiler.css>
+<script src=https://mikoff.github.io/js/spoiler.js></script>
+<link rel=icon type=image/png href=https://mikoff.github.io/img/favicon-32x32.png sizes=32x32>
+<link rel=icon type=image/png href=https://mikoff.github.io/img/favicon-16x16.png sizes=16x16>
+<meta name=generator content="Hugo 0.89.0">
+</head>
+<body class=colorscheme-auto>
+<main class=wrapper>
+<nav class=navigation>
+<section class=container>
+<a class=navigation-title href=https://mikoff.github.io/>
+Aleksandr Mikoff's blog
+</a>
 <input type=checkbox id=menu-toggle>
-<label class="menu-button float-right" for=menu-toggle><i class="fas fa-bars"></i></label><ul class=navigation-list><li class=navigation-item><a class=navigation-link href=https://mikoff.github.io/about/>About</a></li><li class=navigation-item><a class=navigation-link href=https://mikoff.github.io/posts/>Posts</a></li><li class=navigation-item><a class=navigation-link href=https://mikoff.github.io/tags>Tags</a></li></ul></section></nav><div class=content><section class="container post"><article><header><div class=post-title><h1 class=title>Nonlinear estimation: Full Bayesian, MLE and MAP</h1></div><div class=post-meta><div class=date><span class=posted-on><i class="fas fa-calendar"></i>
-<time datetime=2020-04-18T10:51:21+03:00>April 18, 2020</time></span>
-<span class=reading-time><i class="fas fa-clock"></i>
-8-minute read</span></div><div class=tags><i class="fas fa-tag"></i>
+<label class="menu-button float-right" for=menu-toggle><i class="fas fa-bars"></i></label>
+<ul class=navigation-list>
+<li class=navigation-item>
+<a class=navigation-link href=https://mikoff.github.io/about/>About</a>
+</li>
+<li class=navigation-item>
+<a class=navigation-link href=https://mikoff.github.io/posts/>Posts</a>
+</li>
+<li class=navigation-item>
+<a class=navigation-link href=https://mikoff.github.io/tags>Tags</a>
+</li>
+</ul>
+</section>
+</nav>
+<script src=//cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.slim.min.js></script>
+<div class=content>
+<section class="container post">
+<article>
+<header>
+<div class=post-title>
+<h1 class=title>Nonlinear estimation: Full Bayesian, MLE and MAP</h1>
+</div>
+<div class=post-meta>
+<div class=date>
+<span class=posted-on>
+<i class="fas fa-calendar"></i>
+<time datetime=2020-04-18T10:51:21+03:00>
+April 18, 2020
+</time>
+</span>
+<span class=reading-time>
+<i class="fas fa-clock"></i>
+8-minute read
+</span>
+</div>
+<div class=tags>
+<i class="fas fa-tag"></i>
 <a href=https://mikoff.github.io/tags/bayesian-estimation/>Bayesian estimation</a>
 <span class=separator>•</span>
 <a href=https://mikoff.github.io/tags/mle/>MLE</a>
@@ -14,19 +85,37 @@ Distance from stereo-images The camera image is a projection of the world on the
 <span class=separator>•</span>
 <a href=https://mikoff.github.io/tags/stereo-vision/>Stereo vision</a>
 <span class=separator>•</span>
-<a href=https://mikoff.github.io/tags/statistics/>Statistics</a></div></div></header><div><h2 id=intro>Intro</h2><p>Recently I have read <a href=https://www.cambridge.org/core/books/state-estimation-for-robotics/AC0E0AC229C55203B3C8F106BCB61F48>&ldquo;State Estimation for Robotics&rdquo;</a> book and came across a good example on one-dimensional nonlinear estimation problem: the estimation of the position of a landmark from stereo-camera data.</p><h2 id=distance-from-stereo-images>Distance from stereo-images</h2><p>The camera image is a projection of the world on the image plane.
+<a href=https://mikoff.github.io/tags/statistics/>Statistics</a></div>
+</div>
+</header>
+<div>
+<h2 id=intro>Intro</h2>
+<p>Recently I have read <a href=https://www.cambridge.org/core/books/state-estimation-for-robotics/AC0E0AC229C55203B3C8F106BCB61F48>&ldquo;State Estimation for Robotics&rdquo;</a> book and came across a good example on one-dimensional nonlinear estimation problem: the estimation of the position of a landmark from stereo-camera data.</p>
+<h2 id=distance-from-stereo-images>Distance from stereo-images</h2>
+<p>The camera image is a projection of the world on the image plane.
 The depth perceptions arises from disparity of 3d point (landmark) on two images, obtained from left and right cameras.
-$$disparity = x_{left} - x_{right}$$</p><p><img src=./two_camera_images.svg#center alt=svg></p><p>Having two images with known landmark positions in image coordinates (pixels), it turns out that we can calculate the depth between camera and the landmark.</p><p>To do so, let&rsquo;s draw a simple scheme of two pinholes cameras' setup and derive the equation for depth, or forward distance, between the camera and the landmark.</p><p><img src=./camera_model_only.svg#center alt=svg></p><p>On the preceding image $l$ is the landmark, $(x, z)$ is the landmark position w.r.t. the left camera $c_{left}$ (meters). We want to find $z$, depth of the landmark. By design, the focal length $f$ (in pixels) and baseline $b$, which is the horizontal distance between left and right cameras (in meters) are known.</p><p>From the similar triangles (marked with arcs) and under assumption that the optical axes of the cameras are parallel we have (for simplicty $x_{left} = x_{l}, x_{right} = x_r$):
+$$disparity = x_{left} - x_{right}$$</p>
+<p><img src=./two_camera_images.svg#center alt=svg></p>
+<p>Having two images with known landmark positions in image coordinates (pixels), it turns out that we can calculate the depth between camera and the landmark.</p>
+<p>To do so, let&rsquo;s draw a simple scheme of two pinholes cameras' setup and derive the equation for depth, or forward distance, between the camera and the landmark.</p>
+<p><img src=./camera_model_only.svg#center alt=svg></p>
+<p>On the preceding image $l$ is the landmark, $(x, z)$ is the landmark position w.r.t. the left camera $c_{left}$ (meters). We want to find $z$, depth of the landmark. By design, the focal length $f$ (in pixels) and baseline $b$, which is the horizontal distance between left and right cameras (in meters) are known.</p>
+<p>From the similar triangles (marked with arcs) and under assumption that the optical axes of the cameras are parallel we have (for simplicty $x_{left} = x_{l}, x_{right} = x_r$):
 $$\frac{z}{f} = \frac{x}{x_{l}} = \frac{x-b}{x_{r}}.$$
 Now, expressing $x$ in terms of $x_{l}$ and $x_{r}$ gives:
 $$x x_{r} = (x - b) x_{l}$$
 $$x (x_{r} - x_{l}) = -b x_{l}$$
-$$x = \frac{b x_{l}}{x_{l} - x_{r}}$$</p><p>Substituting it into previous equation:
+$$x = \frac{b x_{l}}{x_{l} - x_{r}}$$</p>
+<p>Substituting it into previous equation:
 $$\frac{z}{f} = \frac{b}{x_r - x_l}$$
 we can derive the equation for depth, or $z$ as:
-$$z = \frac{f b}{x_l - x_r}.$$</p><h2 id=bayesian-model>Bayesian model</h2><p>From the depth equation the measurement model for disparity $disparity = x_l - x_r$ can be written as:
+$$z = \frac{f b}{x_l - x_r}.$$</p>
+<h2 id=bayesian-model>Bayesian model</h2>
+<p>From the depth equation the measurement model for disparity $disparity = x_l - x_r$ can be written as:
 $$disparity = x_l - x_r = y = \frac{f b}{z} + n,$$
-where the state $z$ is the depth of the landmark (meters) and $n$ is the measurement noise (in pixels), all other terms were defined earlier. Despite of being simple it is a nonlinear model: $f(x_1 + x_2) \neq f(x_1) + f(x_2)$.</p><p>This fact can be visualized by passing the state through our measurement function. After applying this transform evenly spaced samples from our state space become unevenly spaced:</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>fig, ax <span style=color:#555>=</span> plt<span style=color:#555>.</span>subplots(<span style=color:#f60>1</span>, <span style=color:#f60>1</span>, figsize <span style=color:#555>=</span> (<span style=color:#f60>10</span>, <span style=color:#f60>3</span>))
+where the state $z$ is the depth of the landmark (meters) and $n$ is the measurement noise (in pixels), all other terms were defined earlier. Despite of being simple it is a nonlinear model: $f(x_1 + x_2) \neq f(x_1) + f(x_2)$.</p>
+<p>This fact can be visualized by passing the state through our measurement function. After applying this transform evenly spaced samples from our state space become unevenly spaced:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>fig, ax <span style=color:#555>=</span> plt<span style=color:#555>.</span>subplots(<span style=color:#f60>1</span>, <span style=color:#f60>1</span>, figsize <span style=color:#555>=</span> (<span style=color:#f60>10</span>, <span style=color:#f60>3</span>))
 
 <span style=color:#09f;font-style:italic># depth</span>
 z_space <span style=color:#555>=</span> np<span style=color:#555>.</span>linspace(<span style=color:#f60>1e-8</span>, <span style=color:#f60>40</span>, <span style=color:#f60>100</span>)
@@ -38,14 +127,27 @@ ax<span style=color:#555>.</span>vlines(measurement_space, <span style=color:#f6
 ax<span style=color:#555>.</span>set_xlim(<span style=color:#f60>0</span>, <span style=color:#f60>40</span>)
 ax<span style=color:#555>.</span>set_ylim(<span style=color:#555>-</span><span style=color:#f60>0.2</span>, <span style=color:#f60>0.4</span>)
 ax<span style=color:#555>.</span>legend()
-</code></pre></div><p><img src=./index_9_1.png alt=png></p><p>The Bayesian update is defined as:
+</code></pre></div><p><img src=./index_9_1.png alt=png></p>
+<p>The Bayesian update is defined as:
 $$p(z|y) = \eta~p(y|z)~p(z),$$
-where $\eta = \frac{1}{p(y)} = \frac{1}{\int p(y|z)~p(z)~dz}$ is the normalizer.</p><p>To perform such update, the probabilities of $p(y|z)$ and $p(z)$ must be known. Our choice is to define the measurement noise as zero-mean Gaussian $n \sim N(0, R)$. Thus:
+where $\eta = \frac{1}{p(y)} = \frac{1}{\int p(y|z)~p(z)~dz}$ is the normalizer.</p>
+<p>To perform such update, the probabilities of $p(y|z)$ and $p(z)$ must be known. Our choice is to define the measurement noise as zero-mean Gaussian $n \sim N(0, R)$. Thus:
 $$p(y|z) = N\left(\frac{f b}{z}, R\right) = \frac{1}{\sqrt{2 \pi R}} exp\left(-\frac{1}{2 R} \left(y - \frac{f b}{z}\right)^2\right).$$
 We also asssume that the prior is Gaussian:
-$$p(z) = N(z^{-}, P^{-}) = \frac{1}{\sqrt{2 \pi P^{-}}} exp\left(-\frac{1}{2 P^{-}} (z - z^{-})^2\right).$$</p><p>The Bayesian framework consists of the following operations:</p><ol><li>Get the prior $p(z)$ over the state space $z$, given the current estimate $z^{-}$.</li><li>Obtain the measurement $y$.</li><li>Calculate the measurement likelihood using $p(y|z)$.</li><li>Calculate the posterior $p(z|y)$ using Bayes rule.</li></ol><h2 id=visualization>Visualization</h2><p>To illustrate how this nonlinearity affects the pdf of the posterior it is possible to perform numerical experiments. For such an experiment, the selected parameters are the following:
-$$z^{-} = 20~[m],~P^{-} = 9~[m^2],~f = 400~[pixel],~b = 0.1~[m],~R = 0.09~[pixel^2].$$</p><p>The parameters for posterior calculation:
-$$z_{true} = 22~[m],~y_{meas} = \frac{f b}{z_{true}} + 1~[pixel].$$</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#09f;font-style:italic># prior parameters</span>
+$$p(z) = N(z^{-}, P^{-}) = \frac{1}{\sqrt{2 \pi P^{-}}} exp\left(-\frac{1}{2 P^{-}} (z - z^{-})^2\right).$$</p>
+<p>The Bayesian framework consists of the following operations:</p>
+<ol>
+<li>Get the prior $p(z)$ over the state space $z$, given the current estimate $z^{-}$.</li>
+<li>Obtain the measurement $y$.</li>
+<li>Calculate the measurement likelihood using $p(y|z)$.</li>
+<li>Calculate the posterior $p(z|y)$ using Bayes rule.</li>
+</ol>
+<h2 id=visualization>Visualization</h2>
+<p>To illustrate how this nonlinearity affects the pdf of the posterior it is possible to perform numerical experiments. For such an experiment, the selected parameters are the following:
+$$z^{-} = 20~[m],~P^{-} = 9~[m^2],~f = 400~[pixel],~b = 0.1~[m],~R = 0.09~[pixel^2].$$</p>
+<p>The parameters for posterior calculation:
+$$z_{true} = 22~[m],~y_{meas} = \frac{f b}{z_{true}} + 1~[pixel].$$</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#09f;font-style:italic># prior parameters</span>
 z_prior <span style=color:#555>=</span> <span style=color:#f60>20</span>
 P_prior <span style=color:#555>=</span> <span style=color:#f60>9</span>
 f <span style=color:#555>=</span> <span style=color:#f60>400</span>
@@ -86,25 +188,37 @@ maxPosterior <span style=color:#555>=</span> np<span style=color:#555>.</span>ar
 ax<span style=color:#555>.</span>vlines([z_space[maxPosterior]], ymin, ymax, colors <span style=color:#555>=</span> <span style=color:#c30>&#39;blue&#39;</span>, linestyles <span style=color:#555>=</span> <span style=color:#c30>&#39;dotted&#39;</span>, label <span style=color:#555>=</span> <span style=color:#c30>&#39;$z^{+}$&#39;</span>)
 
 ax<span style=color:#555>.</span>legend()
-</code></pre></div><p><img src=./index_14_1.png alt=png></p><p>The maximum likelihood estimation (MLE) can be utilized when we want to use only the measurements and have no prior information about possible system state. It helps to find the answer to the following question: which value of $z$ is most probable given the measurement $y$?</p><p>However, if we know the prior distribution of our parameter of interest, it is generally a good idea to take it into account. The incorporation of the measurement results in more concentrated (less uncertainty) posterior about the state than the prior.</p><p>We can find the most probable posterior value for this concrete example by visual inspection of the posterior PDF. However, it is not the case for most real-life problems. To overcome this problem the maximum a posteriori (MAP) approach can be utilized. It is used to find the <em>peak</em> of the posterior.</p><h2 id=maximum-likelihood-estimation>Maximum Likelihood estimation</h2><p>Talking about the maximum likelihood estimation we seek for a value that maximizes the likelihood of our measurement, or data, given the state $z$:
+</code></pre></div><p><img src=./index_14_1.png alt=png></p>
+<p>The maximum likelihood estimation (MLE) can be utilized when we want to use only the measurements and have no prior information about possible system state. It helps to find the answer to the following question: which value of $z$ is most probable given the measurement $y$?</p>
+<p>However, if we know the prior distribution of our parameter of interest, it is generally a good idea to take it into account. The incorporation of the measurement results in more concentrated (less uncertainty) posterior about the state than the prior.</p>
+<p>We can find the most probable posterior value for this concrete example by visual inspection of the posterior PDF. However, it is not the case for most real-life problems. To overcome this problem the maximum a posteriori (MAP) approach can be utilized. It is used to find the <em>peak</em> of the posterior.</p>
+<h2 id=maximum-likelihood-estimation>Maximum Likelihood estimation</h2>
+<p>Talking about the maximum likelihood estimation we seek for a value that maximizes the likelihood of our measurement, or data, given the state $z$:
 $$\hat{x}_{mle} = \underset{x}{arg~max}~p(y|x),$$
 going to the $log$ space:
 $$\hat{x}_{mle} = \underset{x}{arg~min}~(-ln(p(y|x))).$$
 <em>Note</em>: if we want to find MLE for a number of measurements, or samples under assumption that they are undepended, we replace $p(y|x)$ by the product of individual samples probabilities: $\underset{i}{\prod} p(y_i|x)$. This leads to the following $\hat{x}_{mle}$:
-$$\hat{x}_{mle} = \underset{x}{arg~min}~(-\underset{i}{\sum}ln(p(y_i|x))).$$</p><p>For stereo-camera depth estimate:
+$$\hat{x}_{mle} = \underset{x}{arg~min}~(-\underset{i}{\sum}ln(p(y_i|x))).$$</p>
+<p>For stereo-camera depth estimate:
 $$\hat{z}_{mle} = \underset{z}{arg~min}~J_{mle}(z),$$
 where $J_{mle}(z)$ can be found as:
 $$J_{mle}(z) = \frac{1}{2 R} \left(y - \frac{f b}{z}\right)^2,$$
-after dropping the constants that do not depend on $x$.</p><h2 id=maximum-a-posteriori-estimation>Maximum a Posteriori estimation</h2><p>When we are talking about maximum a posteriori estimation we assume that we want to find the single state value $x$ that maximizes the true posterior:
+after dropping the constants that do not depend on $x$.</p>
+<h2 id=maximum-a-posteriori-estimation>Maximum a Posteriori estimation</h2>
+<p>When we are talking about maximum a posteriori estimation we assume that we want to find the single state value $x$ that maximizes the true posterior:
 $$\hat{x}_{map} = \underset{x}{arg~max}~p(x|y),$$
 or, alternatively, because $log$ is the monotolically increasing function:
 $$\hat{x}_{map} = \underset{x}{arg~min}~(-ln(p(x|y))).$$
 Applying the Bayes rule we have:
 $$\hat{x}_{map} = \underset{x}{arg~min}~(-ln(p(y|x)) - ln(p(x))),$$
-where $p(y)$ is being dropped because it does not depend on $x$. Again, if we have a number of measurements $y_i$, we have to add their product that leads to the sum after switching to the $log$ space.</p><p>In the stereo-camera depth estimate we can write:
+where $p(y)$ is being dropped because it does not depend on $x$. Again, if we have a number of measurements $y_i$, we have to add their product that leads to the sum after switching to the $log$ space.</p>
+<p>In the stereo-camera depth estimate we can write:
 $$\hat{z}_{map} = \underset{z}{arg~min}~J_{map}(z),$$
 where $J(z)$ is obtained by dropping the constants that do not depend on $x$:
-$$J_{map}(z) = \frac{1}{2 R} \left(y - \frac{f b}{z}\right)^2 + \frac{1}{2 P^{-}} \left(z^{-} - z\right)^2$$</p><p>Both MLE and MAP estimates can be found using a number of numerical optimization techniques by minimizing our target cost functions $J_{mle}$ or $J_{map}$.</p><p>Let&rsquo;s go back and find the MLE and MAP estimates of $z$:</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#069;font-weight:700>from</span> <span style=color:#0cf;font-weight:700>scipy.optimize</span> <span style=color:#069;font-weight:700>import</span> minimize
+$$J_{map}(z) = \frac{1}{2 R} \left(y - \frac{f b}{z}\right)^2 + \frac{1}{2 P^{-}} \left(z^{-} - z\right)^2$$</p>
+<p>Both MLE and MAP estimates can be found using a number of numerical optimization techniques by minimizing our target cost functions $J_{mle}$ or $J_{map}$.</p>
+<p>Let&rsquo;s go back and find the MLE and MAP estimates of $z$:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#069;font-weight:700>from</span> <span style=color:#0cf;font-weight:700>scipy.optimize</span> <span style=color:#069;font-weight:700>import</span> minimize
 
 Jz_mle <span style=color:#555>=</span> <span style=color:#069;font-weight:700>lambda</span> z: <span style=color:#f60>1.0</span> <span style=color:#555>/</span> (<span style=color:#f60>2.0</span> <span style=color:#555>*</span> R) <span style=color:#555>*</span> (y_meas <span style=color:#555>-</span> f <span style=color:#555>*</span> b <span style=color:#555>/</span> z) <span style=color:#555>**</span> <span style=color:#f60>2</span>
 
@@ -127,7 +241,10 @@ ax<span style=color:#555>.</span>legend()
 IPython<span style=color:#555>.</span>display<span style=color:#555>.</span>display(fig)
 </code></pre></div><pre><code>ML estimate: 14.19354712952584
 MAP estimate:  15.671431302257346
-</code></pre><p><img src=./index_20_1.png alt=png></p><p>To test whether or not the estimators find the true value of $z$ the simulations can be performed, estimating the residual between true and estimated states.</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>results <span style=color:#555>=</span> {<span style=color:#c30>&#39;true_state&#39;</span> : [], <span style=color:#c30>&#39;measurement&#39;</span> : [], <span style=color:#c30>&#34;map_estimate&#34;</span> : [], <span style=color:#c30>&#34;mle_estimate&#34;</span> : []}
+</code></pre>
+<p><img src=./index_20_1.png alt=png></p>
+<p>To test whether or not the estimators find the true value of $z$ the simulations can be performed, estimating the residual between true and estimated states.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>results <span style=color:#555>=</span> {<span style=color:#c30>&#39;true_state&#39;</span> : [], <span style=color:#c30>&#39;measurement&#39;</span> : [], <span style=color:#c30>&#34;map_estimate&#34;</span> : [], <span style=color:#c30>&#34;mle_estimate&#34;</span> : []}
 
 <span style=color:#069;font-weight:700>for</span> i <span style=color:#000;font-weight:700>in</span> <span style=color:#366>range</span>(<span style=color:#f60>0</span>, <span style=color:#f60>10000</span>):
     z_true <span style=color:#555>=</span> np<span style=color:#555>.</span>random<span style=color:#555>.</span>normal(z_prior, np<span style=color:#555>.</span>sqrt(P_prior))
@@ -162,8 +279,34 @@ ax<span style=color:#555>.</span>legend()
 Variance of the error:  4.335754086406355
 Mean error MLE and true state: 0.475211450081065
 Variance of the error:  13.431400451884032
-</code></pre><p><img src=./index_22_1.png alt=png></p><p>When selecting between MLE and MAP estimators it is a good practice to use MAP when the prior is given or can be inferred from experiments or researcher&rsquo;s intuition. Also, it is important to note that if the prior is a uniform distribution, MAP becomes an equivalent to MLE.</p><p>Both MLE and MAP estimators are biased even for such vanilla example. Why it happens and what to do with that?
-There is no straightforward answer: it depends on the problem. One of approaches that tackle this problem is the Bias-Variance decomposition.</p><p>Jupyter notebook is available <a href=https://github.com/mikoff/blog_projects/blob/master/notebooks/Nonlinear_estimation_of_stereo-vision_problem_using_MLE_and_MAP/>here</a>.</p></div><footer><div id=disqus_thread></div><script type=application/javascript>var disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return}var b=document,a=b.createElement('script');a.async=!0,a.src='//mikoff-github-io.disqus.com/embed.js',a.setAttribute('data-timestamp',+new Date),(b.head||b.body).appendChild(a)})()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></footer></article><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type=text/javascript async src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js></script><script src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js id=MathJax-script></script><script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],processEscapes:!0,processEnvironments:!0},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}}</script></section></div><footer class=footer><section class=container>© 2021
+</code></pre>
+<p><img src=./index_22_1.png alt=png></p>
+<p>When selecting between MLE and MAP estimators it is a good practice to use MAP when the prior is given or can be inferred from experiments or researcher&rsquo;s intuition. Also, it is important to note that if the prior is a uniform distribution, MAP becomes an equivalent to MLE.</p>
+<p>Both MLE and MAP estimators are biased even for such vanilla example. Why it happens and what to do with that?
+There is no straightforward answer: it depends on the problem. One of approaches that tackle this problem is the Bias-Variance decomposition.</p>
+<p>Jupyter notebook is available <a href=https://github.com/mikoff/blog_projects/blob/master/notebooks/Nonlinear_estimation_of_stereo-vision_problem_using_MLE_and_MAP/>here</a>.</p>
+</div>
+<footer>
+<div id=disqus_thread></div>
+<script type=application/javascript>var disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return}var b=document,a=b.createElement('script');a.async=!0,a.src='//mikoff-github-io.disqus.com/embed.js',a.setAttribute('data-timestamp',+new Date),(b.head||b.body).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+<a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a>
+</footer>
+</article>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type=text/javascript async src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js></script>
+<script src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js id=MathJax-script></script>
+<script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],processEscapes:!0,processEnvironments:!0},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}}</script>
+</section>
+</div>
+<footer class=footer>
+<section class=container>
+© 2021
 Aleksandr Mikoff
 ·
-Powered by <a href=https://gohugo.io/>Hugo</a> & <a href=https://github.com/luizdepra/hugo-coder/>Coder</a>.</section></footer></main></body></html>
+Powered by <a href=https://gohugo.io/>Hugo</a> & <a href=https://github.com/luizdepra/hugo-coder/>Coder</a>.
+</section>
+</footer>
+</main>
+</body>
+</html>

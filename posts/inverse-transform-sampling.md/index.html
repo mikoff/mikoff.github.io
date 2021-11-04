@@ -1,30 +1,121 @@
-<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="Aleksandr Mikoff"><meta name=twitter:card content="summary"><meta name=twitter:title content="Inverse transform sampling"><meta name=twitter:description content="Probability density and cumulative distribution functions Probability density function $f(x)$ is a function, which allows us to evaluate the probability that the sample, drawn from the distribution, will be equal to the value $X$. Also we can use PDF to calculate the probability that the randomly drawn sample from distribution will be in certain range, for example, $a \leq X \leq b$. This probability equals to the area under the PDF curve on the given interval and can be calculated by integration: $$ P(a \leq X \leq b) = \int _a^b f(x) dx $$"><meta property="og:title" content="Inverse transform sampling"><meta property="og:description" content="Probability density and cumulative distribution functions Probability density function $f(x)$ is a function, which allows us to evaluate the probability that the sample, drawn from the distribution, will be equal to the value $X$. Also we can use PDF to calculate the probability that the randomly drawn sample from distribution will be in certain range, for example, $a \leq X \leq b$. This probability equals to the area under the PDF curve on the given interval and can be calculated by integration: $$ P(a \leq X \leq b) = \int _a^b f(x) dx $$"><meta property="og:type" content="article"><meta property="og:url" content="https://mikoff.github.io/posts/inverse-transform-sampling.md/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2020-02-09T14:56:13+03:00"><meta property="article:modified_time" content="2020-02-09T14:56:13+03:00"><base href=https://mikoff.github.io/posts/inverse-transform-sampling.md/><title>Inverse transform sampling · Aleksandr Mikoff's blog</title><link rel=canonical href=https://mikoff.github.io/posts/inverse-transform-sampling.md/><link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap" rel=stylesheet><link rel=stylesheet href=https://use.fontawesome.com/releases/v5.11.2/css/all.css integrity=sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin=anonymous><link rel=stylesheet href=https://mikoff.github.io/fontdata/css/academicons.min.css><link rel=stylesheet href=https://mikoff.github.io/css/coder.min.a4f332213a21ce8eb521670c614470c58923aaaf385e2a73982c31dd7642decb.css integrity="sha256-pPMyITohzo61IWcMYURwxYkjqq84XipzmCwx3XZC3ss=" crossorigin=anonymous media=screen><link rel=stylesheet href=https://mikoff.github.io/css/coder-dark.min.83a2010dac9f59f943b3004cd6c4f230507ad036da635d3621401d42ec4e2835.css integrity="sha256-g6IBDayfWflDswBM1sTyMFB60DbaY102IUAdQuxOKDU=" crossorigin=anonymous media=screen><link rel=stylesheet href=https://mikoff.github.io/css/image.css><link rel=icon type=image/png href=https://mikoff.github.io/img/favicon-32x32.png sizes=32x32><link rel=icon type=image/png href=https://mikoff.github.io/img/favicon-16x16.png sizes=16x16><meta name=generator content="Hugo 0.85.0"></head><body class=colorscheme-auto><main class=wrapper><nav class=navigation><section class=container><a class=navigation-title href=https://mikoff.github.io/>Aleksandr Mikoff's blog</a>
+<!doctype html><html lang=en>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=author content="Aleksandr Mikoff">
+<meta name=twitter:card content="summary">
+<meta name=twitter:title content="Inverse transform sampling">
+<meta name=twitter:description content="Probability density and cumulative distribution functions Probability density function $f(x)$ is a function, which allows us to evaluate the probability that the sample, drawn from the distribution, will be equal to the value $X$. Also we can use PDF to calculate the probability that the randomly drawn sample from distribution will be in certain range, for example, $a \leq X \leq b$. This probability equals to the area under the PDF curve on the given interval and can be calculated by integration: $$ P(a \leq X \leq b) = \int _a^b f(x) dx $$">
+<meta property="og:title" content="Inverse transform sampling">
+<meta property="og:description" content="Probability density and cumulative distribution functions Probability density function $f(x)$ is a function, which allows us to evaluate the probability that the sample, drawn from the distribution, will be equal to the value $X$. Also we can use PDF to calculate the probability that the randomly drawn sample from distribution will be in certain range, for example, $a \leq X \leq b$. This probability equals to the area under the PDF curve on the given interval and can be calculated by integration: $$ P(a \leq X \leq b) = \int _a^b f(x) dx $$">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://mikoff.github.io/posts/inverse-transform-sampling.md/"><meta property="article:section" content="posts">
+<meta property="article:published_time" content="2020-02-09T14:56:13+03:00">
+<meta property="article:modified_time" content="2020-02-09T14:56:13+03:00">
+<base href=https://mikoff.github.io/posts/inverse-transform-sampling.md/>
+<title>
+Inverse transform sampling · Aleksandr Mikoff's blog
+</title>
+<link rel=canonical href=https://mikoff.github.io/posts/inverse-transform-sampling.md/>
+<link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap" rel=stylesheet>
+<link rel=stylesheet href=https://use.fontawesome.com/releases/v5.11.2/css/all.css integrity=sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN crossorigin=anonymous>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin=anonymous>
+<link rel=stylesheet href=https://mikoff.github.io/fontdata/css/academicons.min.css>
+<link rel=stylesheet href=https://mikoff.github.io/css/coder.min.a4f332213a21ce8eb521670c614470c58923aaaf385e2a73982c31dd7642decb.css integrity="sha256-pPMyITohzo61IWcMYURwxYkjqq84XipzmCwx3XZC3ss=" crossorigin=anonymous media=screen>
+<link rel=stylesheet href=https://mikoff.github.io/css/coder-dark.min.83a2010dac9f59f943b3004cd6c4f230507ad036da635d3621401d42ec4e2835.css integrity="sha256-g6IBDayfWflDswBM1sTyMFB60DbaY102IUAdQuxOKDU=" crossorigin=anonymous media=screen>
+<link rel=stylesheet href=https://mikoff.github.io/css/image.css>
+<link rel=stylesheet href=https://mikoff.github.io/css/spoiler.css>
+<script src=https://mikoff.github.io/js/spoiler.js></script>
+<link rel=icon type=image/png href=https://mikoff.github.io/img/favicon-32x32.png sizes=32x32>
+<link rel=icon type=image/png href=https://mikoff.github.io/img/favicon-16x16.png sizes=16x16>
+<meta name=generator content="Hugo 0.89.0">
+</head>
+<body class=colorscheme-auto>
+<main class=wrapper>
+<nav class=navigation>
+<section class=container>
+<a class=navigation-title href=https://mikoff.github.io/>
+Aleksandr Mikoff's blog
+</a>
 <input type=checkbox id=menu-toggle>
-<label class="menu-button float-right" for=menu-toggle><i class="fas fa-bars"></i></label><ul class=navigation-list><li class=navigation-item><a class=navigation-link href=https://mikoff.github.io/about/>About</a></li><li class=navigation-item><a class=navigation-link href=https://mikoff.github.io/posts/>Posts</a></li><li class=navigation-item><a class=navigation-link href=https://mikoff.github.io/tags>Tags</a></li></ul></section></nav><div class=content><section class="container post"><article><header><div class=post-title><h1 class=title>Inverse transform sampling</h1></div><div class=post-meta><div class=date><span class=posted-on><i class="fas fa-calendar"></i>
-<time datetime=2020-02-09T14:56:13+03:00>February 9, 2020</time></span>
-<span class=reading-time><i class="fas fa-clock"></i>
-10-minute read</span></div><div class=tags><i class="fas fa-tag"></i>
+<label class="menu-button float-right" for=menu-toggle><i class="fas fa-bars"></i></label>
+<ul class=navigation-list>
+<li class=navigation-item>
+<a class=navigation-link href=https://mikoff.github.io/about/>About</a>
+</li>
+<li class=navigation-item>
+<a class=navigation-link href=https://mikoff.github.io/posts/>Posts</a>
+</li>
+<li class=navigation-item>
+<a class=navigation-link href=https://mikoff.github.io/tags>Tags</a>
+</li>
+</ul>
+</section>
+</nav>
+<script src=//cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.slim.min.js></script>
+<div class=content>
+<section class="container post">
+<article>
+<header>
+<div class=post-title>
+<h1 class=title>Inverse transform sampling</h1>
+</div>
+<div class=post-meta>
+<div class=date>
+<span class=posted-on>
+<i class="fas fa-calendar"></i>
+<time datetime=2020-02-09T14:56:13+03:00>
+February 9, 2020
+</time>
+</span>
+<span class=reading-time>
+<i class="fas fa-clock"></i>
+10-minute read
+</span>
+</div>
+<div class=tags>
+<i class="fas fa-tag"></i>
 <a href=https://mikoff.github.io/tags/sampling/>sampling</a>
 <span class=separator>•</span>
-<a href=https://mikoff.github.io/tags/statistics/>statistics</a></div></div></header><div><h1 id=probability-density-and-cumulative-distribution-functions>Probability density and cumulative distribution functions</h1><p>Probability density function $f(x)$ is a function, which allows us to evaluate the probability that the sample, drawn from the distribution, will be equal to the value $X$.
+<a href=https://mikoff.github.io/tags/statistics/>statistics</a></div>
+</div>
+</header>
+<div>
+<h1 id=probability-density-and-cumulative-distribution-functions>Probability density and cumulative distribution functions</h1>
+<p>Probability density function $f(x)$ is a function, which allows us to evaluate the probability that the sample, drawn from the distribution, will be equal to the value $X$.
 Also we can use PDF to calculate the probability that the randomly drawn sample from distribution will be in certain range, for example, $a \leq X \leq b$. This probability equals to the area under the PDF curve on the given interval and can be calculated by integration:
 $$
 P(a \leq X \leq b) = \int _a^b f(x) dx
-$$</p><p>Cumulative distribution function shows us the probability (portion of data, frequence) to draw a number $X$ less or equal than $x$:
+$$</p>
+<p>Cumulative distribution function shows us the probability (portion of data, frequence) to draw a number $X$ less or equal than $x$:
 $$
 P(X \leq x) = F(x).
-$$</p><p>It is obvious, that the probability that value lies in semi-closed interval $[a, b)$ can be represented as:
+$$</p>
+<p>It is obvious, that the probability that value lies in semi-closed interval $[a, b)$ can be represented as:
 $$
 P(a \leq X \leq b) = F(b) - F(a)
-$$</p><p>Let&rsquo;s experiment with normal distribution, its PDF has the following form:</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>x, pi, sigma, mu <span style=color:#555>=</span> sp<span style=color:#555>.</span>symbols(<span style=color:#c30>&#39;x, pi, sigma, mu&#39;</span>, positive <span style=color:#555>=</span> <span style=color:#069;font-weight:700>True</span>)
+$$</p>
+<p>Let&rsquo;s experiment with normal distribution, its PDF has the following form:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>x, pi, sigma, mu <span style=color:#555>=</span> sp<span style=color:#555>.</span>symbols(<span style=color:#c30>&#39;x, pi, sigma, mu&#39;</span>, positive <span style=color:#555>=</span> <span style=color:#069;font-weight:700>True</span>)
 pdf <span style=color:#555>=</span> ((<span style=color:#f60>2.0</span> <span style=color:#555>*</span> sp<span style=color:#555>.</span>pi) <span style=color:#555>**</span> sp<span style=color:#555>.</span>Rational(<span style=color:#555>-</span><span style=color:#f60>1</span>, <span style=color:#f60>2</span>) <span style=color:#555>/</span> sigma) <span style=color:#555>*</span> sp<span style=color:#555>.</span>exp(<span style=color:#555>-</span><span style=color:#f60>0.5</span> <span style=color:#555>*</span> ((x <span style=color:#555>-</span> mu)<span style=color:#555>/</span>sigma) <span style=color:#555>**</span> <span style=color:#f60>2</span>)
 display(pdf)
-</code></pre></div><p>$\displaystyle \frac{0.707106781186548 e^{- \frac{0.5 \left(- \mu + x\right)^{2}}{\sigma^{2}}}}{\sqrt{\pi} \sigma}$</p><p>Its CDF can be found by integration:</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>cdf <span style=color:#555>=</span> sp<span style=color:#555>.</span>simplify(sp<span style=color:#555>.</span>integrate(pdf, x)) <span style=color:#555>+</span> <span style=color:#f60>0.5</span>
+</code></pre></div><p>$\displaystyle \frac{0.707106781186548 e^{- \frac{0.5 \left(- \mu + x\right)^{2}}{\sigma^{2}}}}{\sqrt{\pi} \sigma}$</p>
+<p>Its CDF can be found by integration:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>cdf <span style=color:#555>=</span> sp<span style=color:#555>.</span>simplify(sp<span style=color:#555>.</span>integrate(pdf, x)) <span style=color:#555>+</span> <span style=color:#f60>0.5</span>
 display(cdf)
-</code></pre></div><p>$\displaystyle 0.5 - 0.5 \operatorname{erf}{\left(\frac{0.707106781186548 \left(\mu - x\right)}{\sigma} \right)}$</p><p>To get 3-sigma 68-95-99.7 rule, which tells us that 68%-95%-99.7% of data lies within one-two-three standard deviation of the mean, we can just integrate the pdf on the following intervals: $[\mu - n\sigma, \mu + n\sigma]$, where $n = {1, 2, 3}$:</p><p>Data portion within $\mu \pm \sigma$ interval:</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>display(<span style=color:#366>float</span>(sp<span style=color:#555>.</span>integrate(pdf, (x, mu<span style=color:#555>-</span>sigma, mu<span style=color:#555>+</span>sigma))))
-</code></pre></div><p>$\displaystyle 0.682689492137086$</p><p>Data portion within $\mu \pm 2\sigma$ interval:</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>display(cdf<span style=color:#555>.</span>subs({x: mu <span style=color:#555>+</span> <span style=color:#f60>2</span> <span style=color:#555>*</span> sigma}) <span style=color:#555>-</span> cdf<span style=color:#555>.</span>subs({x: mu <span style=color:#555>-</span> <span style=color:#f60>2</span> <span style=color:#555>*</span> sigma}))
-</code></pre></div><p>$\displaystyle 0.954499736103642$</p><p>Data portion within $\mu \pm 3\sigma$ interval:</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>display(cdf<span style=color:#555>.</span>subs({x: mu <span style=color:#555>+</span> <span style=color:#f60>3</span> <span style=color:#555>*</span> sigma}) <span style=color:#555>-</span> cdf<span style=color:#555>.</span>subs({x: mu <span style=color:#555>-</span> <span style=color:#f60>3</span> <span style=color:#555>*</span> sigma}))
-</code></pre></div><p>$\displaystyle 0.99730020393674$</p><p>And now let&rsquo;s visualize it as the area under gaussian PDF within given ranges:</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>gaussian_pdf <span style=color:#555>=</span> sp<span style=color:#555>.</span>lambdify((x, mu, sigma), pdf)
+</code></pre></div><p>$\displaystyle 0.5 - 0.5 \operatorname{erf}{\left(\frac{0.707106781186548 \left(\mu - x\right)}{\sigma} \right)}$</p>
+<p>To get 3-sigma 68-95-99.7 rule, which tells us that 68%-95%-99.7% of data lies within one-two-three standard deviation of the mean, we can just integrate the pdf on the following intervals: $[\mu - n\sigma, \mu + n\sigma]$, where $n = {1, 2, 3}$:</p>
+<p>Data portion within $\mu \pm \sigma$ interval:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>display(<span style=color:#366>float</span>(sp<span style=color:#555>.</span>integrate(pdf, (x, mu<span style=color:#555>-</span>sigma, mu<span style=color:#555>+</span>sigma))))
+</code></pre></div><p>$\displaystyle 0.682689492137086$</p>
+<p>Data portion within $\mu \pm 2\sigma$ interval:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>display(cdf<span style=color:#555>.</span>subs({x: mu <span style=color:#555>+</span> <span style=color:#f60>2</span> <span style=color:#555>*</span> sigma}) <span style=color:#555>-</span> cdf<span style=color:#555>.</span>subs({x: mu <span style=color:#555>-</span> <span style=color:#f60>2</span> <span style=color:#555>*</span> sigma}))
+</code></pre></div><p>$\displaystyle 0.954499736103642$</p>
+<p>Data portion within $\mu \pm 3\sigma$ interval:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>display(cdf<span style=color:#555>.</span>subs({x: mu <span style=color:#555>+</span> <span style=color:#f60>3</span> <span style=color:#555>*</span> sigma}) <span style=color:#555>-</span> cdf<span style=color:#555>.</span>subs({x: mu <span style=color:#555>-</span> <span style=color:#f60>3</span> <span style=color:#555>*</span> sigma}))
+</code></pre></div><p>$\displaystyle 0.99730020393674$</p>
+<p>And now let&rsquo;s visualize it as the area under gaussian PDF within given ranges:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>gaussian_pdf <span style=color:#555>=</span> sp<span style=color:#555>.</span>lambdify((x, mu, sigma), pdf)
 gaussian_cdf <span style=color:#555>=</span> sp<span style=color:#555>.</span>lambdify((x, mu, sigma), cdf)
 
 Mu, Sigma <span style=color:#555>=</span> <span style=color:#f60>4.0</span>, <span style=color:#f60>1.0</span>
@@ -40,19 +131,38 @@ ax<span style=color:#555>.</span>set(xlabel<span style=color:#555>=</span><span 
     ax<span style=color:#555>.</span>fill_between(span, gaussian_pdf(span, Mu, Sigma), interpolate<span style=color:#555>=</span><span style=color:#069;font-weight:700>True</span>, alpha<span style=color:#555>=</span><span style=color:#f60>0.5</span>)
     ax<span style=color:#555>.</span>annotate(<span style=color:#366>str</span>(np<span style=color:#555>.</span>round_(<span style=color:#f60>100</span> <span style=color:#555>*</span> (gaussian_cdf(spanEnd, Mu, Sigma) <span style=color:#555>-</span> gaussian_cdf(spanStart, Mu, Sigma)), <span style=color:#f60>1</span>)) <span style=color:#555>+</span> <span style=color:#c30>&#39;%&#39;</span>, 
                 xy<span style=color:#555>=</span>((spanStart <span style=color:#555>+</span> spanEnd) <span style=color:#555>*</span> <span style=color:#f60>0.5</span>, <span style=color:#f60>0.025</span>), ha<span style=color:#555>=</span><span style=color:#c30>&#39;center&#39;</span>)
-</code></pre></div><p><img src=./index_15_0.png alt=png></p><p>Let&rsquo;s find Gaussian distribution mean, or first moment, which, by definition equals to $\int_{-\infty}^\infty x f(x) dx$:</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>mean <span style=color:#555>=</span> sp<span style=color:#555>.</span>integrate(pdf <span style=color:#555>*</span> x, (x, <span style=color:#555>-</span>sp<span style=color:#555>.</span>oo, sp<span style=color:#555>.</span>oo))
+</code></pre></div><p><img src=./index_15_0.png alt=png></p>
+<p>Let&rsquo;s find Gaussian distribution mean, or first moment, which, by definition equals to $\int_{-\infty}^\infty x f(x) dx$:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>mean <span style=color:#555>=</span> sp<span style=color:#555>.</span>integrate(pdf <span style=color:#555>*</span> x, (x, <span style=color:#555>-</span>sp<span style=color:#555>.</span>oo, sp<span style=color:#555>.</span>oo))
 display(mean)
-</code></pre></div><p>$\displaystyle 1.0 \mu$</p><p>The variance can be found using second moment and mean, $Var(X) = \mathbb E[X^2] - \mathbb E [X]^2$</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>variance <span style=color:#555>=</span> sp<span style=color:#555>.</span>integrate(pdf <span style=color:#555>*</span> x <span style=color:#555>*</span> x, (x, <span style=color:#555>-</span>sp<span style=color:#555>.</span>oo, sp<span style=color:#555>.</span>oo)) <span style=color:#555>-</span> mean<span style=color:#555>**</span><span style=color:#f60>2</span>
+</code></pre></div><p>$\displaystyle 1.0 \mu$</p>
+<p>The variance can be found using second moment and mean, $Var(X) = \mathbb E[X^2] - \mathbb E [X]^2$</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>variance <span style=color:#555>=</span> sp<span style=color:#555>.</span>integrate(pdf <span style=color:#555>*</span> x <span style=color:#555>*</span> x, (x, <span style=color:#555>-</span>sp<span style=color:#555>.</span>oo, sp<span style=color:#555>.</span>oo)) <span style=color:#555>-</span> mean<span style=color:#555>**</span><span style=color:#f60>2</span>
 display(variance)
-</code></pre></div><p>$\displaystyle 1.0 \sigma^{2}$</p><p>And verify that the area under the curve, or total probability should be equal to 1.0:</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>area <span style=color:#555>=</span> sp<span style=color:#555>.</span>integrate(pdf, (x, <span style=color:#555>-</span>sp<span style=color:#555>.</span>oo, sp<span style=color:#555>.</span>oo))
+</code></pre></div><p>$\displaystyle 1.0 \sigma^{2}$</p>
+<p>And verify that the area under the curve, or total probability should be equal to 1.0:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>area <span style=color:#555>=</span> sp<span style=color:#555>.</span>integrate(pdf, (x, <span style=color:#555>-</span>sp<span style=color:#555>.</span>oo, sp<span style=color:#555>.</span>oo))
 display(area)
-</code></pre></div><p>$\displaystyle 1.0$</p><h1 id=inverse-cdf>Inverse CDF</h1><p>The inverse of CDF is called quantile function. If $F(x) = P(X \leq x) = p$ tells us the probability to draw a number less or equal than the value $x$ from distribution then $F^{-1}(p)$ tells us vise versa: what is the value of $x$, such that $F(X\leq x) = p$.
+</code></pre></div><p>$\displaystyle 1.0$</p>
+<h1 id=inverse-cdf>Inverse CDF</h1>
+<p>The inverse of CDF is called quantile function. If $F(x) = P(X \leq x) = p$ tells us the probability to draw a number less or equal than the value $x$ from distribution then $F^{-1}(p)$ tells us vise versa: what is the value of $x$, such that $F(X\leq x) = p$.
 For example, $F^{-1}(0.5)$ is the median of the distribution, $F^{-1}(0.25)$ is the lower quartile.
-In other words, it answer on the following question: what is the proportion of data, which is less or equal to the given value $x$.</p><p>Inverse CDF for gaussian distribution has the following form:</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>p <span style=color:#555>=</span> sp<span style=color:#555>.</span>symbols(<span style=color:#c30>&#39;p&#39;</span>)
+In other words, it answer on the following question: what is the proportion of data, which is less or equal to the given value $x$.</p>
+<p>Inverse CDF for gaussian distribution has the following form:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>p <span style=color:#555>=</span> sp<span style=color:#555>.</span>symbols(<span style=color:#c30>&#39;p&#39;</span>)
 inverse_cdf <span style=color:#555>=</span> sp<span style=color:#555>.</span>solve(cdf <span style=color:#555>-</span> p, x)[<span style=color:#f60>0</span>]
 display(inverse_cdf)
-</code></pre></div><p>$\displaystyle \mu - 1.41421356237309 \sigma \operatorname{erfinv}{\left(1.0 - 2.0 p \right)}$</p><p>Now wish we would like to answer on the following questions: what is the value $x$ for which the half of the data is less than it?</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>display(inverse_cdf<span style=color:#555>.</span>subs({p:<span style=color:#f60>0.5</span>}))
-</code></pre></div><p>$\displaystyle \mu$</p><p>This makes sense: we know, that for gaussian its mean is equal to $mu$ and the half of the data should be less than this value.</p><p>The following plot helps to understand an idea:</p><ul><li>CDF maps $x$ value to the portion of data, which is less or equal than $x$</li><li>Inverse of CDF gives an answer on the following question: for given $p$ what is the value $x$, for which $P(X \leq x) = p$ satisfies?</li></ul><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>Mu, Sigma <span style=color:#555>=</span> <span style=color:#f60>4.0</span>, <span style=color:#f60>1.0</span>
+</code></pre></div><p>$\displaystyle \mu - 1.41421356237309 \sigma \operatorname{erfinv}{\left(1.0 - 2.0 p \right)}$</p>
+<p>Now wish we would like to answer on the following questions: what is the value $x$ for which the half of the data is less than it?</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>display(inverse_cdf<span style=color:#555>.</span>subs({p:<span style=color:#f60>0.5</span>}))
+</code></pre></div><p>$\displaystyle \mu$</p>
+<p>This makes sense: we know, that for gaussian its mean is equal to $mu$ and the half of the data should be less than this value.</p>
+<p>The following plot helps to understand an idea:</p>
+<ul>
+<li>CDF maps $x$ value to the portion of data, which is less or equal than $x$</li>
+<li>Inverse of CDF gives an answer on the following question: for given $p$ what is the value $x$, for which $P(X \leq x) = p$ satisfies?</li>
+</ul>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>Mu, Sigma <span style=color:#555>=</span> <span style=color:#f60>4.0</span>, <span style=color:#f60>1.0</span>
 
 spanFrom, spanTo <span style=color:#555>=</span> Mu <span style=color:#555>-</span> <span style=color:#f60>4</span> <span style=color:#555>*</span> Sigma, Mu <span style=color:#555>+</span> <span style=color:#f60>4</span> <span style=color:#555>*</span> Sigma
 span <span style=color:#555>=</span> np<span style=color:#555>.</span>linspace(spanFrom, spanTo, <span style=color:#f60>100</span>)
@@ -75,7 +185,12 @@ ax<span style=color:#555>.</span>legend(loc<span style=color:#555>=</span><span 
 
 ax<span style=color:#555>.</span>set_xlim(spanFrom, spanTo)
 ax<span style=color:#555>.</span>set_ylim(<span style=color:#f60>0.0</span>, <span style=color:#f60>1.0</span>)
-</code></pre></div><p>$\displaystyle \left( 0.0, \ 1.0\right)$</p><p><img src=./index_30_1.png alt=png></p><h1 id=inverse-transform-sampling>Inverse transform sampling</h1><p>Now, having this function, which maps $p$ to $x$ it should be obvious how to sample from our desired distribution having the samples from the uniform one.</p><p>Let&rsquo;s illustrate the idea with the set of uniformly distributed points along $p$ and map all of them to $x$ using inverse CDF. It&rsquo;s clearly seen then after applying this transformation the points are not evenly spaced anymore.</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>gaussian_inverse_cdf <span style=color:#555>=</span> sp<span style=color:#555>.</span>lambdify((p, mu, sigma), inverse_cdf)
+</code></pre></div><p>$\displaystyle \left( 0.0, \ 1.0\right)$</p>
+<p><img src=./index_30_1.png alt=png></p>
+<h1 id=inverse-transform-sampling>Inverse transform sampling</h1>
+<p>Now, having this function, which maps $p$ to $x$ it should be obvious how to sample from our desired distribution having the samples from the uniform one.</p>
+<p>Let&rsquo;s illustrate the idea with the set of uniformly distributed points along $p$ and map all of them to $x$ using inverse CDF. It&rsquo;s clearly seen then after applying this transformation the points are not evenly spaced anymore.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>gaussian_inverse_cdf <span style=color:#555>=</span> sp<span style=color:#555>.</span>lambdify((p, mu, sigma), inverse_cdf)
 
 Mu, Sigma <span style=color:#555>=</span> <span style=color:#f60>3.0</span>, <span style=color:#f60>2.0</span>
 
@@ -97,7 +212,12 @@ ax<span style=color:#555>.</span>scatter([Mu <span style=color:#555>-</span> <sp
 ax<span style=color:#555>.</span>set_xlim(Mu <span style=color:#555>-</span> <span style=color:#f60>3</span> <span style=color:#555>*</span> Sigma, Mu <span style=color:#555>+</span> <span style=color:#f60>3</span> <span style=color:#555>*</span> Sigma)
 ax<span style=color:#555>.</span>set_ylim(<span style=color:#f60>0.0</span>, <span style=color:#f60>1.0</span>)
 ax<span style=color:#555>.</span>xaxis<span style=color:#555>.</span>set_major_locator(plticker<span style=color:#555>.</span>MultipleLocator(base<span style=color:#555>=</span><span style=color:#f60>1.0</span>))
-</code></pre></div><p><img src=./index_33_0.png alt=png></p><p>Now, thanks to CDF, we have one-to-one correspondance between uniformly sampled numbers $p$ (because for uniform distribution every sample is equally probable) and $x$, which maps $p$ to the value $x$ from our desired distribution. To have this one-to-one correspondance, CDF should be monotonically increasing.</p><p>To experimentally verify that everythink works as expected we can randomly draw uniformly distributed numbers and map them to our desired distribution.</p><h2 id=inverse-transform-sampling-for-normal-distribution>Inverse transform sampling for Normal distribution</h2><p>As a first experiment, we will proceed with inverse of Gaussian CDF. To do so we sample from Uniform distribution and transform them to the Gaussian one.</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#069;font-weight:700>import</span> <span style=color:#0cf;font-weight:700>seaborn</span> <span style=color:#069;font-weight:700>as</span> <span style=color:#0cf;font-weight:700>sns</span>
+</code></pre></div><p><img src=./index_33_0.png alt=png></p>
+<p>Now, thanks to CDF, we have one-to-one correspondance between uniformly sampled numbers $p$ (because for uniform distribution every sample is equally probable) and $x$, which maps $p$ to the value $x$ from our desired distribution. To have this one-to-one correspondance, CDF should be monotonically increasing.</p>
+<p>To experimentally verify that everythink works as expected we can randomly draw uniformly distributed numbers and map them to our desired distribution.</p>
+<h2 id=inverse-transform-sampling-for-normal-distribution>Inverse transform sampling for Normal distribution</h2>
+<p>As a first experiment, we will proceed with inverse of Gaussian CDF. To do so we sample from Uniform distribution and transform them to the Gaussian one.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#069;font-weight:700>import</span> <span style=color:#0cf;font-weight:700>seaborn</span> <span style=color:#069;font-weight:700>as</span> <span style=color:#0cf;font-weight:700>sns</span>
 
 Mu, Sigma <span style=color:#555>=</span> <span style=color:#f60>5</span>, <span style=color:#f60>1</span>
 
@@ -114,7 +234,9 @@ ax<span style=color:#555>.</span>fig<span style=color:#555>.</span>set_figwidth(
 ax<span style=color:#555>.</span>fig<span style=color:#555>.</span>set_figheight(<span style=color:#f60>4</span>)
 ax<span style=color:#555>.</span>set_axis_labels(<span style=color:#c30>&#39;Mapped to Gaussian using inverse CDF&#39;</span>, <span style=color:#c30>&#39;Uniformly sampled points&#39;</span>, fontsize<span style=color:#555>=</span><span style=color:#f60>10</span>)
 </code></pre></div><pre><code>&lt;seaborn.axisgrid.JointGrid at 0x7f2462c25b10&gt;
-</code></pre><p><img src=./index_38_1.png alt=png></p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>fig, ax <span style=color:#555>=</span> plt<span style=color:#555>.</span>subplots(<span style=color:#f60>1</span>, <span style=color:#f60>1</span>, figsize<span style=color:#555>=</span>(<span style=color:#f60>6</span>, <span style=color:#f60>3</span>))
+</code></pre>
+<p><img src=./index_38_1.png alt=png></p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>fig, ax <span style=color:#555>=</span> plt<span style=color:#555>.</span>subplots(<span style=color:#f60>1</span>, <span style=color:#f60>1</span>, figsize<span style=color:#555>=</span>(<span style=color:#f60>6</span>, <span style=color:#f60>3</span>))
 ax<span style=color:#555>.</span>hist(gaussian_samples, bins<span style=color:#555>=</span><span style=color:#f60>31</span>, density<span style=color:#555>=</span><span style=color:#069;font-weight:700>True</span>, label<span style=color:#555>=</span><span style=color:#c30>&#39;Sampled using inverse transform&#39;</span>)
 spanFrom, spanTo <span style=color:#555>=</span> Mu <span style=color:#555>-</span> <span style=color:#f60>4</span> <span style=color:#555>*</span> Sigma, Mu <span style=color:#555>+</span> <span style=color:#f60>4</span> <span style=color:#555>*</span> Sigma
 span <span style=color:#555>=</span> np<span style=color:#555>.</span>linspace(spanFrom, spanTo, <span style=color:#f60>100</span>)
@@ -122,14 +244,24 @@ ax<span style=color:#555>.</span>plot(span, gaussian_pdf(span, Mu, Sigma), color
 ax<span style=color:#555>.</span>set(xlabel<span style=color:#555>=</span><span style=color:#c30>&#39;$x$&#39;</span>, ylabel<span style=color:#555>=</span><span style=color:#c30>&#39;$p = f(x)$&#39;</span>, title<span style=color:#555>=</span><span style=color:#c30>&#39;$X \sim \mathcal</span><span style=color:#a00>{N}</span><span style=color:#c30> (&#39;</span> <span style=color:#555>+</span> <span style=color:#366>str</span>(Mu) <span style=color:#555>+</span> <span style=color:#c30>&#34;, &#34;</span> <span style=color:#555>+</span> <span style=color:#366>str</span>(Sigma<span style=color:#555>**</span><span style=color:#f60>2</span>) <span style=color:#555>+</span> <span style=color:#c30>&#34;)$&#34;</span>)
 ax<span style=color:#555>.</span>legend(loc<span style=color:#555>=</span><span style=color:#c30>&#39;upper left&#39;</span>)
 </code></pre></div><pre><code>&lt;matplotlib.legend.Legend at 0x7f24509bdf90&gt;
-</code></pre><p><img src=./index_39_1.png alt=png></p><h2 id=inverse-transform-sampling-for-exponential-distribution>Inverse transform sampling for Exponential distribution</h2><p>First, define exponential distribution PDF.</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>x, lambd, p <span style=color:#555>=</span> sp<span style=color:#555>.</span>symbols(<span style=color:#c30>&#39;x, lambda, p&#39;</span>, positive <span style=color:#555>=</span> <span style=color:#069;font-weight:700>True</span>)
+</code></pre>
+<p><img src=./index_39_1.png alt=png></p>
+<h2 id=inverse-transform-sampling-for-exponential-distribution>Inverse transform sampling for Exponential distribution</h2>
+<p>First, define exponential distribution PDF.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>x, lambd, p <span style=color:#555>=</span> sp<span style=color:#555>.</span>symbols(<span style=color:#c30>&#39;x, lambda, p&#39;</span>, positive <span style=color:#555>=</span> <span style=color:#069;font-weight:700>True</span>)
 pdf_exponential <span style=color:#555>=</span> lambd <span style=color:#555>*</span> sp<span style=color:#555>.</span>exp(<span style=color:#555>-</span>lambd <span style=color:#555>*</span> x)
 display(pdf_exponential)
-</code></pre></div><p>$\displaystyle \lambda e^{- \lambda x}$</p><p>Second, integrate PDF to obtain CDF.</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>cdf_exponential <span style=color:#555>=</span> <span style=color:#f60>1.0</span> <span style=color:#555>+</span> sp<span style=color:#555>.</span>integrate(pdf_exponential, x)
+</code></pre></div><p>$\displaystyle \lambda e^{- \lambda x}$</p>
+<p>Second, integrate PDF to obtain CDF.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>cdf_exponential <span style=color:#555>=</span> <span style=color:#f60>1.0</span> <span style=color:#555>+</span> sp<span style=color:#555>.</span>integrate(pdf_exponential, x)
 display(cdf_exponential)
-</code></pre></div><p>$\displaystyle 1.0 - e^{- \lambda x}$</p><p>Third, invert it.</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>inverse_cdf_exponential <span style=color:#555>=</span> sp<span style=color:#555>.</span>solve(cdf_exponential <span style=color:#555>-</span> p, x)
+</code></pre></div><p>$\displaystyle 1.0 - e^{- \lambda x}$</p>
+<p>Third, invert it.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>inverse_cdf_exponential <span style=color:#555>=</span> sp<span style=color:#555>.</span>solve(cdf_exponential <span style=color:#555>-</span> p, x)
 display(inverse_cdf_exponential)
-</code></pre></div><p>$\displaystyle \left[ \frac{\log{\left(- \frac{1}{p - 1.0} \right)}}{\lambda}\right]$</p><p>Now we are ready to transform samples from uniform space to the exponential one.</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>Lambda <span style=color:#555>=</span> <span style=color:#f60>1.25</span>
+</code></pre></div><p>$\displaystyle \left[ \frac{\log{\left(- \frac{1}{p - 1.0} \right)}}{\lambda}\right]$</p>
+<p>Now we are ready to transform samples from uniform space to the exponential one.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>Lambda <span style=color:#555>=</span> <span style=color:#f60>1.25</span>
 
 exponential_pdf <span style=color:#555>=</span> sp<span style=color:#555>.</span>lambdify((x, lambd), pdf_exponential)
 exponential_cdf <span style=color:#555>=</span> sp<span style=color:#555>.</span>lambdify((x, lambd), cdf_exponential)
@@ -148,7 +280,9 @@ ax<span style=color:#555>.</span>fig<span style=color:#555>.</span>set_figwidth(
 ax<span style=color:#555>.</span>fig<span style=color:#555>.</span>set_figheight(<span style=color:#f60>4</span>)
 ax<span style=color:#555>.</span>set_axis_labels(<span style=color:#c30>&#39;Mapped to Exponential using inverse CDF&#39;</span>, <span style=color:#c30>&#39;Uniformly sampled points&#39;</span>, fontsize<span style=color:#555>=</span><span style=color:#f60>10</span>)
 </code></pre></div><pre><code>&lt;seaborn.axisgrid.JointGrid at 0x7f246350dd50&gt;
-</code></pre><p><img src=./index_48_1.png alt=png></p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>fig, ax <span style=color:#555>=</span> plt<span style=color:#555>.</span>subplots(<span style=color:#f60>1</span>, <span style=color:#f60>1</span>, figsize<span style=color:#555>=</span>(<span style=color:#f60>6</span>, <span style=color:#f60>3</span>))
+</code></pre>
+<p><img src=./index_48_1.png alt=png></p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>fig, ax <span style=color:#555>=</span> plt<span style=color:#555>.</span>subplots(<span style=color:#f60>1</span>, <span style=color:#f60>1</span>, figsize<span style=color:#555>=</span>(<span style=color:#f60>6</span>, <span style=color:#f60>3</span>))
 ax<span style=color:#555>.</span>hist(exponential_samples, bins<span style=color:#555>=</span><span style=color:#f60>31</span>, density<span style=color:#555>=</span><span style=color:#069;font-weight:700>True</span>, label<span style=color:#555>=</span><span style=color:#c30>&#39;Sampled using inverse transform&#39;</span>)
 spanFrom, spanTo <span style=color:#555>=</span> <span style=color:#f60>0.0</span>, exponential_inverse_cdf(<span style=color:#f60>0.9999</span>, Lambda)
 span <span style=color:#555>=</span> np<span style=color:#555>.</span>linspace(spanFrom, spanTo, <span style=color:#f60>100</span>)
@@ -157,12 +291,25 @@ ax<span style=color:#555>.</span>set(xlabel<span style=color:#555>=</span><span 
        title<span style=color:#555>=</span><span style=color:#c30>&#39;$X \sim Exp(&#39;</span> <span style=color:#555>+</span> <span style=color:#366>str</span>(Lambda) <span style=color:#555>+</span> <span style=color:#c30>&#34;)$&#34;</span>)
 ax<span style=color:#555>.</span>legend(loc<span style=color:#555>=</span><span style=color:#c30>&#39;upper right&#39;</span>)
 </code></pre></div><pre><code>&lt;matplotlib.legend.Legend at 0x7f24507760d0&gt;
-</code></pre><p><img src=./index_49_1.png alt=png></p><h1 id=sampling-from-experimental-distribution>Sampling from experimental distribution</h1><p>Now assume that we have experimentally gathered data and we can visualize it using histogram. How we can sample from it?
-One of the easiest approaches can be the following:</p><ul><li>Approximate the histogram with a polynom.</li><li>Find polynom inverse.</li><li>Sample using inverse transform.</li></ul><p>However, finding polynom inverse analytically is not easy task. So, instead of finding it analytiall we can just solve for the root numerically each time.</p><p>For example, let&rsquo;s simulate experimental data:</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>data <span style=color:#555>=</span> np<span style=color:#555>.</span>hstack([np<span style=color:#555>.</span>random<span style=color:#555>.</span>normal(<span style=color:#f60>6.0</span>, <span style=color:#f60>1.0</span>, <span style=color:#f60>10000</span>), np<span style=color:#555>.</span>random<span style=color:#555>.</span>gumbel(<span style=color:#f60>1.5</span>, <span style=color:#f60>0.5</span>, <span style=color:#f60>10000</span>)])
+</code></pre>
+<p><img src=./index_49_1.png alt=png></p>
+<h1 id=sampling-from-experimental-distribution>Sampling from experimental distribution</h1>
+<p>Now assume that we have experimentally gathered data and we can visualize it using histogram. How we can sample from it?
+One of the easiest approaches can be the following:</p>
+<ul>
+<li>Approximate the histogram with a polynom.</li>
+<li>Find polynom inverse.</li>
+<li>Sample using inverse transform.</li>
+</ul>
+<p>However, finding polynom inverse analytically is not easy task. So, instead of finding it analytiall we can just solve for the root numerically each time.</p>
+<p>For example, let&rsquo;s simulate experimental data:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>data <span style=color:#555>=</span> np<span style=color:#555>.</span>hstack([np<span style=color:#555>.</span>random<span style=color:#555>.</span>normal(<span style=color:#f60>6.0</span>, <span style=color:#f60>1.0</span>, <span style=color:#f60>10000</span>), np<span style=color:#555>.</span>random<span style=color:#555>.</span>gumbel(<span style=color:#f60>1.5</span>, <span style=color:#f60>0.5</span>, <span style=color:#f60>10000</span>)])
 
 fig, ax <span style=color:#555>=</span> plt<span style=color:#555>.</span>subplots(<span style=color:#f60>1</span>, <span style=color:#f60>1</span>, figsize<span style=color:#555>=</span>(<span style=color:#f60>6</span>, <span style=color:#f60>3</span>))
 ax<span style=color:#555>.</span>hist(data, bins<span style=color:#555>=</span><span style=color:#f60>100</span>, density<span style=color:#555>=</span><span style=color:#069;font-weight:700>True</span>);
-</code></pre></div><p><img src=./index_52_0.png alt=png></p><p>Fit polynom to the histogram CDF and define inverse CDF as a function which finds the root:</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#069;font-weight:700>from</span> <span style=color:#0cf;font-weight:700>scipy</span> <span style=color:#069;font-weight:700>import</span> interpolate
+</code></pre></div><p><img src=./index_52_0.png alt=png></p>
+<p>Fit polynom to the histogram CDF and define inverse CDF as a function which finds the root:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#069;font-weight:700>from</span> <span style=color:#0cf;font-weight:700>scipy</span> <span style=color:#069;font-weight:700>import</span> interpolate
 <span style=color:#069;font-weight:700>import</span> <span style=color:#0cf;font-weight:700>scipy.optimize</span> <span style=color:#069;font-weight:700>as</span> <span style=color:#0cf;font-weight:700>scop</span>
 
 heights, bins <span style=color:#555>=</span> np<span style=color:#555>.</span>histogram(data, bins<span style=color:#555>=</span><span style=color:#f60>100</span>, density<span style=color:#555>=</span><span style=color:#069;font-weight:700>True</span>)
@@ -170,7 +317,7 @@ histogram_cdf <span style=color:#555>=</span> np<span style=color:#555>.</span>h
 
 experimental_cdf <span style=color:#555>=</span> interpolate<span style=color:#555>.</span>interp1d(bins, histogram_cdf, fill_value<span style=color:#555>=</span><span style=color:#c30>&#34;extrapolate&#34;</span>)
 experimental_inverse_cdf <span style=color:#555>=</span> <span style=color:#069;font-weight:700>lambda</span> p: scop<span style=color:#555>.</span>fsolve(<span style=color:#069;font-weight:700>lambda</span> x : experimental_cdf(x) <span style=color:#555>-</span> p, <span style=color:#f60>0.0</span>)[<span style=color:#f60>0</span>]
-</code></pre></div><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>uniform_samples <span style=color:#555>=</span> np<span style=color:#555>.</span>random<span style=color:#555>.</span>uniform(size<span style=color:#555>=</span><span style=color:#f60>5000</span>)
+</code></pre></div><div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>uniform_samples <span style=color:#555>=</span> np<span style=color:#555>.</span>random<span style=color:#555>.</span>uniform(size<span style=color:#555>=</span><span style=color:#f60>5000</span>)
 experimental_samples <span style=color:#555>=</span> [experimental_inverse_cdf(u) <span style=color:#069;font-weight:700>for</span> u <span style=color:#000;font-weight:700>in</span> uniform_samples];
 
 ax <span style=color:#555>=</span> sns<span style=color:#555>.</span>jointplot(experimental_samples, uniform_samples, marginal_kws<span style=color:#555>=</span><span style=color:#366>dict</span>(bins<span style=color:#555>=</span><span style=color:#f60>30</span>, rug<span style=color:#555>=</span><span style=color:#069;font-weight:700>True</span>),
@@ -183,13 +330,18 @@ ax<span style=color:#555>.</span>fig<span style=color:#555>.</span>set_figwidth(
 ax<span style=color:#555>.</span>fig<span style=color:#555>.</span>set_figheight(<span style=color:#f60>4</span>)
 ax<span style=color:#555>.</span>set_axis_labels(<span style=color:#c30>&#39;Mapped to Experimental distribution using inverse CDF&#39;</span>, <span style=color:#c30>&#39;Uniformly sampled points&#39;</span>, fontsize<span style=color:#555>=</span><span style=color:#f60>10</span>)
 </code></pre></div><pre><code>&lt;seaborn.axisgrid.JointGrid at 0x7f24508bb950&gt;
-</code></pre><p><img src=./index_55_2.png alt=png></p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>fig, ax <span style=color:#555>=</span> plt<span style=color:#555>.</span>subplots(<span style=color:#f60>1</span>, <span style=color:#f60>1</span>, figsize<span style=color:#555>=</span>(<span style=color:#f60>6</span>, <span style=color:#f60>3</span>))
+</code></pre>
+<p><img src=./index_55_2.png alt=png></p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>fig, ax <span style=color:#555>=</span> plt<span style=color:#555>.</span>subplots(<span style=color:#f60>1</span>, <span style=color:#f60>1</span>, figsize<span style=color:#555>=</span>(<span style=color:#f60>6</span>, <span style=color:#f60>3</span>))
 ax<span style=color:#555>.</span>hist(data, bins<span style=color:#555>=</span><span style=color:#f60>31</span>, density<span style=color:#555>=</span><span style=color:#069;font-weight:700>True</span>, label<span style=color:#555>=</span><span style=color:#c30>&#39;True data&#39;</span>, alpha<span style=color:#555>=</span><span style=color:#f60>0.5</span>)
 ax<span style=color:#555>.</span>hist(experimental_samples, bins<span style=color:#555>=</span><span style=color:#f60>31</span>, density<span style=color:#555>=</span><span style=color:#069;font-weight:700>True</span>, label<span style=color:#555>=</span><span style=color:#c30>&#39;Sampled using inverse transform&#39;</span>, alpha<span style=color:#555>=</span><span style=color:#f60>0.5</span>)
 ax<span style=color:#555>.</span>set(xlabel<span style=color:#555>=</span><span style=color:#c30>&#39;$x$&#39;</span>, ylabel<span style=color:#555>=</span><span style=color:#c30>&#39;$p = f(x)$&#39;</span>, title<span style=color:#555>=</span><span style=color:#c30>&#39;Experimental data vs Sampled from experimental distribution&#39;</span>)
 ax<span style=color:#555>.</span>legend(loc<span style=color:#555>=</span><span style=color:#c30>&#39;upper right&#39;</span>)
 </code></pre></div><pre><code>&lt;matplotlib.legend.Legend at 0x7f244fb17a10&gt;
-</code></pre><p><img src=./index_56_1.png alt=png></p><p>It works, however, its not efficient, because to find inverse CDF we have to numerically solve equation $F(x) - p = 0$. To overcome this computational overhead it is much better to just swap $x$ and $y$ on interpolation step. By doing so we directly obtain required inverse CDF for newly generated dataset:</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>data <span style=color:#555>=</span> np<span style=color:#555>.</span>hstack([np<span style=color:#555>.</span>random<span style=color:#555>.</span>normal(<span style=color:#f60>4.0</span>, <span style=color:#f60>2.0</span>, <span style=color:#f60>10000</span>), 
+</code></pre>
+<p><img src=./index_56_1.png alt=png></p>
+<p>It works, however, its not efficient, because to find inverse CDF we have to numerically solve equation $F(x) - p = 0$. To overcome this computational overhead it is much better to just swap $x$ and $y$ on interpolation step. By doing so we directly obtain required inverse CDF for newly generated dataset:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>data <span style=color:#555>=</span> np<span style=color:#555>.</span>hstack([np<span style=color:#555>.</span>random<span style=color:#555>.</span>normal(<span style=color:#f60>4.0</span>, <span style=color:#f60>2.0</span>, <span style=color:#f60>10000</span>), 
                   np<span style=color:#555>.</span>random<span style=color:#555>.</span>gumbel(<span style=color:#f60>0.5</span>, <span style=color:#f60>0.5</span>, <span style=color:#f60>10000</span>), 
                   np<span style=color:#555>.</span>random<span style=color:#555>.</span>gumbel(<span style=color:#f60>7.5</span>, <span style=color:#f60>1.0</span>, <span style=color:#f60>10000</span>),
                   np<span style=color:#555>.</span>random<span style=color:#555>.</span>normal(<span style=color:#f60>13.5</span>, <span style=color:#f60>1.0</span>, <span style=color:#f60>10000</span>)])
@@ -199,7 +351,8 @@ histogram_cdf <span style=color:#555>=</span> np<span style=color:#555>.</span>h
 
 experimental_cdf <span style=color:#555>=</span> interpolate<span style=color:#555>.</span>interp1d(bins, histogram_cdf, fill_value<span style=color:#555>=</span><span style=color:#c30>&#34;extrapolate&#34;</span>)
 experimental_inverse_cdf <span style=color:#555>=</span> interpolate<span style=color:#555>.</span>interp1d(histogram_cdf, bins, fill_value<span style=color:#555>=</span><span style=color:#c30>&#34;extrapolate&#34;</span>)
-</code></pre></div><p>And we can use this function directly:</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>uniform_samples <span style=color:#555>=</span> np<span style=color:#555>.</span>random<span style=color:#555>.</span>uniform(size<span style=color:#555>=</span><span style=color:#f60>5000</span>)
+</code></pre></div><p>And we can use this function directly:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>uniform_samples <span style=color:#555>=</span> np<span style=color:#555>.</span>random<span style=color:#555>.</span>uniform(size<span style=color:#555>=</span><span style=color:#f60>5000</span>)
 experimental_samples <span style=color:#555>=</span> [experimental_inverse_cdf(u) <span style=color:#069;font-weight:700>for</span> u <span style=color:#000;font-weight:700>in</span> uniform_samples]
 
 ax <span style=color:#555>=</span> sns<span style=color:#555>.</span>jointplot(experimental_samples, uniform_samples, marginal_kws<span style=color:#555>=</span><span style=color:#366>dict</span>(bins<span style=color:#555>=</span><span style=color:#f60>30</span>, rug<span style=color:#555>=</span><span style=color:#069;font-weight:700>True</span>),
@@ -212,14 +365,42 @@ ax<span style=color:#555>.</span>fig<span style=color:#555>.</span>set_figwidth(
 ax<span style=color:#555>.</span>fig<span style=color:#555>.</span>set_figheight(<span style=color:#f60>4</span>)
 ax<span style=color:#555>.</span>set_axis_labels(<span style=color:#c30>&#39;Mapped to Experimental distribution using inverse CDF&#39;</span>, <span style=color:#c30>&#39;Uniformly sampled points&#39;</span>, fontsize<span style=color:#555>=</span><span style=color:#f60>10</span>)
 </code></pre></div><pre><code>&lt;seaborn.axisgrid.JointGrid at 0x7f244fa194d0&gt;
-</code></pre><p><img src=./index_60_1.png alt=png></p><p>Compare with experimental distribution:</p><div class=highlight><pre style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>fig, ax <span style=color:#555>=</span> plt<span style=color:#555>.</span>subplots(<span style=color:#f60>1</span>, <span style=color:#f60>1</span>, figsize<span style=color:#555>=</span>(<span style=color:#f60>6</span>, <span style=color:#f60>3</span>))
+</code></pre>
+<p><img src=./index_60_1.png alt=png></p>
+<p>Compare with experimental distribution:</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>fig, ax <span style=color:#555>=</span> plt<span style=color:#555>.</span>subplots(<span style=color:#f60>1</span>, <span style=color:#f60>1</span>, figsize<span style=color:#555>=</span>(<span style=color:#f60>6</span>, <span style=color:#f60>3</span>))
 ax<span style=color:#555>.</span>hist(data, bins<span style=color:#555>=</span><span style=color:#f60>31</span>, density<span style=color:#555>=</span><span style=color:#069;font-weight:700>True</span>, label<span style=color:#555>=</span><span style=color:#c30>&#39;True data&#39;</span>, alpha<span style=color:#555>=</span><span style=color:#f60>0.5</span>)
 ax<span style=color:#555>.</span>hist(experimental_samples, bins<span style=color:#555>=</span><span style=color:#f60>31</span>, density<span style=color:#555>=</span><span style=color:#069;font-weight:700>True</span>, label<span style=color:#555>=</span><span style=color:#c30>&#39;Sampled using inverse transform&#39;</span>, alpha<span style=color:#555>=</span><span style=color:#f60>0.5</span>)
 ax<span style=color:#555>.</span>set(xlabel<span style=color:#555>=</span><span style=color:#c30>&#39;$x$&#39;</span>, ylabel<span style=color:#555>=</span><span style=color:#c30>&#39;$p = f(x)$&#39;</span>, title<span style=color:#555>=</span><span style=color:#c30>&#39;Experimental data vs Sampled from experimental distribution&#39;</span>)
 ax<span style=color:#555>.</span>legend(loc<span style=color:#555>=</span><span style=color:#c30>&#39;upper right&#39;</span>)
 </code></pre></div><pre><code>&lt;matplotlib.legend.Legend at 0x7f244f3d53d0&gt;
-</code></pre><p><img src=./index_62_1.png alt=png></p><h1 id=conclusions>Conclusions</h1><p>After all, it should become clear what inverse transform sampling actually does and how to sample from any distribution, which inverse CDF can be derived.
-In the next posts I am planning to show some examples on rejection, Metropolis Hastings and Gibbs sampling. These methods are usually used when direct sampling from probability distribution is difficult.</p></div><footer><div id=disqus_thread></div><script type=application/javascript>var disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return}var b=document,a=b.createElement('script');a.async=!0,a.src='//mikoff-github-io.disqus.com/embed.js',a.setAttribute('data-timestamp',+new Date),(b.head||b.body).appendChild(a)})()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></footer></article><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type=text/javascript async src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js></script><script src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js id=MathJax-script></script><script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],processEscapes:!0,processEnvironments:!0},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}}</script></section></div><footer class=footer><section class=container>© 2021
+</code></pre>
+<p><img src=./index_62_1.png alt=png></p>
+<h1 id=conclusions>Conclusions</h1>
+<p>After all, it should become clear what inverse transform sampling actually does and how to sample from any distribution, which inverse CDF can be derived.
+In the next posts I am planning to show some examples on rejection, Metropolis Hastings and Gibbs sampling. These methods are usually used when direct sampling from probability distribution is difficult.</p>
+</div>
+<footer>
+<div id=disqus_thread></div>
+<script type=application/javascript>var disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return}var b=document,a=b.createElement('script');a.async=!0,a.src='//mikoff-github-io.disqus.com/embed.js',a.setAttribute('data-timestamp',+new Date),(b.head||b.body).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+<a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a>
+</footer>
+</article>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type=text/javascript async src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js></script>
+<script src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js id=MathJax-script></script>
+<script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],processEscapes:!0,processEnvironments:!0},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}}</script>
+</section>
+</div>
+<footer class=footer>
+<section class=container>
+© 2021
 Aleksandr Mikoff
 ·
-Powered by <a href=https://gohugo.io/>Hugo</a> & <a href=https://github.com/luizdepra/hugo-coder/>Coder</a>.</section></footer></main></body></html>
+Powered by <a href=https://gohugo.io/>Hugo</a> & <a href=https://github.com/luizdepra/hugo-coder/>Coder</a>.
+</section>
+</footer>
+</main>
+</body>
+</html>
