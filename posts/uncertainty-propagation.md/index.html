@@ -27,7 +27,6 @@ Uncertainty propogation with and without Lie groups · Aleksandr Mikoff's blog
 <link rel=stylesheet href=https://mikoff.github.io/css/coder-dark.min.83a2010dac9f59f943b3004cd6c4f230507ad036da635d3621401d42ec4e2835.css integrity="sha256-g6IBDayfWflDswBM1sTyMFB60DbaY102IUAdQuxOKDU=" crossorigin=anonymous media=screen>
 <link rel=stylesheet href=https://mikoff.github.io/css/image.css>
 <link rel=stylesheet href=https://mikoff.github.io/css/spoiler.css>
-<script src=https://mikoff.github.io/js/spoiler.js></script>
 <link rel=icon type=image/png href=https://mikoff.github.io/img/favicon-32x32.png sizes=32x32>
 <link rel=icon type=image/png href=https://mikoff.github.io/img/favicon-16x16.png sizes=16x16>
 <meta name=generator content="Hugo 0.89.0">
@@ -54,7 +53,6 @@ Aleksandr Mikoff's blog
 </ul>
 </section>
 </nav>
-<script src=//cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.slim.min.js></script>
 <div class=content>
 <section class="container post">
 <article>
@@ -72,7 +70,7 @@ November 4, 2021
 </span>
 <span class=reading-time>
 <i class="fas fa-clock"></i>
-17-minute read
+18-minute read
 </span>
 </div>
 <div class=tags>
@@ -148,122 +146,127 @@ $$</p>
 <h3 id=so3-and-se3>SO(3) and SE(3)</h3>
 <p>Lie group composition operator for SO(3) and SE(3) is just a matrix multiplication.</p>
 <h3 id=plotting-utilities>Plotting utilities</h3>
-<div class="spoiler panel panel-default">
-<div class=spoiler_block>
-<a href=# class="spoiler-block-icon spoiler-block-icon-zoom-in spoiler_block_show">
-click to show
-</a>
-<a href=# class="spoiler-block-icon spoiler-block-icon-zoom-out spoiler_block_hide" style=display:none>
-click to hide
-</a>
-<div class=spoiler_block_content style=display:none>
-```python
-import numpy as np
-import matplotlib.pylab as plt
-np.set_printoptions(precision=3, suppress=True, linewidth=120)
-%matplotlib inline
-%config InlineBackend.figure_format='retina'
-def density_scatter(x , y, ax = None, fig = None, sort = True, bins = 20, cbar=True, **kwargs ):
-from matplotlib import cm
-from matplotlib.colors import Normalize
-from scipy.interpolate import interpn
-"""
-Scatter plot colored by 2d histogram
-"""
-if ax is None :
-fig , ax = plt.subplots()
-data, x_e, y_e = np.histogram2d(x, y, bins = bins, density = False )
-z = interpn((0.5*(x_e[1:] + x_e[:-1]), 0.5*(y_e[1:]+y_e[:-1]) ), data ,np.vstack([x,y]).T , method = "splinef2d", bounds_error = False)
-#To be sure to plot all data
-z[np.where(np.isnan(z))] = 0.0
-z = z / np.sum(z)
-# Sort the points by density, so that the densest points are plotted last
-if sort :
-idx = z.argsort()
-x, y, z = x[idx], y[idx], z[idx]
-sc = ax.scatter( x, y, c=z, marker='.', s=1.0, **kwargs )
-if cbar:
-norm = Normalize(vmin = np.min(z), vmax = np.max(z))
-cbar = fig.colorbar(cm.ScalarMappable(norm = norm, **kwargs), ax=ax)
-cbar.ax.set_ylabel('Density')
-levels = [0.5, 0.75, 0.9]
-H, X, Y = data, x_e, y_e
-if True:
-# Compute the density levels.
-Hflat = H.flatten()
-inds = np.argsort(Hflat)[::-1]
-Hflat = Hflat[inds]
-sm = np.cumsum(Hflat)
-sm /= sm[-1]
-V = np.empty(len(levels))
-for i, v0 in enumerate(levels):
-try:
-V[i] = Hflat[sm <= v0][-1]
-except IndexError:
-V[i] = Hflat[0]
-V.sort()
-m = np.diff(V) == 0
-if np.any(m) and not quiet:
-logging.warning("Too few points to create valid contours")
-while np.any(m):
-V[np.where(m)[0][0]] *= 1.0 - 1e-4
-m = np.diff(V) == 0
-V.sort()
-# Compute the bin centers.
-X1, Y1 = 0.5 * (X[1:] + X[:-1]), 0.5 * (Y[1:] + Y[:-1])
-# Extend the array for the sake of the contours at the plot edges.
-H2 = H.min() + np.zeros((H.shape[0] + 4, H.shape[1] + 4))
-H2[2:-2, 2:-2] = H
-H2[2:-2, 1] = H[:, 0]
-H2[2:-2, -2] = H[:, -1]
-H2[1, 2:-2] = H[0]
-H2[-2, 2:-2] = H[-1]
-H2[1, 1] = H[0, 0]
-H2[1, -2] = H[0, -1]
-H2[-2, 1] = H[-1, 0]
-H2[-2, -2] = H[-1, -1]
-X2 = np.concatenate(
-[
-X1[0] + np.array([-2, -1]) * np.diff(X1[:2]),
-X1,
-X1[-1] + np.array([1, 2]) * np.diff(X1[-2:]),
-]
-)
-Y2 = np.concatenate(
-[
-Y1[0] + np.array([-2, -1]) * np.diff(Y1[:2]),
-Y1,
-Y1[-1] + np.array([1, 2]) * np.diff(Y1[-2:]),
-]
-)
-ax.contour(X2, Y2, H2.T, V, alpha = 0.5)
-return ax
-def vis_distribution(fig, ax, mean, cov, transform, N = 10000):
-from collections import Iterable
-samples = np.random.multivariate_normal(mean=np.zeros(6), cov=Sigma_next, size=N).T
-samples_se3 = np.zeros((N, 2))
-for i, s in enumerate(samples.T):
-sample_se3 = transform @ SE3.exp(s)
-samples_se3[i, 0] = sample_se3[0, 3]
-samples_se3[i, 1] = sample_se3[1, 3]
-if isinstance(ax, Iterable):
-ax1, ax2 = ax
-density_scatter(samples[0, :], samples[1, :], ax1, fig, cmap=plt.cm.cool, cbar = False)
-ax1.set(xlabel = 'x, meters', ylabel = 'y, meters')
-ax1.axis('equal')
-ax2.set(xlabel = 'x, meters', ylabel = 'y, meters')
-ax1.set_title('Uncertainty at tangent space, $\mathfrak {g}$')
-else:
-ax2 = ax
-density_scatter(samples_se3[:,0], samples_se3[:,1], ax2, fig, cmap=plt.cm.cool, cbar = False)
-meanse3 = np.mean(samples_se3, axis = 0)
-ax2.scatter([meanse3[0]], [meanse3[1]], marker = 'x', s = 150, c = 'black')
-ax2.set(xlabel = 'x, meters', ylabel = 'y, meters')
-ax2.axis('equal')
-ax2.set_title('Uncertainty at manifold, $\mathcal{G}$')
-```
-</div>
-</div>
+<div class=spoiler><span class=spoilerText>Spoiler</span>
+<input class=spoilerChecked type=checkbox>
+<div class=spoilerContent><div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>
+<span style=color:#069;font-weight:700>import</span> <span style=color:#0cf;font-weight:700>numpy</span> <span style=color:#069;font-weight:700>as</span> <span style=color:#0cf;font-weight:700>np</span>
+<span style=color:#069;font-weight:700>import</span> <span style=color:#0cf;font-weight:700>matplotlib.pylab</span> <span style=color:#069;font-weight:700>as</span> <span style=color:#0cf;font-weight:700>plt</span>
+np<span style=color:#555>.</span>set_printoptions(precision<span style=color:#555>=</span><span style=color:#f60>3</span>, suppress<span style=color:#555>=</span><span style=color:#069;font-weight:700>True</span>, linewidth<span style=color:#555>=</span><span style=color:#f60>120</span>)
+
+<span style=color:#555>%</span>matplotlib inline
+<span style=color:#555>%</span>config InlineBackend<span style=color:#555>.</span>figure_format<span style=color:#555>=</span><span style=color:#c30>&#39;retina&#39;</span>
+
+<span style=color:#069;font-weight:700>def</span> <span style=color:#c0f>density_scatter</span>(x , y, ax <span style=color:#555>=</span> <span style=color:#069;font-weight:700>None</span>, fig <span style=color:#555>=</span> <span style=color:#069;font-weight:700>None</span>, sort <span style=color:#555>=</span> <span style=color:#069;font-weight:700>True</span>, bins <span style=color:#555>=</span> <span style=color:#f60>20</span>, cbar<span style=color:#555>=</span><span style=color:#069;font-weight:700>True</span>, <span style=color:#555>**</span>kwargs ):
+    <span style=color:#069;font-weight:700>from</span> <span style=color:#0cf;font-weight:700>matplotlib</span> <span style=color:#069;font-weight:700>import</span> cm
+    <span style=color:#069;font-weight:700>from</span> <span style=color:#0cf;font-weight:700>matplotlib.colors</span> <span style=color:#069;font-weight:700>import</span> Normalize 
+    <span style=color:#069;font-weight:700>from</span> <span style=color:#0cf;font-weight:700>scipy.interpolate</span> <span style=color:#069;font-weight:700>import</span> interpn
+    <span style=color:#c30>&#34;&#34;&#34;
+</span><span style=color:#c30>    Scatter plot colored by 2d histogram
+</span><span style=color:#c30>    &#34;&#34;&#34;</span>
+    <span style=color:#069;font-weight:700>if</span> ax <span style=color:#000;font-weight:700>is</span> <span style=color:#069;font-weight:700>None</span> :
+        fig , ax <span style=color:#555>=</span> plt<span style=color:#555>.</span>subplots()
+    data, x_e, y_e <span style=color:#555>=</span> np<span style=color:#555>.</span>histogram2d(x, y, bins <span style=color:#555>=</span> bins, density <span style=color:#555>=</span> <span style=color:#069;font-weight:700>False</span> )
+    z <span style=color:#555>=</span> interpn((<span style=color:#f60>0.5</span><span style=color:#555>*</span>(x_e[<span style=color:#f60>1</span>:] <span style=color:#555>+</span> x_e[:<span style=color:#555>-</span><span style=color:#f60>1</span>]), <span style=color:#f60>0.5</span><span style=color:#555>*</span>(y_e[<span style=color:#f60>1</span>:]<span style=color:#555>+</span>y_e[:<span style=color:#555>-</span><span style=color:#f60>1</span>]) ), data ,np<span style=color:#555>.</span>vstack([x,y])<span style=color:#555>.</span>T , method <span style=color:#555>=</span> <span style=color:#c30>&#34;splinef2d&#34;</span>, bounds_error <span style=color:#555>=</span> <span style=color:#069;font-weight:700>False</span>)
+
+    <span style=color:#09f;font-style:italic>#To be sure to plot all data</span>
+    z[np<span style=color:#555>.</span>where(np<span style=color:#555>.</span>isnan(z))] <span style=color:#555>=</span> <span style=color:#f60>0.0</span>
+    z <span style=color:#555>=</span> z <span style=color:#555>/</span> np<span style=color:#555>.</span>sum(z)
+    
+    <span style=color:#09f;font-style:italic># Sort the points by density, so that the densest points are plotted last</span>
+    <span style=color:#069;font-weight:700>if</span> sort :
+        idx <span style=color:#555>=</span> z<span style=color:#555>.</span>argsort()
+        x, y, z <span style=color:#555>=</span> x[idx], y[idx], z[idx]
+        
+    sc <span style=color:#555>=</span> ax<span style=color:#555>.</span>scatter( x, y, c<span style=color:#555>=</span>z, marker<span style=color:#555>=</span><span style=color:#c30>&#39;.&#39;</span>, s<span style=color:#555>=</span><span style=color:#f60>1.0</span>, <span style=color:#555>**</span>kwargs )
+
+    <span style=color:#069;font-weight:700>if</span> cbar:
+        norm <span style=color:#555>=</span> Normalize(vmin <span style=color:#555>=</span> np<span style=color:#555>.</span>min(z), vmax <span style=color:#555>=</span> np<span style=color:#555>.</span>max(z))
+        cbar <span style=color:#555>=</span> fig<span style=color:#555>.</span>colorbar(cm<span style=color:#555>.</span>ScalarMappable(norm <span style=color:#555>=</span> norm, <span style=color:#555>**</span>kwargs), ax<span style=color:#555>=</span>ax)
+        cbar<span style=color:#555>.</span>ax<span style=color:#555>.</span>set_ylabel(<span style=color:#c30>&#39;Density&#39;</span>)
+    
+    levels <span style=color:#555>=</span> [<span style=color:#f60>0.5</span>, <span style=color:#f60>0.75</span>, <span style=color:#f60>0.9</span>]
+    H, X, Y <span style=color:#555>=</span> data, x_e, y_e
+    <span style=color:#069;font-weight:700>if</span> <span style=color:#069;font-weight:700>True</span>:
+        <span style=color:#09f;font-style:italic># Compute the density levels.</span>
+        Hflat <span style=color:#555>=</span> H<span style=color:#555>.</span>flatten()
+        inds <span style=color:#555>=</span> np<span style=color:#555>.</span>argsort(Hflat)[::<span style=color:#555>-</span><span style=color:#f60>1</span>]
+        Hflat <span style=color:#555>=</span> Hflat[inds]
+        sm <span style=color:#555>=</span> np<span style=color:#555>.</span>cumsum(Hflat)
+        sm <span style=color:#555>/=</span> sm[<span style=color:#555>-</span><span style=color:#f60>1</span>]
+        V <span style=color:#555>=</span> np<span style=color:#555>.</span>empty(<span style=color:#366>len</span>(levels))
+        <span style=color:#069;font-weight:700>for</span> i, v0 <span style=color:#000;font-weight:700>in</span> <span style=color:#366>enumerate</span>(levels):
+            <span style=color:#069;font-weight:700>try</span>:
+                V[i] <span style=color:#555>=</span> Hflat[sm <span style=color:#555>&lt;=</span> v0][<span style=color:#555>-</span><span style=color:#f60>1</span>]
+            <span style=color:#069;font-weight:700>except</span> <span style=color:#c00;font-weight:700>IndexError</span>:
+                V[i] <span style=color:#555>=</span> Hflat[<span style=color:#f60>0</span>]
+        V<span style=color:#555>.</span>sort()
+        m <span style=color:#555>=</span> np<span style=color:#555>.</span>diff(V) <span style=color:#555>==</span> <span style=color:#f60>0</span>
+        <span style=color:#069;font-weight:700>if</span> np<span style=color:#555>.</span>any(m) <span style=color:#000;font-weight:700>and</span> <span style=color:#000;font-weight:700>not</span> quiet:
+            logging<span style=color:#555>.</span>warning(<span style=color:#c30>&#34;Too few points to create valid contours&#34;</span>)
+        <span style=color:#069;font-weight:700>while</span> np<span style=color:#555>.</span>any(m):
+            V[np<span style=color:#555>.</span>where(m)[<span style=color:#f60>0</span>][<span style=color:#f60>0</span>]] <span style=color:#555>*=</span> <span style=color:#f60>1.0</span> <span style=color:#555>-</span> <span style=color:#f60>1e-4</span>
+            m <span style=color:#555>=</span> np<span style=color:#555>.</span>diff(V) <span style=color:#555>==</span> <span style=color:#f60>0</span>
+        V<span style=color:#555>.</span>sort()
+
+        <span style=color:#09f;font-style:italic># Compute the bin centers.</span>
+        X1, Y1 <span style=color:#555>=</span> <span style=color:#f60>0.5</span> <span style=color:#555>*</span> (X[<span style=color:#f60>1</span>:] <span style=color:#555>+</span> X[:<span style=color:#555>-</span><span style=color:#f60>1</span>]), <span style=color:#f60>0.5</span> <span style=color:#555>*</span> (Y[<span style=color:#f60>1</span>:] <span style=color:#555>+</span> Y[:<span style=color:#555>-</span><span style=color:#f60>1</span>])
+
+        <span style=color:#09f;font-style:italic># Extend the array for the sake of the contours at the plot edges.</span>
+        H2 <span style=color:#555>=</span> H<span style=color:#555>.</span>min() <span style=color:#555>+</span> np<span style=color:#555>.</span>zeros((H<span style=color:#555>.</span>shape[<span style=color:#f60>0</span>] <span style=color:#555>+</span> <span style=color:#f60>4</span>, H<span style=color:#555>.</span>shape[<span style=color:#f60>1</span>] <span style=color:#555>+</span> <span style=color:#f60>4</span>))
+        H2[<span style=color:#f60>2</span>:<span style=color:#555>-</span><span style=color:#f60>2</span>, <span style=color:#f60>2</span>:<span style=color:#555>-</span><span style=color:#f60>2</span>] <span style=color:#555>=</span> H
+        H2[<span style=color:#f60>2</span>:<span style=color:#555>-</span><span style=color:#f60>2</span>, <span style=color:#f60>1</span>] <span style=color:#555>=</span> H[:, <span style=color:#f60>0</span>]
+        H2[<span style=color:#f60>2</span>:<span style=color:#555>-</span><span style=color:#f60>2</span>, <span style=color:#555>-</span><span style=color:#f60>2</span>] <span style=color:#555>=</span> H[:, <span style=color:#555>-</span><span style=color:#f60>1</span>]
+        H2[<span style=color:#f60>1</span>, <span style=color:#f60>2</span>:<span style=color:#555>-</span><span style=color:#f60>2</span>] <span style=color:#555>=</span> H[<span style=color:#f60>0</span>]
+        H2[<span style=color:#555>-</span><span style=color:#f60>2</span>, <span style=color:#f60>2</span>:<span style=color:#555>-</span><span style=color:#f60>2</span>] <span style=color:#555>=</span> H[<span style=color:#555>-</span><span style=color:#f60>1</span>]
+        H2[<span style=color:#f60>1</span>, <span style=color:#f60>1</span>] <span style=color:#555>=</span> H[<span style=color:#f60>0</span>, <span style=color:#f60>0</span>]
+        H2[<span style=color:#f60>1</span>, <span style=color:#555>-</span><span style=color:#f60>2</span>] <span style=color:#555>=</span> H[<span style=color:#f60>0</span>, <span style=color:#555>-</span><span style=color:#f60>1</span>]
+        H2[<span style=color:#555>-</span><span style=color:#f60>2</span>, <span style=color:#f60>1</span>] <span style=color:#555>=</span> H[<span style=color:#555>-</span><span style=color:#f60>1</span>, <span style=color:#f60>0</span>]
+        H2[<span style=color:#555>-</span><span style=color:#f60>2</span>, <span style=color:#555>-</span><span style=color:#f60>2</span>] <span style=color:#555>=</span> H[<span style=color:#555>-</span><span style=color:#f60>1</span>, <span style=color:#555>-</span><span style=color:#f60>1</span>]
+        X2 <span style=color:#555>=</span> np<span style=color:#555>.</span>concatenate(
+            [
+                X1[<span style=color:#f60>0</span>] <span style=color:#555>+</span> np<span style=color:#555>.</span>array([<span style=color:#555>-</span><span style=color:#f60>2</span>, <span style=color:#555>-</span><span style=color:#f60>1</span>]) <span style=color:#555>*</span> np<span style=color:#555>.</span>diff(X1[:<span style=color:#f60>2</span>]),
+                X1,
+                X1[<span style=color:#555>-</span><span style=color:#f60>1</span>] <span style=color:#555>+</span> np<span style=color:#555>.</span>array([<span style=color:#f60>1</span>, <span style=color:#f60>2</span>]) <span style=color:#555>*</span> np<span style=color:#555>.</span>diff(X1[<span style=color:#555>-</span><span style=color:#f60>2</span>:]),
+            ]
+        )
+        Y2 <span style=color:#555>=</span> np<span style=color:#555>.</span>concatenate(
+            [
+                Y1[<span style=color:#f60>0</span>] <span style=color:#555>+</span> np<span style=color:#555>.</span>array([<span style=color:#555>-</span><span style=color:#f60>2</span>, <span style=color:#555>-</span><span style=color:#f60>1</span>]) <span style=color:#555>*</span> np<span style=color:#555>.</span>diff(Y1[:<span style=color:#f60>2</span>]),
+                Y1,
+                Y1[<span style=color:#555>-</span><span style=color:#f60>1</span>] <span style=color:#555>+</span> np<span style=color:#555>.</span>array([<span style=color:#f60>1</span>, <span style=color:#f60>2</span>]) <span style=color:#555>*</span> np<span style=color:#555>.</span>diff(Y1[<span style=color:#555>-</span><span style=color:#f60>2</span>:]),
+            ]
+        )
+        
+        ax<span style=color:#555>.</span>contour(X2, Y2, H2<span style=color:#555>.</span>T, V, alpha <span style=color:#555>=</span> <span style=color:#f60>0.5</span>)
+
+    <span style=color:#069;font-weight:700>return</span> ax
+
+<span style=color:#069;font-weight:700>def</span> <span style=color:#c0f>vis_distribution</span>(fig, ax, mean, cov, transform, N <span style=color:#555>=</span> <span style=color:#f60>10000</span>):
+    <span style=color:#069;font-weight:700>from</span> <span style=color:#0cf;font-weight:700>collections</span> <span style=color:#069;font-weight:700>import</span> Iterable
+
+    samples <span style=color:#555>=</span> np<span style=color:#555>.</span>random<span style=color:#555>.</span>multivariate_normal(mean<span style=color:#555>=</span>np<span style=color:#555>.</span>zeros(<span style=color:#f60>6</span>), cov<span style=color:#555>=</span>Sigma_next, size<span style=color:#555>=</span>N)<span style=color:#555>.</span>T
+    samples_se3 <span style=color:#555>=</span> np<span style=color:#555>.</span>zeros((N, <span style=color:#f60>2</span>))
+    <span style=color:#069;font-weight:700>for</span> i, s <span style=color:#000;font-weight:700>in</span> <span style=color:#366>enumerate</span>(samples<span style=color:#555>.</span>T):
+        sample_se3 <span style=color:#555>=</span> transform <span style=color:#555>@</span> SE3<span style=color:#555>.</span>exp(s)
+        samples_se3[i, <span style=color:#f60>0</span>] <span style=color:#555>=</span> sample_se3[<span style=color:#f60>0</span>, <span style=color:#f60>3</span>]
+        samples_se3[i, <span style=color:#f60>1</span>] <span style=color:#555>=</span> sample_se3[<span style=color:#f60>1</span>, <span style=color:#f60>3</span>]
+    
+    <span style=color:#069;font-weight:700>if</span> <span style=color:#366>isinstance</span>(ax, Iterable):
+        ax1, ax2 <span style=color:#555>=</span> ax
+        density_scatter(samples[<span style=color:#f60>0</span>, :], samples[<span style=color:#f60>1</span>, :], ax1, fig, cmap<span style=color:#555>=</span>plt<span style=color:#555>.</span>cm<span style=color:#555>.</span>cool, cbar <span style=color:#555>=</span> <span style=color:#069;font-weight:700>False</span>)
+        ax1<span style=color:#555>.</span>set(xlabel <span style=color:#555>=</span> <span style=color:#c30>&#39;x, meters&#39;</span>, ylabel <span style=color:#555>=</span> <span style=color:#c30>&#39;y, meters&#39;</span>)
+        ax1<span style=color:#555>.</span>axis(<span style=color:#c30>&#39;equal&#39;</span>)
+        ax2<span style=color:#555>.</span>set(xlabel <span style=color:#555>=</span> <span style=color:#c30>&#39;x, meters&#39;</span>, ylabel <span style=color:#555>=</span> <span style=color:#c30>&#39;y, meters&#39;</span>)
+        ax1<span style=color:#555>.</span>set_title(<span style=color:#c30>&#39;Uncertainty at tangent space, $\mathfrak </span><span style=color:#a00>{g}</span><span style=color:#c30>$&#39;</span>)
+    <span style=color:#069;font-weight:700>else</span>:
+        ax2 <span style=color:#555>=</span> ax
+    density_scatter(samples_se3[:,<span style=color:#f60>0</span>], samples_se3[:,<span style=color:#f60>1</span>], ax2, fig, cmap<span style=color:#555>=</span>plt<span style=color:#555>.</span>cm<span style=color:#555>.</span>cool, cbar <span style=color:#555>=</span> <span style=color:#069;font-weight:700>False</span>)
+    meanse3 <span style=color:#555>=</span> np<span style=color:#555>.</span>mean(samples_se3, axis <span style=color:#555>=</span> <span style=color:#f60>0</span>)
+    ax2<span style=color:#555>.</span>scatter([meanse3[<span style=color:#f60>0</span>]], [meanse3[<span style=color:#f60>1</span>]], marker <span style=color:#555>=</span> <span style=color:#c30>&#39;x&#39;</span>, s <span style=color:#555>=</span> <span style=color:#f60>150</span>, c <span style=color:#555>=</span> <span style=color:#c30>&#39;black&#39;</span>)
+    ax2<span style=color:#555>.</span>set(xlabel <span style=color:#555>=</span> <span style=color:#c30>&#39;x, meters&#39;</span>, ylabel <span style=color:#555>=</span> <span style=color:#c30>&#39;y, meters&#39;</span>)
+    ax2<span style=color:#555>.</span>axis(<span style=color:#c30>&#39;equal&#39;</span>)
+    ax2<span style=color:#555>.</span>set_title(<span style=color:#c30>&#39;Uncertainty at manifold, $\mathcal</span><span style=color:#a00>{G}</span><span style=color:#c30>$&#39;</span>)
+</code></pre></div></div>
 </div>
 <h2 id=lie-algebras-and-groups-operations>Lie algebras and groups operations</h2>
 <p>First, let&rsquo;s define all the needed functions to operate on SO(3) and SE(3) groups using Lie algebras. In the code I explicitly specify the implemented equation&rsquo;s numbers from Barfoot&rsquo;s book on robotics. Here we will use the left-hand convention, that means that the state is expressed with respect to the moving, or robot perspective. Therefore the increments are represented in global coordinate frame and applied from the left side. Our $\mathbf{T}_{next} = \mathbf{T}_{bw}$, this matrix represents the transformation of the world w.r.t. the body: to plot the robot pose in global coordinate frame we have to invert it, to do so we find the transformation of the body w.r.t. the world: $\mathbf{T}_{wb}$</p>
@@ -282,7 +285,9 @@ $$
 \mathbf{T}_{w b_{i+1}} = \mathbf{T}_{w b_{i}}\mathbf{T}_{b_{i}b_{i+1}},
 $$
 and our increment is equal to $1$, instead of $-1$. These differences are very important when we work with transformations and can lead to dramatic results when mixed order is used. The latter approach usually used in robotics and when we work with IMU, the former one (left) - in computer vision (the good explanation of frame transforms can be found in [<a href=http://paulfurgale.info/news/2014/6/9/representing-robot-pose-the-good-the-bad-and-the-ugly>1</a>, <a href=https://gtsam.org/2021/02/23/uncertainties-part2.html>2</a>])</p>
-<div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#069;font-weight:700>from</span> <span style=color:#0cf;font-weight:700>abc</span> <span style=color:#069;font-weight:700>import</span> ABC, abstractmethod
+<div class=spoiler><span class=spoilerText>Spoiler</span>
+<input class=spoilerChecked type=checkbox>
+<div class=spoilerContent><div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#069;font-weight:700>from</span> <span style=color:#0cf;font-weight:700>abc</span> <span style=color:#069;font-weight:700>import</span> ABC, abstractmethod
 <span style=color:#069;font-weight:700>import</span> <span style=color:#0cf;font-weight:700>numpy</span> <span style=color:#069;font-weight:700>as</span> <span style=color:#0cf;font-weight:700>np</span>
 
 <span style=color:#069;font-weight:700>class</span> <span style=color:#0a8;font-weight:700>LieGroup</span>(ABC):
@@ -428,7 +433,9 @@ and our increment is equal to $1$, instead of $-1$. These differences are very i
         T_inv[<span style=color:#f60>0</span>:<span style=color:#f60>3</span>, <span style=color:#f60>0</span>:<span style=color:#f60>3</span>] <span style=color:#555>=</span> T[<span style=color:#f60>0</span>:<span style=color:#f60>3</span>, <span style=color:#f60>0</span>:<span style=color:#f60>3</span>]<span style=color:#555>.</span>T
         T_inv[<span style=color:#f60>0</span>:<span style=color:#f60>3</span>, <span style=color:#f60>3</span>] <span style=color:#555>=</span> <span style=color:#555>-</span> T_inv[<span style=color:#f60>0</span>:<span style=color:#f60>3</span>, <span style=color:#f60>0</span>:<span style=color:#f60>3</span>] <span style=color:#555>@</span> T[<span style=color:#f60>0</span>:<span style=color:#f60>3</span>, <span style=color:#f60>3</span>]
         <span style=color:#069;font-weight:700>return</span> T_inv
-</code></pre></div><h2 id=pose-compound-experiments>Pose compound experiments</h2>
+</code></pre></div></div>
+</div>
+<h2 id=pose-compound-experiments>Pose compound experiments</h2>
 <p>Now assume that we have some initial pose and we are absolutely confident about it. Then we make 500 moves forward (right direction) and on each move we are absolutely confident about travelled distance (it is equal to 1 meter), but not so certain about direction, it&rsquo;s associated uncertainty is equal to $\sigma = 2 ^\circ$.</p>
 <h3 id=monte-carlo>Monte-carlo</h3>
 <p>At first, let&rsquo;s directly simulate it. To do so we would like to generate 1000 sequences of 100 moves. On each move we are uncertain about our direction and therefore randomly draw the angle from the normal distribution.</p>
@@ -641,69 +648,64 @@ $$
 \mathbf{P}_{i+1} = \mathbf{F}_i \mathbf{P}_i \mathbf{F}_{i}^T + \mathbf{G}_i \mathbf{U}_i \mathbf{G}_i^T.
 $$</p>
 <p>Now let&rsquo;s write the code and assess the covariance we end up with.</p>
-<div class="spoiler panel panel-default">
-<div class=spoiler_block>
-<a href=# class="spoiler-block-icon spoiler-block-icon-zoom-in spoiler_block_show">
-click to show
-</a>
-<a href=# class="spoiler-block-icon spoiler-block-icon-zoom-out spoiler_block_hide" style=display:none>
-click to hide
-</a>
-<div class=spoiler_block_content style=display:none>
-```python
-dt = 1.0
-sin, cos, tan = np.sin, np.cos, np.tan
-v_x, v_y, v_z = 1., 0., 0.
-w_x, w_y, w_z = 0.0, 0., 0.0
-P = np.zeros((6, 6))
-x, y, z = 0., 0., 0.
-phi, theta, psi = 0., 0., 0.
-for _ in range(0, N_steps):
-x = dt*(v_x*cos(psi)*cos(theta) + v_y*(sin(phi)*sin(theta)*cos(psi) - sin(psi)*cos(phi)) + v_z*(sin(phi)*sin(psi) + sin(theta)*cos(phi)*cos(psi))) + x
-y = dt*(v_x*sin(psi)*cos(theta) + v_y*(sin(phi)*sin(psi)*sin(theta) + cos(phi)*cos(psi)) - v_z*(sin(phi)*cos(psi) - sin(psi)*sin(theta)*cos(phi))) + y
-z = dt*(-v_x*sin(theta) + v_y*sin(phi)*cos(theta) + v_z*cos(phi)*cos(theta)) + z
-phi = dt*(w_x + w_y*sin(phi)*tan(theta) + w_z*cos(phi)*tan(theta)) + phi
-theta = dt*(w_y*cos(phi) - w_z*sin(phi)) + theta
-psi = (dt*(w_y*sin(phi) + w_z*cos(phi)) + psi*cos(theta))/cos(theta)
-# Jacobian of state dynamics w.r.t. the state
-F_x = np.eye(6)
-F_x[0, 3] = dt*(v_y*(sin(phi)*sin(psi) + sin(theta)*cos(phi)*cos(psi)) - v_z*(sin(phi)*sin(theta)*cos(psi) - sin(psi)*cos(phi)))
-F_x[0, 4] = dt*(-v_x*sin(theta) + v_y*sin(phi)*cos(theta) + v_z*cos(phi)*cos(theta))*cos(psi)
-F_x[0, 5] = -dt*(v_x*sin(psi)*cos(theta) + v_y*(sin(phi)*sin(psi)*sin(theta) + cos(phi)*cos(psi)) - v_z*(sin(phi)*cos(psi) - sin(psi)*sin(theta)*cos(phi)))
-F_x[1, 3] = -dt*(v_y*(sin(phi)*cos(psi) - sin(psi)*sin(theta)*cos(phi)) + v_z*(sin(phi)*sin(psi)*sin(theta) + cos(phi)*cos(psi)))
-F_x[1, 4] = dt*(-v_x*sin(theta) + v_y*sin(phi)*cos(theta) + v_z*cos(phi)*cos(theta))*sin(psi)
-F_x[1, 5] = dt*(v_x*cos(psi)*cos(theta) + v_y*(sin(phi)*sin(theta)*cos(psi) - sin(psi)*cos(phi)) + v_z*(sin(phi)*sin(psi) + sin(theta)*cos(phi)*cos(psi)))
-F_x[2, 3] = dt*(v_y*cos(phi) - v_z*sin(phi))*cos(theta)
-F_x[2, 4] = -dt*(v_x*cos(theta) + v_y*sin(phi)*sin(theta) + v_z*sin(theta)*cos(phi))
-F_x[3, 3] = dt*(w_y*cos(phi) - w_z*sin(phi))*tan(theta) + 1
-F_x[3, 4] = dt*(w_y*sin(phi) + w_z*cos(phi))/cos(theta)**2
-F_x[4, 3] = -dt*(w_y*sin(phi) + w_z*cos(phi))
-F_x[5, 3] = dt*(w_y*cos(phi) - w_z*sin(phi))/cos(theta)
-F_x[5, 4] = dt*(w_y*sin(phi) + w_z*cos(phi))*sin(theta)/cos(theta)**2
-# Jacobian of state w.r.t. the controls
-G_i = np.zeros((6, 6))
-G_i[0, 0] = dt*cos(psi)*cos(theta)
-G_i[0, 1] = dt*(sin(phi)*sin(theta)*cos(psi) - sin(psi)*cos(phi))
-G_i[0, 2] = dt*(sin(phi)*sin(psi) + sin(theta)*cos(phi)*cos(psi))
-G_i[1, 0] = dt*sin(psi)*cos(theta)
-G_i[1, 1] = dt*(sin(phi)*sin(psi)*sin(theta) + cos(phi)*cos(psi))
-G_i[1, 2] = dt*(-sin(phi)*cos(psi) + sin(psi)*sin(theta)*cos(phi))
-G_i[2, 0] = -dt*sin(theta)
-G_i[2, 1] = dt*sin(phi)*cos(theta)
-G_i[2, 2] = dt*cos(phi)*cos(theta)
-G_i[3, 3] = dt
-G_i[3, 4] = dt*sin(phi)*tan(theta)
-G_i[3, 5] = dt*cos(phi)*tan(theta)
-G_i[4, 4] = dt*cos(phi)
-G_i[4, 5] = -dt*sin(phi)
-G_i[5, 4] = dt*sin(phi)/cos(theta)
-G_i[5, 5] = dt*cos(phi)/cos(theta)
-Uc = np.diag([0., 0., 0.0,
-0., 0., sigma_direction_rad**2])
-P = F_x @ P @ F_x.T + G_i @ Uc @ G_i.T
-```
-</div>
-</div>
+<div class=spoiler><span class=spoilerText>Spoiler</span>
+<input class=spoilerChecked type=checkbox>
+<div class=spoilerContent><div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>dt <span style=color:#555>=</span> <span style=color:#f60>1.0</span>
+sin, cos, tan  <span style=color:#555>=</span> np<span style=color:#555>.</span>sin, np<span style=color:#555>.</span>cos, np<span style=color:#555>.</span>tan
+v_x, v_y, v_z <span style=color:#555>=</span> <span style=color:#f60>1.</span>, <span style=color:#f60>0.</span>, <span style=color:#f60>0.</span>
+w_x, w_y, w_z <span style=color:#555>=</span> <span style=color:#f60>0.0</span>, <span style=color:#f60>0.</span>, <span style=color:#f60>0.0</span>
+
+P <span style=color:#555>=</span> np<span style=color:#555>.</span>zeros((<span style=color:#f60>6</span>, <span style=color:#f60>6</span>))
+x, y, z <span style=color:#555>=</span> <span style=color:#f60>0.</span>, <span style=color:#f60>0.</span>, <span style=color:#f60>0.</span>
+phi, theta, psi <span style=color:#555>=</span> <span style=color:#f60>0.</span>, <span style=color:#f60>0.</span>, <span style=color:#f60>0.</span>
+<span style=color:#069;font-weight:700>for</span> _ <span style=color:#000;font-weight:700>in</span> <span style=color:#366>range</span>(<span style=color:#f60>0</span>, N_steps):
+    x <span style=color:#555>=</span> dt<span style=color:#555>*</span>(v_x<span style=color:#555>*</span>cos(psi)<span style=color:#555>*</span>cos(theta) <span style=color:#555>+</span> v_y<span style=color:#555>*</span>(sin(phi)<span style=color:#555>*</span>sin(theta)<span style=color:#555>*</span>cos(psi) <span style=color:#555>-</span> sin(psi)<span style=color:#555>*</span>cos(phi)) <span style=color:#555>+</span> v_z<span style=color:#555>*</span>(sin(phi)<span style=color:#555>*</span>sin(psi) <span style=color:#555>+</span> sin(theta)<span style=color:#555>*</span>cos(phi)<span style=color:#555>*</span>cos(psi))) <span style=color:#555>+</span> x
+    y <span style=color:#555>=</span> dt<span style=color:#555>*</span>(v_x<span style=color:#555>*</span>sin(psi)<span style=color:#555>*</span>cos(theta) <span style=color:#555>+</span> v_y<span style=color:#555>*</span>(sin(phi)<span style=color:#555>*</span>sin(psi)<span style=color:#555>*</span>sin(theta) <span style=color:#555>+</span> cos(phi)<span style=color:#555>*</span>cos(psi)) <span style=color:#555>-</span> v_z<span style=color:#555>*</span>(sin(phi)<span style=color:#555>*</span>cos(psi) <span style=color:#555>-</span> sin(psi)<span style=color:#555>*</span>sin(theta)<span style=color:#555>*</span>cos(phi))) <span style=color:#555>+</span> y
+    z <span style=color:#555>=</span> dt<span style=color:#555>*</span>(<span style=color:#555>-</span>v_x<span style=color:#555>*</span>sin(theta) <span style=color:#555>+</span> v_y<span style=color:#555>*</span>sin(phi)<span style=color:#555>*</span>cos(theta) <span style=color:#555>+</span> v_z<span style=color:#555>*</span>cos(phi)<span style=color:#555>*</span>cos(theta)) <span style=color:#555>+</span> z
+    phi <span style=color:#555>=</span> dt<span style=color:#555>*</span>(w_x <span style=color:#555>+</span> w_y<span style=color:#555>*</span>sin(phi)<span style=color:#555>*</span>tan(theta) <span style=color:#555>+</span> w_z<span style=color:#555>*</span>cos(phi)<span style=color:#555>*</span>tan(theta)) <span style=color:#555>+</span> phi
+    theta <span style=color:#555>=</span> dt<span style=color:#555>*</span>(w_y<span style=color:#555>*</span>cos(phi) <span style=color:#555>-</span> w_z<span style=color:#555>*</span>sin(phi)) <span style=color:#555>+</span> theta
+    psi <span style=color:#555>=</span> (dt<span style=color:#555>*</span>(w_y<span style=color:#555>*</span>sin(phi) <span style=color:#555>+</span> w_z<span style=color:#555>*</span>cos(phi)) <span style=color:#555>+</span> psi<span style=color:#555>*</span>cos(theta))<span style=color:#555>/</span>cos(theta)
+    
+    <span style=color:#09f;font-style:italic># Jacobian of state dynamics w.r.t. the state</span>
+    F_x <span style=color:#555>=</span> np<span style=color:#555>.</span>eye(<span style=color:#f60>6</span>)
+    F_x[<span style=color:#f60>0</span>, <span style=color:#f60>3</span>] <span style=color:#555>=</span> dt<span style=color:#555>*</span>(v_y<span style=color:#555>*</span>(sin(phi)<span style=color:#555>*</span>sin(psi) <span style=color:#555>+</span> sin(theta)<span style=color:#555>*</span>cos(phi)<span style=color:#555>*</span>cos(psi)) <span style=color:#555>-</span> v_z<span style=color:#555>*</span>(sin(phi)<span style=color:#555>*</span>sin(theta)<span style=color:#555>*</span>cos(psi) <span style=color:#555>-</span> sin(psi)<span style=color:#555>*</span>cos(phi)))
+    F_x[<span style=color:#f60>0</span>, <span style=color:#f60>4</span>] <span style=color:#555>=</span> dt<span style=color:#555>*</span>(<span style=color:#555>-</span>v_x<span style=color:#555>*</span>sin(theta) <span style=color:#555>+</span> v_y<span style=color:#555>*</span>sin(phi)<span style=color:#555>*</span>cos(theta) <span style=color:#555>+</span> v_z<span style=color:#555>*</span>cos(phi)<span style=color:#555>*</span>cos(theta))<span style=color:#555>*</span>cos(psi)
+    F_x[<span style=color:#f60>0</span>, <span style=color:#f60>5</span>] <span style=color:#555>=</span> <span style=color:#555>-</span>dt<span style=color:#555>*</span>(v_x<span style=color:#555>*</span>sin(psi)<span style=color:#555>*</span>cos(theta) <span style=color:#555>+</span> v_y<span style=color:#555>*</span>(sin(phi)<span style=color:#555>*</span>sin(psi)<span style=color:#555>*</span>sin(theta) <span style=color:#555>+</span> cos(phi)<span style=color:#555>*</span>cos(psi)) <span style=color:#555>-</span> v_z<span style=color:#555>*</span>(sin(phi)<span style=color:#555>*</span>cos(psi) <span style=color:#555>-</span> sin(psi)<span style=color:#555>*</span>sin(theta)<span style=color:#555>*</span>cos(phi)))
+    F_x[<span style=color:#f60>1</span>, <span style=color:#f60>3</span>] <span style=color:#555>=</span> <span style=color:#555>-</span>dt<span style=color:#555>*</span>(v_y<span style=color:#555>*</span>(sin(phi)<span style=color:#555>*</span>cos(psi) <span style=color:#555>-</span> sin(psi)<span style=color:#555>*</span>sin(theta)<span style=color:#555>*</span>cos(phi)) <span style=color:#555>+</span> v_z<span style=color:#555>*</span>(sin(phi)<span style=color:#555>*</span>sin(psi)<span style=color:#555>*</span>sin(theta) <span style=color:#555>+</span> cos(phi)<span style=color:#555>*</span>cos(psi)))
+    F_x[<span style=color:#f60>1</span>, <span style=color:#f60>4</span>] <span style=color:#555>=</span> dt<span style=color:#555>*</span>(<span style=color:#555>-</span>v_x<span style=color:#555>*</span>sin(theta) <span style=color:#555>+</span> v_y<span style=color:#555>*</span>sin(phi)<span style=color:#555>*</span>cos(theta) <span style=color:#555>+</span> v_z<span style=color:#555>*</span>cos(phi)<span style=color:#555>*</span>cos(theta))<span style=color:#555>*</span>sin(psi)
+    F_x[<span style=color:#f60>1</span>, <span style=color:#f60>5</span>] <span style=color:#555>=</span> dt<span style=color:#555>*</span>(v_x<span style=color:#555>*</span>cos(psi)<span style=color:#555>*</span>cos(theta) <span style=color:#555>+</span> v_y<span style=color:#555>*</span>(sin(phi)<span style=color:#555>*</span>sin(theta)<span style=color:#555>*</span>cos(psi) <span style=color:#555>-</span> sin(psi)<span style=color:#555>*</span>cos(phi)) <span style=color:#555>+</span> v_z<span style=color:#555>*</span>(sin(phi)<span style=color:#555>*</span>sin(psi) <span style=color:#555>+</span> sin(theta)<span style=color:#555>*</span>cos(phi)<span style=color:#555>*</span>cos(psi)))
+    F_x[<span style=color:#f60>2</span>, <span style=color:#f60>3</span>] <span style=color:#555>=</span> dt<span style=color:#555>*</span>(v_y<span style=color:#555>*</span>cos(phi) <span style=color:#555>-</span> v_z<span style=color:#555>*</span>sin(phi))<span style=color:#555>*</span>cos(theta)
+    F_x[<span style=color:#f60>2</span>, <span style=color:#f60>4</span>] <span style=color:#555>=</span> <span style=color:#555>-</span>dt<span style=color:#555>*</span>(v_x<span style=color:#555>*</span>cos(theta) <span style=color:#555>+</span> v_y<span style=color:#555>*</span>sin(phi)<span style=color:#555>*</span>sin(theta) <span style=color:#555>+</span> v_z<span style=color:#555>*</span>sin(theta)<span style=color:#555>*</span>cos(phi))
+    F_x[<span style=color:#f60>3</span>, <span style=color:#f60>3</span>] <span style=color:#555>=</span> dt<span style=color:#555>*</span>(w_y<span style=color:#555>*</span>cos(phi) <span style=color:#555>-</span> w_z<span style=color:#555>*</span>sin(phi))<span style=color:#555>*</span>tan(theta) <span style=color:#555>+</span> <span style=color:#f60>1</span>
+    F_x[<span style=color:#f60>3</span>, <span style=color:#f60>4</span>] <span style=color:#555>=</span> dt<span style=color:#555>*</span>(w_y<span style=color:#555>*</span>sin(phi) <span style=color:#555>+</span> w_z<span style=color:#555>*</span>cos(phi))<span style=color:#555>/</span>cos(theta)<span style=color:#555>**</span><span style=color:#f60>2</span>
+    F_x[<span style=color:#f60>4</span>, <span style=color:#f60>3</span>] <span style=color:#555>=</span> <span style=color:#555>-</span>dt<span style=color:#555>*</span>(w_y<span style=color:#555>*</span>sin(phi) <span style=color:#555>+</span> w_z<span style=color:#555>*</span>cos(phi))
+    F_x[<span style=color:#f60>5</span>, <span style=color:#f60>3</span>] <span style=color:#555>=</span> dt<span style=color:#555>*</span>(w_y<span style=color:#555>*</span>cos(phi) <span style=color:#555>-</span> w_z<span style=color:#555>*</span>sin(phi))<span style=color:#555>/</span>cos(theta)
+    F_x[<span style=color:#f60>5</span>, <span style=color:#f60>4</span>] <span style=color:#555>=</span> dt<span style=color:#555>*</span>(w_y<span style=color:#555>*</span>sin(phi) <span style=color:#555>+</span> w_z<span style=color:#555>*</span>cos(phi))<span style=color:#555>*</span>sin(theta)<span style=color:#555>/</span>cos(theta)<span style=color:#555>**</span><span style=color:#f60>2</span>
+
+    <span style=color:#09f;font-style:italic># Jacobian of state w.r.t. the controls</span>
+    G_i <span style=color:#555>=</span> np<span style=color:#555>.</span>zeros((<span style=color:#f60>6</span>, <span style=color:#f60>6</span>))
+    G_i[<span style=color:#f60>0</span>, <span style=color:#f60>0</span>] <span style=color:#555>=</span> dt<span style=color:#555>*</span>cos(psi)<span style=color:#555>*</span>cos(theta)
+    G_i[<span style=color:#f60>0</span>, <span style=color:#f60>1</span>] <span style=color:#555>=</span> dt<span style=color:#555>*</span>(sin(phi)<span style=color:#555>*</span>sin(theta)<span style=color:#555>*</span>cos(psi) <span style=color:#555>-</span> sin(psi)<span style=color:#555>*</span>cos(phi))
+    G_i[<span style=color:#f60>0</span>, <span style=color:#f60>2</span>] <span style=color:#555>=</span> dt<span style=color:#555>*</span>(sin(phi)<span style=color:#555>*</span>sin(psi) <span style=color:#555>+</span> sin(theta)<span style=color:#555>*</span>cos(phi)<span style=color:#555>*</span>cos(psi))
+    G_i[<span style=color:#f60>1</span>, <span style=color:#f60>0</span>] <span style=color:#555>=</span> dt<span style=color:#555>*</span>sin(psi)<span style=color:#555>*</span>cos(theta)
+    G_i[<span style=color:#f60>1</span>, <span style=color:#f60>1</span>] <span style=color:#555>=</span> dt<span style=color:#555>*</span>(sin(phi)<span style=color:#555>*</span>sin(psi)<span style=color:#555>*</span>sin(theta) <span style=color:#555>+</span> cos(phi)<span style=color:#555>*</span>cos(psi))
+    G_i[<span style=color:#f60>1</span>, <span style=color:#f60>2</span>] <span style=color:#555>=</span> dt<span style=color:#555>*</span>(<span style=color:#555>-</span>sin(phi)<span style=color:#555>*</span>cos(psi) <span style=color:#555>+</span> sin(psi)<span style=color:#555>*</span>sin(theta)<span style=color:#555>*</span>cos(phi))
+    G_i[<span style=color:#f60>2</span>, <span style=color:#f60>0</span>] <span style=color:#555>=</span> <span style=color:#555>-</span>dt<span style=color:#555>*</span>sin(theta)
+    G_i[<span style=color:#f60>2</span>, <span style=color:#f60>1</span>] <span style=color:#555>=</span> dt<span style=color:#555>*</span>sin(phi)<span style=color:#555>*</span>cos(theta)
+    G_i[<span style=color:#f60>2</span>, <span style=color:#f60>2</span>] <span style=color:#555>=</span> dt<span style=color:#555>*</span>cos(phi)<span style=color:#555>*</span>cos(theta)
+    G_i[<span style=color:#f60>3</span>, <span style=color:#f60>3</span>] <span style=color:#555>=</span> dt
+    G_i[<span style=color:#f60>3</span>, <span style=color:#f60>4</span>] <span style=color:#555>=</span> dt<span style=color:#555>*</span>sin(phi)<span style=color:#555>*</span>tan(theta)
+    G_i[<span style=color:#f60>3</span>, <span style=color:#f60>5</span>] <span style=color:#555>=</span> dt<span style=color:#555>*</span>cos(phi)<span style=color:#555>*</span>tan(theta)
+    G_i[<span style=color:#f60>4</span>, <span style=color:#f60>4</span>] <span style=color:#555>=</span> dt<span style=color:#555>*</span>cos(phi)
+    G_i[<span style=color:#f60>4</span>, <span style=color:#f60>5</span>] <span style=color:#555>=</span> <span style=color:#555>-</span>dt<span style=color:#555>*</span>sin(phi)
+    G_i[<span style=color:#f60>5</span>, <span style=color:#f60>4</span>] <span style=color:#555>=</span> dt<span style=color:#555>*</span>sin(phi)<span style=color:#555>/</span>cos(theta)
+    G_i[<span style=color:#f60>5</span>, <span style=color:#f60>5</span>] <span style=color:#555>=</span> dt<span style=color:#555>*</span>cos(phi)<span style=color:#555>/</span>cos(theta)
+
+    Uc <span style=color:#555>=</span> np<span style=color:#555>.</span>diag([<span style=color:#f60>0.</span>, <span style=color:#f60>0.</span>, <span style=color:#f60>0.0</span>,
+                  <span style=color:#f60>0.</span>, <span style=color:#f60>0.</span>, sigma_direction_rad<span style=color:#555>**</span><span style=color:#f60>2</span>])
+
+    P <span style=color:#555>=</span> F_x <span style=color:#555>@</span> P <span style=color:#555>@</span> F_x<span style=color:#555>.</span>T <span style=color:#555>+</span> G_i <span style=color:#555>@</span> Uc <span style=color:#555>@</span> G_i<span style=color:#555>.</span>T
+</code></pre></div></div>
 </div>
 <div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#366>print</span>(<span style=color:#c30>&#34;Covariance:</span><span style=color:#c30;font-weight:700>\n</span><span style=color:#c30>&#34;</span>, Sigma_next[<span style=color:#f60>0</span>:<span style=color:#f60>2</span>, <span style=color:#f60>0</span>:<span style=color:#f60>2</span>])
 </code></pre></div><pre><code>Covariance:
