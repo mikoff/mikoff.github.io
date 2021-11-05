@@ -87,7 +87,7 @@ November 4, 2021
 <p>The correct uncertainty estimation of the pose is crucial for any navigation or positioning algorithm performance. One of the most natural way of representing the uncertainty for me is the confidence ellipse.</p>
 <p>In the following post I would like to show effect of the uncertainty propogation using the various algorithms. What&rsquo;s more important, I would like to show the Gaussians representations both in cartesian and exponential coordinates.</p>
 <h2 id=small-lie-notes>Small Lie notes</h2>
-<p>These notes are made for myself and summarizes the info from [<a href=https://arxiv.org/abs/1812.01537>0</a>] great paper.</p>
+<p>These notes are made for myself and summarize the info from Joan Sola paper &ldquo;A Micro Lie Theory&rdquo;<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup> and Barfoot&rsquo;s &ldquo;State estimation for robotics&rdquo;<sup id=fnref:2><a href=#fn:2 class=footnote-ref role=doc-noteref>2</a></sup>.</p>
 <h3 id=notation>Notation</h3>
 <ul>
 <li>Lie group $\mathcal{M}$ - a smooth manifold whose elements satisfy four group axioms: closure, identity, inverse and associativity. The manifold looks the same at its every point (no spikes, edges, etc.), thus all tangent spaces at any point are similar and have the same structure.</li>
@@ -284,7 +284,7 @@ It means that to we want to obtain the transformation of the world w.r.t. the bo
 $$
 \mathbf{T}_{w b_{i+1}} = \mathbf{T}_{w b_{i}}\mathbf{T}_{b_{i}b_{i+1}},
 $$
-and our increment is equal to $1$, instead of $-1$. These differences are very important when we work with transformations and can lead to dramatic results when mixed order is used. The latter approach usually used in robotics and when we work with IMU, the former one (left) - in computer vision (the good explanation of frame transforms can be found in [<a href=http://paulfurgale.info/news/2014/6/9/representing-robot-pose-the-good-the-bad-and-the-ugly>1</a>, <a href=https://gtsam.org/2021/02/23/uncertainties-part2.html>2</a>])</p>
+and our increment is equal to $1$, instead of $-1$. These differences are very important when we work with transformations and can lead to dramatic results when mixed order is used. The latter approach typically used in robotics and when we work with IMU, the former one (left) - in computer vision <sup id=fnref:3><a href=#fn:3 class=footnote-ref role=doc-noteref>3</a></sup>, <sup id=fnref:4><a href=#fn:4 class=footnote-ref role=doc-noteref>4</a></sup>.</p>
 <div class=spoiler><span class=spoilerText>Spoiler</span>
 <input class=spoilerChecked type=checkbox showtext=Click>
 <div class=spoilerContent><div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#069;font-weight:700>from</span> <span style=color:#0cf;font-weight:700>abc</span> <span style=color:#069;font-weight:700>import</span> ABC, abstractmethod
@@ -475,7 +475,7 @@ Covariance:
  [-1585.499 36559.492]]
 </code></pre>
 <p><img src=uncertainty_prop_12_1.png alt=png></p>
-<p>After 100 steps we see famously known banana-shaped distribution, that <strong>can not</strong> be represented using gaussian distribution! But wait, in next subsection we will note that this &ldquo;banana&rdquo; <strong>can be</strong> described by gaussian in our tangent space $\mathcal{T}_{\mathcal{X}}\mathcal{M}$ and mapped from vector tangent space to Lie group conveniently.</p>
+<p>After 100 steps we see famously known banana-shaped distribution, that <strong>can not</strong> be represented using gaussian distribution! But wait, in next subsection we will note that this &ldquo;banana&rdquo; <strong>can be</strong> described by Gaussian in our tangent space $\mathcal{T}_{\mathcal{X}}\mathcal{M}$ and mapped from vector tangent space to Lie group conveniently.</p>
 <h3 id=first-order-approximation>First-order approximation</h3>
 <p>Now let&rsquo;s first show the results of the covariance estimation using first-order method, where we throw away all Taylor expansion terms except the first one.</p>
 <div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#09f;font-style:italic># True pose on the first iteration</span>
@@ -510,14 +510,14 @@ Covariance:
  [    0.   50921.98]]
 </code></pre>
 <p><img src=uncertainty_prop_15_2.png alt=png></p>
-<p>When we closely look at these samples we immediately understand why it is beneficial to have the Gaussian in tangent space (Lie algebra elements) and then retract it to our manifold (Lie group elements - rotation matrices!). Doing so, we correctly represent the uncertainties and note that the banana-shaped distribution is actually a Gaussian! Actually, it was initially described in paper [<a href=http://www.roboticsproceedings.org/rss08/p34.pdf>3</a>].</p>
+<p>When we closely look at these samples we immediately understand why it is beneficial to have the Gaussian in tangent space (Lie algebra elements) and then retract it to our manifold (Lie group elements - rotation matrices!). Doing so we note that the banana-shaped distribution is actually a Gaussian <sup id=fnref:5><a href=#fn:5 class=footnote-ref role=doc-noteref>5</a></sup> and we can correctly represent the uncertainties and manipulate them!</p>
 <p>However, we still observe the inaccuracies in our representation and what is more important: our uncertainty is underestimated and equal to zero along Y-coordinate axis. To improve the representation let&rsquo;s leverage the Taylor series even more and take into account higher order terms.</p>
 <h3 id=unscented-transform>Unscented transform</h3>
 <p>Now let&rsquo;s compound the poses, or move poses from first to last using unscented transform. This technique is often used when the nonlinear transformation of a probability distribution is required.</p>
 <p>Its underlying idea is the following:</p>
 <ul>
 <li>Take a set of particles, or sigma points, from our prior distribution.</li>
-<li>Apply the tranform function $f$ to each point.</li>
+<li>Apply the transform function $f$ to each point.</li>
 <li>Calculate the mean and covariance of the transformed points statistically.</li>
 </ul>
 <p>Do we have any improvement? Let&rsquo;s check!</p>
@@ -571,9 +571,9 @@ vis_distribution(fig, ax, np<span style=color:#555>.</span>zeros(<span style=col
  [    0.    50617.404]]
 </code></pre>
 <p><img src=uncertainty_prop_18_1.png alt=png></p>
-<p>Unfortunately, no, the covariance we end up with is the same as for previous method. As noted in [<a href=http://ncfrn.mcgill.ca/members/pubs/barfoot_tro14.pdf>4</a>, <a href=https://hal.archives-ouvertes.fr/hal-01489204v3/document>5</a>], such representation of the mean is valid up to the second order, so there is no need to apply unscented transform - we won&rsquo;t be able to get better results with it.</p>
+<p>Unfortunately, no, the covariance we end up with is the same as for previous method. As noted in <sup id=fnref:6><a href=#fn:6 class=footnote-ref role=doc-noteref>6</a></sup>, <sup id=fnref:7><a href=#fn:7 class=footnote-ref role=doc-noteref>7</a></sup>, such representation of the mean is valid up to the second order, so there is no need to apply unscented transform - we won&rsquo;t be able to get better results with it.</p>
 <h3 id=considering-4-th-order-terms>Considering 4-th order terms</h3>
-<p>The derivation of higher terms is presented in paper [<a href=https://arxiv.org/pdf/1906.07795.pdf>5</a>]. Here I will just propagate the covariance while using their derivations.</p>
+<p>The derivation of higher terms of covariance update is presented in paper <sup id=fnref:8><a href=#fn:8 class=footnote-ref role=doc-noteref>8</a></sup>. Here I will just propagate the covariance while using their derivations.</p>
 <div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#069;font-weight:700>def</span> <span style=color:#c0f>linOp</span>(A):
     <span style=color:#069;font-weight:700>return</span> <span style=color:#555>-</span>np<span style=color:#555>.</span>trace(A) <span style=color:#555>*</span> np<span style=color:#555>.</span>eye(<span style=color:#f60>3</span>) <span style=color:#555>+</span> A
 
@@ -629,7 +629,7 @@ vis_distribution(fig, ax, np<span style=color:#555>.</span>zeros(<span style=col
  [    0.    49714.573]]
 </code></pre>
 <p><img src=uncertainty_prop_21_1.png alt=png></p>
-<p>Bingo, now our uncertainty has much better shape and we see that the higher order terms definitely helped us to end up with decent covariance that represents our true uncertainty more accurately and precise.</p>
+<p>Bingo, now our uncertainty has much better shape, and we see that the higher order terms definitely helped us to end up with decent covariance that represents our true uncertainty more accurately and precise.</p>
 <p>The usage of higher order terms is not always an option: first, the derivations are usually quite tricky and second, the computation complexity also increases.</p>
 <h2 id=bonus>Bonus</h2>
 <p>In the last section I would like to compare the performance of vanilla-old Extended Kalman Filter for our toy-problem. Let&rsquo;s reformulate the problem: we have a robot that moves in one direction with perfectly known speed (1 m/s) and with slightly uncertain steering direction (as before, $2^\circ$). If our state $\mathbf{x}$ includes position and orientation, and our controls $\mathbf{u}$ are robot linear and angular speeds, we have the following state and control vectors:
@@ -713,6 +713,36 @@ phi, theta, psi <span style=color:#555>=</span> <span style=color:#f60>0.</span>
  [    0.    49714.573]]
 </code></pre>
 <p>We see that the result is the same. We got the same covariance using various methods. Do we have to bother to study and use Lie algebra if result is the same? It is interesting question and I try to leverage the answer in my next posts.</p>
+<h1 id=references>References</h1>
+<section class=footnotes role=doc-endnotes>
+<hr>
+<ol>
+<li id=fn:1 role=doc-endnote>
+<p><a href=https://arxiv.org/abs/1812.01537>https://arxiv.org/abs/1812.01537</a>&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p>
+</li>
+<li id=fn:2 role=doc-endnote>
+<p><a href=http://asrl.utias.utoronto.ca/~tdb/bib/barfoot_ser17.pdf>http://asrl.utias.utoronto.ca/~tdb/bib/barfoot_ser17.pdf</a>&#160;<a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p>
+</li>
+<li id=fn:3 role=doc-endnote>
+<p><a href=http://paulfurgale.info/news/2014/6/9/representing-robot-pose-the-good-the-bad-and-the-ugly>http://paulfurgale.info/news/2014/6/9/representing-robot-pose-the-good-the-bad-and-the-ugly</a>&#160;<a href=#fnref:3 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p>
+</li>
+<li id=fn:4 role=doc-endnote>
+<p><a href=https://gtsam.org/2021/02/23/uncertainties-part2.html>https://gtsam.org/2021/02/23/uncertainties-part2.html</a>&#160;<a href=#fnref:4 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p>
+</li>
+<li id=fn:5 role=doc-endnote>
+<p><a href=http://www.roboticsproceedings.org/rss08/p34.pdf>http://www.roboticsproceedings.org/rss08/p34.pdf</a>&#160;<a href=#fnref:5 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p>
+</li>
+<li id=fn:6 role=doc-endnote>
+<p><a href=http://ncfrn.mcgill.ca/members/pubs/barfoot_tro14.pdf>http://ncfrn.mcgill.ca/members/pubs/barfoot_tro14.pdf</a>&#160;<a href=#fnref:6 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p>
+</li>
+<li id=fn:7 role=doc-endnote>
+<p><a href=https://hal.archives-ouvertes.fr/hal-01489204v3/document>https://hal.archives-ouvertes.fr/hal-01489204v3/document</a>&#160;<a href=#fnref:7 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p>
+</li>
+<li id=fn:8 role=doc-endnote>
+<p><a href=https://arxiv.org/pdf/1906.07795.pdf>https://arxiv.org/pdf/1906.07795.pdf</a>&#160;<a href=#fnref:8 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
 </div>
 <footer>
 <div id=disqus_thread></div>
