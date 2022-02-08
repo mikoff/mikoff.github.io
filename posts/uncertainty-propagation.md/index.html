@@ -29,7 +29,7 @@ Uncertainty propagation with and without Lie groups · Aleksandr Mikoff's blog
 <link rel=stylesheet href=https://mikoff.github.io/css/spoiler.css>
 <link rel=icon type=image/png href=https://mikoff.github.io/img/favicon-32x32.png sizes=32x32>
 <link rel=icon type=image/png href=https://mikoff.github.io/img/favicon-16x16.png sizes=16x16>
-<meta name=generator content="Hugo 0.89.0">
+<meta name=generator content="Hugo 0.92.1">
 </head>
 <body class=colorscheme-auto>
 <main class=wrapper>
@@ -116,12 +116,12 @@ There is also adjoint matrix:<br>
 $\mathbf{Ad}_\mathcal{X}: \mathbf{R}^n \to \mathbf{R}^n;~{}^\mathcal{X}\tau \mapsto {}^\mathcal{E}\tau = \mathbf{Ad}_\mathcal{X} {}^\mathcal{X}\tau$.</li>
 <li>Plus $\oplus$ and minus $\ominus$ operators: the combination of $Exp$ or $Log$ operator with one composition.
 <ul>
-<li>There is a right operator, where $^\mathcal{X}\tau$ belongs to the tangent space $\mathcal{T}_{\mathcal{X}}\mathcal{M}$. It is said that ${}^\mathcal{X}\tau$ is expressed in <em>local</em> frame at $\mathcal{X}$:<br>
-$\mathcal{Y} = \mathcal{X} \oplus {}^\mathcal{X}\tau = \mathcal{X} \circ Exp({}^\mathcal{X}\mathcal{\tau}) \in \mathcal{M}$<br>
+<li>There is a right operator, where $^\mathcal{X}\tau$ belongs to the tangent space $\mathcal{T}_{\mathcal{X}}\mathcal{M}$. It is said that ${}^\mathcal{X}\tau$ is expressed in <em>local</em> frame at $\mathcal{X}$: <br>
+$\mathcal{Y} = \mathcal{X} \oplus {}^\mathcal{X}\tau = \mathcal{X} \circ Exp({}^\mathcal{X}\mathcal{\tau}) \in \mathcal{M}$ <br>
 ${}^\mathcal{X}\tau = \mathcal{Y} \ominus \mathcal{X} = Log(\mathcal{X}^{-1}\circ\mathcal{Y}) \in \mathcal{T}_{\mathcal{X}}\mathcal{M}$</li>
 <li>In the left operator $Exp({}^\mathcal{E}\mathcal{\tau})$ is on the left meaning that ${}^\mathcal{E}\mathcal{\tau}$ expressed in <em>global</em> frame:
-$\mathcal{Y} = {}^\mathcal{E}\tau \oplus \mathcal{X} = Exp({}^\mathcal{E}\mathcal{\tau}) \circ \mathcal{X} \in \mathcal{M}$<br>
-${}^\mathcal{E}\tau = \mathcal{Y} \ominus \mathcal{X} = Log(\mathcal{Y}\circ\mathcal{X}^{-1}) \in \mathcal{T}_{\mathcal{E}}\mathcal{M}$<br>
+$\mathcal{Y} = {}^\mathcal{E}\tau \oplus \mathcal{X} = Exp({}^\mathcal{E}\mathcal{\tau}) \circ \mathcal{X} \in \mathcal{M}$ <br>
+${}^\mathcal{E}\tau = \mathcal{Y} \ominus \mathcal{X} = Log(\mathcal{Y}\circ\mathcal{X}^{-1}) \in \mathcal{T}_{\mathcal{E}}\mathcal{M}$ <br>
 The choice of left or right operator specifies the perturbation frame: they can be defined globally or locally.</li>
 </ul>
 </li>
@@ -751,15 +751,14 @@ phi, theta, psi <span style=color:#555>=</span> <span style=color:#f60>0.</span>
 <a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a>
 </footer>
 </article>
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script type=text/javascript async src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js></script>
-<script src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js id=MathJax-script></script>
-<script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],processEscapes:!0,processEnvironments:!0},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}}</script>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css integrity=sha384-MlJdn/WNKDGXveldHDdyRP1R4CTHr3FeuDNfhsLPYrq2t0UBkUdK2jyTnXPEK1NQ crossorigin=anonymous>
+<script defer src=https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js integrity=sha384-VQ8d8WVFw0yHhCk5E8I86oOhv48xLpnDZx5T9GogA/Y84DcCKWXDmSDfn13bzFZY crossorigin=anonymous></script>
+<script defer src=https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js integrity=sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR crossorigin=anonymous onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:!0},{left:'$',right:'$',display:!1},{left:'\\(',right:'\\)',display:!1},{left:'\\[',right:'\\]',display:!0}]})"></script>
 </section>
 </div>
 <footer class=footer>
 <section class=container>
-© 2021
+© 2022
 Aleksandr Mikoff
 ·
 Powered by <a href=https://gohugo.io/>Hugo</a> & <a href=https://github.com/luizdepra/hugo-coder/>Coder</a>.
