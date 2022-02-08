@@ -157,9 +157,9 @@ V:
 <ul>
 <li>Having $n$ overlapping points from two point clouds we can store them in two matrices $X_1, X_2 \in R^{m \times n}$, where $m$ is the number of degrees of freedom of the point.</li>
 <li>Then, for each point $x_{1i}$ of $X_1$ and $x_{2i}$ of $X_2$ the following equality should hold:
-$$R \vec{x}<em>{1i} + \vec{t} = \vec{x}</em>{2i}$$</li>
+$$R \vec{x}_{1i} + \vec{t} = \vec{x}_{2i}$$</li>
 <li>Because of the errors, the following energy function should be minimized:
-$$E(R, \vec{t}) = \sum_{i} || R \vec{x}<em>{1i} + \vec{t} - \vec{x}</em>{2i}||^2.$$</li>
+$$E(R, \vec{t}) = \sum_{i} || R \vec{x}_{1i} + \vec{t} - \vec{x}_{2i}||^2.$$</li>
 <li>The minimum of the objective function can be found by taking the derivative w.r.t. $R$ and $\vec{t}$.</li>
 </ul>
 <h2 id=translational-component>Translational component</h2>
@@ -281,6 +281,7 @@ Aleksandr Mikoff
 Powered by <a href=https://gohugo.io/>Hugo</a> & <a href=https://github.com/luizdepra/hugo-coder/>Coder</a>.
 </section>
 </footer>
+<script src=//cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.slim.min.js></script>
 </main>
 </body>
 </html>
