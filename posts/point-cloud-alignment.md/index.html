@@ -166,28 +166,28 @@ $$E(R, \vec{t}) = \sum_{i} || R \vec{x}_{1i} + \vec{t} - \vec{x}_{2i}||^2.$$</li
 <p>To find the optimal $\vec{t}$ value we have to fix $R$ and find the derivative w.r.t. $\vec{t}$:
 $$
 \begin{array}{c}
-\sum_{i} || R \vec{x}<em>{1i} + \vec{t} - \vec{x}</em>{2i}||^2 = \\
-= \sum_{i} (R \vec{x}<em>{1i} + \vec{t} - \vec{x}</em>{2i}) \cdot (R \vec{x}<em>{1i} + \vec{t} - \vec{x}</em>{2i}) \\
-= \sum_{i} (R \vec{x}<em>{1i} + \vec{t} - \vec{x}</em>{2i})^T (R \vec{x}<em>{1i} + \vec{t} - \vec{x}</em>{2i}) = \\
-= \sum_{i} (\vec{x}<em>{2i}^T R^T R \vec{x}</em>{1i} + \vec{x}<em>{1i}^T R^T \vec{t} - \vec{x}</em>{1i}^T R^T \vec{x}<em>{2i} + \vec{t} R \vec{x}</em>{1i} + \vec{t}^T \vec{t} - \vec{t} \vec{x}<em>{2i} - \vec{2}</em>{1i}^T R \vec{x}<em>{1i} - \vec{x}</em>{2i}^T \vec{t} + \vec{x}<em>{2i}^T \vec{x}</em>{2i})
+\sum_{i} || R \vec{x}_{1i} + \vec{t} - \vec{x}_{2i}||^2 = \\
+= \sum_{i} (R \vec{x}_{1i} + \vec{t} - \vec{x}_{2i}) \cdot (R \vec{x}_{1i} + \vec{t} - \vec{x}_{2i}) \\
+= \sum_{i} (R \vec{x}_{1i} + \vec{t} - \vec{x}_{2i})^T (R \vec{x}_{1i} + \vec{t} - \vec{x}_{2i}) = \\
+= \sum_{i} (\vec{x}_{2i}^T R^T R \vec{x}_{1i} + \vec{x}_{1i}^T R^T \vec{t} - \vec{x}_{1i}^T R^T \vec{x}_{2i} + \vec{t} R \vec{x}_{1i} + \vec{t}^T \vec{t} - \vec{t} \vec{x}_{2i} - \vec{2}_{1i}^T R \vec{x}_{1i} - \vec{x}_{2i}^T \vec{t} + \vec{x}_{2i}^T \vec{x}_{2i})
 \end{array}
 $$
 The gradient of this expression w.r.t. $\vec{t}$ must be zero at the minimum, therefore, dropping out the terms, do not depending on $\vec{t}$ we have:
 $$
 \begin{array}{c}
-\frac{\delta E}{\delta \vec{t}} = \frac{\delta}{\delta \vec{t}}\sum_{i} (2 \vec{t}^T R \vec{x}<em>{1i} - 2 \vec{t}^T \vec{x}</em>{2i} + \vec{t}^T \vec{t}) = \\
-= \sum_{i} (2 R \vec{x}<em>{1i} - 2 \vec{x}</em>{2i} + 2 \vec{t}) = \\
-= 2 n\vec{t} + \sum_{i}(2 R \vec{x}<em>{1i} - 2\vec{x}</em>{2i}) = \\
-= n\vec{t} + \sum_{i}(R \vec{x}<em>{1i} - \vec{x}</em>{2i})
+\frac{\delta E}{\delta \vec{t}} = \frac{\delta}{\delta \vec{t}}\sum_{i} (2 \vec{t}^T R \vec{x}_{1i} - 2 \vec{t}^T \vec{x}_{2i} + \vec{t}^T \vec{t}) = \\
+= \sum_{i} (2 R \vec{x}_{1i} - 2 \vec{x}_{2i} + 2 \vec{t}) = \\
+= 2 n\vec{t} + \sum_{i}(2 R \vec{x}_{1i} - 2\vec{x}_{2i}) = \\
+= n\vec{t} + \sum_{i}(R \vec{x}_{1i} - \vec{x}_{2i})
 \end{array}
 $$
 The critical point can be found by setting the gradient to zero:
 $$
 \begin{array}{c}
-n\vec{t} + \sum_{i}(R \vec{x}<em>{1i} - \vec{x}</em>{2i}) = 0 \\
-n\vec{t} = \sum_{i}(\vec{x}<em>{2i} - R \vec{x}</em>{1i}) \\
-n\vec{t} = \sum_{i}(\vec{x}<em>{2i} - R \vec{x}</em>{1i}) \\
-\vec{t} = \frac{\sum_{i}(\vec{x}<em>{2i} - R \vec{x}</em>{1i})}{n}
+n\vec{t} + \sum_{i}(R \vec{x}_{1i} - \vec{x}_{2i}) = 0 \\
+n\vec{t} = \sum_{i}(\vec{x}_{2i} - R \vec{x}_{1i}) \\
+n\vec{t} = \sum_{i}(\vec{x}_{2i} - R \vec{x}_{1i}) \\
+\vec{t} = \frac{\sum_{i}(\vec{x}_{2i} - R \vec{x}_{1i})}{n}
 \end{array}
 $$</p>
 <h2 id=rotational-component>Rotational component</h2>
