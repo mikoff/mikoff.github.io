@@ -114,7 +114,7 @@ $$
 if our our prediction depends not on one parameter, but on $n$ of them: $\boldsymbol{x} \in \mathcal{R}^n$.</p>
 <p>What we want to minimize is our loss function, that somehow describes the discrepancy between our predictions $\hat{y}$ and actual labels $y$ for all samples $x_i$:
 $$
-L(\boldsymbol{y}, \hat{\boldsymbol{y}}) = \sum_{i=0}^{N-1}L(y_i, \hat{y}<em>i) = \sum</em>{i=0}^{N-1}L(y_i, \hat{\boldsymbol{\theta}}^T \boldsymbol{x}_i).
+L(\boldsymbol{y}, \hat{\boldsymbol{y}}) = \sum_{i=0}^{N-1}L(y_i, \hat{y}_i) = \sum_{i=0}^{N-1}L(y_i, \hat{\boldsymbol{\theta}}^T \boldsymbol{x}_i).
 $$</p>
 <h3 id=least-squares>Least squares</h3>
 <p>If we want to minimize the sum of squared residuals we end up with:
@@ -124,7 +124,7 @@ $$</p>
 <p>If we stack all inputs (and add extra column of ones, that models the constant, or shift) and outputs, we will have two matrices $\mathbf{X}$ and $\mathbf{Y}$:
 $$
 \begin{align*}
-\mathbf{X} = \begin{bmatrix} \boldsymbol{x}<em>0^T \\ \vdots \\ \boldsymbol{x}</em>{N-1}^T \end{bmatrix} & & \mathbf{Y} = \begin{bmatrix} y_0 \\ \vdots \\ y_{N-1} \end{bmatrix}
+\mathbf{X} = \begin{bmatrix} \boldsymbol{x}_0^T \\ \vdots \\ \boldsymbol{x}_{N-1}^T \end{bmatrix} & & \mathbf{Y} = \begin{bmatrix} y_0 \\ \vdots \\ y_{N-1} \end{bmatrix}
 \end{align*},
 $$
 we can write our loss function as:
