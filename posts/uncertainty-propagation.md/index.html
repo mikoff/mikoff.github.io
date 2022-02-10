@@ -147,7 +147,7 @@ $$</p>
 <p>Lie group composition operator for SO(3) and SE(3) is just a matrix multiplication.</p>
 <h3 id=plotting-utilities>Plotting utilities</h3>
 <div class=spoiler><span class=spoilerText>Spoiler</span>
-<input class=spoilerChecked type=checkbox showtext=Click>
+<input class=spoilerChecked type=checkbox showtext=Code>
 <div class=spoilerContent><div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>
 <span style=color:#069;font-weight:700>import</span> <span style=color:#0cf;font-weight:700>numpy</span> <span style=color:#069;font-weight:700>as</span> <span style=color:#0cf;font-weight:700>np</span>
 <span style=color:#069;font-weight:700>import</span> <span style=color:#0cf;font-weight:700>matplotlib.pylab</span> <span style=color:#069;font-weight:700>as</span> <span style=color:#0cf;font-weight:700>plt</span>
@@ -286,7 +286,7 @@ $$
 $$
 and our increment is equal to $1$, instead of $-1$. These differences are very important when we work with transformations and can lead to dramatic results when mixed order is used. The latter approach typically used in robotics and when we work with IMU, the former one (left) - in computer vision <sup id=fnref:3><a href=#fn:3 class=footnote-ref role=doc-noteref>3</a></sup>, <sup id=fnref:4><a href=#fn:4 class=footnote-ref role=doc-noteref>4</a></sup>.</p>
 <div class=spoiler><span class=spoilerText>Spoiler</span>
-<input class=spoilerChecked type=checkbox showtext=Click>
+<input class=spoilerChecked type=checkbox showtext=Code>
 <div class=spoilerContent><div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#069;font-weight:700>from</span> <span style=color:#0cf;font-weight:700>abc</span> <span style=color:#069;font-weight:700>import</span> ABC, abstractmethod
 <span style=color:#069;font-weight:700>import</span> <span style=color:#0cf;font-weight:700>numpy</span> <span style=color:#069;font-weight:700>as</span> <span style=color:#0cf;font-weight:700>np</span>
 
@@ -649,7 +649,7 @@ $$
 $$</p>
 <p>Now let&rsquo;s write the code and assess the covariance we end up with.</p>
 <div class=spoiler><span class=spoilerText>Spoiler</span>
-<input class=spoilerChecked type=checkbox showtext=Click>
+<input class=spoilerChecked type=checkbox showtext=Code>
 <div class=spoilerContent><div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>dt <span style=color:#555>=</span> <span style=color:#f60>1.0</span>
 sin, cos, tan  <span style=color:#555>=</span> np<span style=color:#555>.</span>sin, np<span style=color:#555>.</span>cos, np<span style=color:#555>.</span>tan
 v_x, v_y, v_z <span style=color:#555>=</span> <span style=color:#f60>1.</span>, <span style=color:#f60>0.</span>, <span style=color:#f60>0.</span>
