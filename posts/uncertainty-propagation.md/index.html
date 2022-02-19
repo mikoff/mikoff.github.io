@@ -29,7 +29,7 @@ Uncertainty propagation with and without Lie groups · Aleksandr Mikoff's blog
 <link rel=stylesheet href=https://mikoff.github.io/css/spoiler.css>
 <link rel=icon type=image/png href=https://mikoff.github.io/img/favicon-32x32.png sizes=32x32>
 <link rel=icon type=image/png href=https://mikoff.github.io/img/favicon-16x16.png sizes=16x16>
-<meta name=generator content="Hugo 0.92.1">
+<meta name=generator content="Hugo 0.92.2">
 </head>
 <body class=colorscheme-auto>
 <main class=wrapper>
@@ -474,7 +474,7 @@ Covariance:
  [[ 4857.184 -1585.499]
  [-1585.499 36559.492]]
 </code></pre>
-<p><img src=uncertainty_prop_12_1.png alt=png></p>
+<p><img src=uncertainty_prop_12_1.png#center alt=png></p>
 <p>After 100 steps we see famously known banana-shaped distribution, that <strong>can not</strong> be represented using gaussian distribution! But wait, in next subsection we will note that this &ldquo;banana&rdquo; <strong>can be</strong> described by Gaussian in our tangent space $\mathcal{T}_{\mathcal{X}}\mathcal{M}$ and mapped from vector tangent space to Lie group conveniently.</p>
 <h3 id=first-order-approximation>First-order approximation</h3>
 <p>Now let&rsquo;s first show the results of the covariance estimation using first-order method, where we throw away all Taylor expansion terms except the first one.</p>
@@ -509,7 +509,7 @@ Covariance:
  [[    0.       0.  ]
  [    0.   50921.98]]
 </code></pre>
-<p><img src=uncertainty_prop_15_2.png alt=png></p>
+<p><img src=uncertainty_prop_15_2.png#center alt=png></p>
 <p>When we closely look at these samples we immediately understand why it is beneficial to have the Gaussian in tangent space (Lie algebra elements) and then retract it to our manifold (Lie group elements - rotation matrices!). Doing so we note that the banana-shaped distribution is actually a Gaussian <sup id=fnref:5><a href=#fn:5 class=footnote-ref role=doc-noteref>5</a></sup> and we can correctly represent the uncertainties and manipulate them!</p>
 <p>However, we still observe the inaccuracies in our representation and what is more important: our uncertainty is underestimated and equal to zero along Y-coordinate axis. To improve the representation let&rsquo;s leverage the Taylor series even more and take into account higher order terms.</p>
 <h3 id=unscented-transform>Unscented transform</h3>
@@ -570,7 +570,7 @@ vis_distribution(fig, ax, np<span style=color:#555>.</span>zeros(<span style=col
  [[    0.        0.   ]
  [    0.    50617.404]]
 </code></pre>
-<p><img src=uncertainty_prop_18_1.png alt=png></p>
+<p><img src=uncertainty_prop_18_1.png#center alt=png></p>
 <p>Unfortunately, no, the covariance we end up with is the same as for previous method. As noted in <sup id=fnref:6><a href=#fn:6 class=footnote-ref role=doc-noteref>6</a></sup>, <sup id=fnref:7><a href=#fn:7 class=footnote-ref role=doc-noteref>7</a></sup>, such representation of the mean is valid up to the second order, so there is no need to apply unscented transform - we won&rsquo;t be able to get better results with it.</p>
 <h3 id=considering-4-th-order-terms>Considering 4-th order terms</h3>
 <p>The derivation of higher terms of covariance update is presented in paper <sup id=fnref:8><a href=#fn:8 class=footnote-ref role=doc-noteref>8</a></sup>. Here I will just propagate the covariance while using their derivations.</p>
@@ -628,7 +628,7 @@ vis_distribution(fig, ax, np<span style=color:#555>.</span>zeros(<span style=col
  [[ 1858.357     0.   ]
  [    0.    49714.573]]
 </code></pre>
-<p><img src=uncertainty_prop_21_1.png alt=png></p>
+<p><img src=uncertainty_prop_21_1.png#center alt=png></p>
 <p>Bingo, now our uncertainty has much better shape, and we see that the higher order terms definitely helped us to end up with decent covariance that represents our true uncertainty more accurately and precise.</p>
 <p>The usage of higher order terms is not always an option: first, the derivations are usually quite tricky and second, the computation complexity also increases.</p>
 <h2 id=bonus>Bonus</h2>

@@ -29,7 +29,7 @@ Linear and logistic regressions · Aleksandr Mikoff's blog
 <link rel=stylesheet href=https://mikoff.github.io/css/spoiler.css>
 <link rel=icon type=image/png href=https://mikoff.github.io/img/favicon-32x32.png sizes=32x32>
 <link rel=icon type=image/png href=https://mikoff.github.io/img/favicon-16x16.png sizes=16x16>
-<meta name=generator content="Hugo 0.92.1">
+<meta name=generator content="Hugo 0.92.2">
 </head>
 <body class=colorscheme-auto>
 <main class=wrapper>
@@ -100,7 +100,7 @@ ax<span style=color:#555>.</span>legend([<span style=color:#c30>&#39;female&#39;
 ax<span style=color:#555>.</span>grid()
 </code></pre></div></div>
 </div>
-<p><img src=output_2_0.png alt=png></p>
+<p><img src=output_2_0.png#center alt=png></p>
 <p>What we want to do is to find a function that approximates $p(\mathbf{Y}|\mathbf{X})$.</p>
 <h2 id=linear-regression>Linear regression</h2>
 <p>Let&rsquo;s say we are given $N$ inputs and outputs. We want to find the linear function that maps our input $x$ to our output $y$:
@@ -198,7 +198,7 @@ ax<span style=color:#555>.</span>grid()
 </div>
 <pre><code>theta: (0.022082018927444665, -3.011041009463699)
 </code></pre>
-<p><img src=output_12_1.png alt=png></p>
+<p><img src=output_12_1.png#center alt=png></p>
 <p>Now if we want to predict the gender of a person by its height we just multiply our feature vector with $\boldsymbol{\theta}$ and obtain the result: if it is greater than 0.5 then it is a male, if lower - female. Done! But if look at this problem more closely we fill figure that sometimes the &ldquo;probability&rdquo; can be negative, or bigger than one. It is counter-intuitive, since we want to stick to probability space.
 Another problem is that linear regression is sensitive to imbalances in data, for example:</p>
 <div class=spoiler><span class=spoilerText>Spoiler</span>
@@ -226,7 +226,7 @@ ax<span style=color:#555>.</span>grid()
 </div>
 <pre><code>theta: (0.013266157882184739, -1.7925709515859998)
 </code></pre>
-<p><img src=output_14_1.png alt=png></p>
+<p><img src=output_14_1.png#center alt=png></p>
 <p>Now we can see that the classification is clearly wrong for males under 175cm.</p>
 <h2 id=logistic-regression>Logistic regression</h2>
 <p>Can we find a better function that approximates our data? Let&rsquo;s have a look at the sigmoid function and plot its graph.
@@ -245,7 +245,7 @@ ax<span style=color:#555>.</span>grid()
 ax<span style=color:#555>.</span>set(xlabel<span style=color:#555>=</span><span style=color:#c30>&#39;x&#39;</span>, ylabel<span style=color:#555>=</span><span style=color:#c30>&#39;$\sigma(x)$&#39;</span>)
 </code></pre></div></div>
 </div>
-<p><img src=output_18_1.png alt=png></p>
+<p><img src=output_18_1.png#center alt=png></p>
 <p>The sigmoid takes an input $z \in \mathcal{R}$ and maps it into the range $(0, 1)$. Since we have only two classes we can use Bernoulli distribution.
 The likelihood of the data can be written as:
 $$
@@ -269,14 +269,14 @@ ax<span style=color:#555>.</span>legend()
 ax<span style=color:#555>.</span>set(xlabel <span style=color:#555>=</span> <span style=color:#c30>&#39;Probability&#39;</span>, ylabel <span style=color:#555>=</span> <span style=color:#c30>&#39;Penalization term&#39;</span>)
 </code></pre></div></div>
 </div>
-<p><img src=output_22_1.png alt=png></p>
+<p><img src=output_22_1.png#center alt=png></p>
 <p>Writing the log likelihood $\mathcal{LL}$ in matrix notation:
 $$
 \begin{align*}
 \mathcal{LL} = -\mathbf{Y}^T\log\sigma\left( \mathbf{X}\boldsymbol{\theta} \right) - (\mathbf{1}^T - \mathbf{Y}^T)\log\left(\mathbf{1} - \sigma\left( \mathbf{X}\boldsymbol{\theta} \right) \right) \\
 \end{align*}
 $$
-The derivative w.r.t. $\boldsymbol{\theta}$ can be found to be [<a href=https://www.microsoft.com/en-us/research/uploads/prod/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf>0</a>]:
+The derivative w.r.t. $\boldsymbol{\theta}$ can be found to be <sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup>:
 $$
 \frac{\partial\mathcal{LL}}{\partial\boldsymbol{\theta}} = \frac{1}{N}\mathbf{X}^T\left( \sigma(\mathbf{x}\boldsymbol{\theta}) - \mathbf{Y} \right)
 $$</p>
@@ -311,7 +311,7 @@ ax<span style=color:#555>.</span>legend([<span style=color:#c30>&#39;female&#39;
 ax<span style=color:#555>.</span>grid()
 </code></pre></div></div>
 </div>
-<p><img src=output_27_1.png alt=png></p>
+<p><img src=output_27_1.png#center alt=png></p>
 <p>Much better now!</p>
 <h2 id=logarithm-roots>Logarithm roots</h2>
 <p>The key thing in logistic regression is the sequence of operation:</p>
@@ -333,6 +333,15 @@ p &= \frac{e^{~\boldsymbol{\theta}^T\mathbf{x}}}{1 + e^{~\boldsymbol{\theta}^T\m
 p &= \frac{1}{1 + e^{-\boldsymbol{\theta}^T\mathbf{x}}}
 \end{align*}
 $$</p>
+<h2 id=references>References</h2>
+<section class=footnotes role=doc-endnotes>
+<hr>
+<ol>
+<li id=fn:1 role=doc-endnote>
+<p><a href=https://www.microsoft.com/en-us/research/uploads/prod/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf>https://www.microsoft.com/en-us/research/uploads/prod/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf</a>&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p>
+</li>
+</ol>
+</section>
 </div>
 <footer>
 <div id=disqus_thread></div>
