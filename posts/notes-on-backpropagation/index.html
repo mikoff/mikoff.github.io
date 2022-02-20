@@ -319,22 +319,22 @@ df_dw0 <span style=color:#555>=</span> df_db
         <span style=color:#069;font-weight:700>return</span> route
     
     <span style=color:#069;font-weight:700>def</span> <span style=color:#c0f>forward</span>(self, root):
-        <span style=color:#069;font-weight:700>for</span> name <span style=color:#000;font-weight:700>in</span> <span style=color:#366>reversed</span>(cg<span style=color:#555>.</span>_get_traverse_order(root)):
-            node <span style=color:#555>=</span> cg<span style=color:#555>.</span>nodes[name]
-            node<span style=color:#555>.</span>forward(<span style=color:#555>*</span>[cg<span style=color:#555>.</span>nodes[i]<span style=color:#555>.</span>output <span style=color:#069;font-weight:700>for</span> i <span style=color:#000;font-weight:700>in</span> node<span style=color:#555>.</span>inputs])
+        <span style=color:#069;font-weight:700>for</span> name <span style=color:#000;font-weight:700>in</span> <span style=color:#366>reversed</span>(self<span style=color:#555>.</span>_get_traverse_order(root)):
+            node <span style=color:#555>=</span> self<span style=color:#555>.</span>nodes[name]
+            node<span style=color:#555>.</span>forward(<span style=color:#555>*</span>[self<span style=color:#555>.</span>nodes[i]<span style=color:#555>.</span>output <span style=color:#069;font-weight:700>for</span> i <span style=color:#000;font-weight:700>in</span> node<span style=color:#555>.</span>inputs])
             
-        <span style=color:#069;font-weight:700>for</span> inp <span style=color:#000;font-weight:700>in</span> cg<span style=color:#555>.</span>inputs:
-            cg<span style=color:#555>.</span>inputs[inp]<span style=color:#555>.</span>local_grad <span style=color:#555>=</span> <span style=color:#f60>0.0</span>
+        <span style=color:#069;font-weight:700>for</span> inp <span style=color:#000;font-weight:700>in</span> self<span style=color:#555>.</span>inputs:
+            self<span style=color:#555>.</span>inputs[inp]<span style=color:#555>.</span>local_grad <span style=color:#555>=</span> <span style=color:#f60>0.0</span>
             
     <span style=color:#069;font-weight:700>def</span> <span style=color:#c0f>backward</span>(self, root):
-        cg<span style=color:#555>.</span>operations[root]<span style=color:#555>.</span>local_grad <span style=color:#555>=</span> <span style=color:#f60>1.</span>
-        <span style=color:#069;font-weight:700>for</span> name <span style=color:#000;font-weight:700>in</span> cg<span style=color:#555>.</span>_get_traverse_order(root):
-            local_grad <span style=color:#555>=</span> cg<span style=color:#555>.</span>nodes[name]<span style=color:#555>.</span>local_grad
-            inputs <span style=color:#555>=</span> cg<span style=color:#555>.</span>nodes[name]<span style=color:#555>.</span>inputs
-            gradients_wrt_input <span style=color:#555>=</span> cg<span style=color:#555>.</span>nodes[name]<span style=color:#555>.</span>backward(local_grad)
+        self<span style=color:#555>.</span>operations[root]<span style=color:#555>.</span>local_grad <span style=color:#555>=</span> <span style=color:#f60>1.</span>
+        <span style=color:#069;font-weight:700>for</span> name <span style=color:#000;font-weight:700>in</span> self<span style=color:#555>.</span>_get_traverse_order(root):
+            local_grad <span style=color:#555>=</span> self<span style=color:#555>.</span>nodes[name]<span style=color:#555>.</span>local_grad
+            inputs <span style=color:#555>=</span> self<span style=color:#555>.</span>nodes[name]<span style=color:#555>.</span>inputs
+            gradients_wrt_input <span style=color:#555>=</span> self<span style=color:#555>.</span>nodes[name]<span style=color:#555>.</span>backward(local_grad)
             <span style=color:#09f;font-style:italic># roll back to inputs</span>
             <span style=color:#069;font-weight:700>for</span> parent, g <span style=color:#000;font-weight:700>in</span> <span style=color:#366>zip</span>(inputs, gradients_wrt_input):
-                cg<span style=color:#555>.</span>nodes[parent]<span style=color:#555>.</span>local_grad <span style=color:#555>+=</span> g
+                self<span style=color:#555>.</span>nodes[parent]<span style=color:#555>.</span>local_grad <span style=color:#555>+=</span> g
                 
     <span style=color:#069;font-weight:700>def</span> <span style=color:#c0f>get_gradient</span>(self, node):
         <span style=color:#069;font-weight:700>if</span> node <span style=color:#000;font-weight:700>in</span> self<span style=color:#555>.</span>nodes:
