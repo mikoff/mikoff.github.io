@@ -1,0 +1,97 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="Aleksandr Mikoff"><meta name=twitter:card content="summary"><meta name=twitter:title content><meta name=twitter:description content="Working with probabilities involves multiplication and normalization of their values. Since the numerical values sometimes are extremely low that can lead to underflow problems. This problem is evident with particle filters - we have to multiply really low likelihood values that vanish in the end. Log-sum-exp allows to abbreviate this problem.
+Approach Log-likelihoods Since the likelihood values can be extremely low it is more convenient to work with loglikelihood instead of likelihood: $$ \log(\mathcal{L})."><meta property="og:title" content><meta property="og:description" content="Working with probabilities involves multiplication and normalization of their values. Since the numerical values sometimes are extremely low that can lead to underflow problems. This problem is evident with particle filters - we have to multiply really low likelihood values that vanish in the end. Log-sum-exp allows to abbreviate this problem.
+Approach Log-likelihoods Since the likelihood values can be extremely low it is more convenient to work with loglikelihood instead of likelihood: $$ \log(\mathcal{L})."><meta property="og:type" content="article"><meta property="og:url" content="https://mikoff.github.io/posts/likelihood-and-log-sum-exp/"><meta property="article:section" content="posts"><base href=https://mikoff.github.io/posts/likelihood-and-log-sum-exp/><title>· Aleksandr Mikoff's blog</title><link rel=canonical href=https://mikoff.github.io/posts/likelihood-and-log-sum-exp/><link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap" rel=stylesheet><link rel=stylesheet href=https://use.fontawesome.com/releases/v5.11.2/css/all.css integrity=sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin=anonymous><link rel=stylesheet href=https://mikoff.github.io/fontdata/css/academicons.min.css><link rel=stylesheet href=https://mikoff.github.io/css/coder.min.a4f332213a21ce8eb521670c614470c58923aaaf385e2a73982c31dd7642decb.css integrity="sha256-pPMyITohzo61IWcMYURwxYkjqq84XipzmCwx3XZC3ss=" crossorigin=anonymous media=screen><link rel=stylesheet href=https://mikoff.github.io/css/coder-dark.min.83a2010dac9f59f943b3004cd6c4f230507ad036da635d3621401d42ec4e2835.css integrity="sha256-g6IBDayfWflDswBM1sTyMFB60DbaY102IUAdQuxOKDU=" crossorigin=anonymous media=screen><link rel=stylesheet href=https://mikoff.github.io/css/image.css><link rel=stylesheet href=https://mikoff.github.io/css/spoiler.css><link rel=icon type=image/png href=https://mikoff.github.io/img/favicon-32x32.png sizes=32x32><link rel=icon type=image/png href=https://mikoff.github.io/img/favicon-16x16.png sizes=16x16><meta name=generator content="Hugo 0.117.0"></head><body class=colorscheme-auto><main class=wrapper><nav class=navigation><section class=container><a class=navigation-title href=https://mikoff.github.io/>Aleksandr Mikoff's blog</a>
+<input type=checkbox id=menu-toggle>
+<label class="menu-button float-right" for=menu-toggle><i class="fas fa-bars"></i></label><ul class=navigation-list><li class=navigation-item><a class=navigation-link href=https://mikoff.github.io/about/>About</a></li><li class=navigation-item><a class=navigation-link href=https://mikoff.github.io/posts/>Posts</a></li><li class=navigation-item><a class=navigation-link href=https://mikoff.github.io/tags>Tags</a></li></ul></section></nav><div class=content><section class="container post"><article><header><div class=post-title><h1 class=title></h1></div><div class=post-meta><div class=date><span class=posted-on><i class="fas fa-calendar"></i>
+<time datetime=0001-01-01T00:00:00Z>January 1, 0001</time></span>
+<span class=reading-time><i class="fas fa-clock"></i>
+3-minute read</span></div></div></header><div><p>Working with probabilities involves multiplication and normalization of their values. Since the numerical values sometimes are extremely low that can lead to underflow problems.
+This problem is evident with particle filters - we have to multiply really low likelihood values that vanish in the end. <em>Log-sum-exp</em> allows to abbreviate this problem.</p><h2 id=approach>Approach</h2><h3 id=log-likelihoods>Log-likelihoods</h3><p>Since the likelihood values can be extremely low it is more convenient to work with loglikelihood instead of likelihood:
+$$
+\log(\mathcal{L}).
+$$
+Now, if we have independent measurements $i=1,\dots,n$ and associated likelihoods $\mathbf{L} = [\mathcal{L}_1, \dots, \mathcal{L}_n]$ we can calculate the joint likelihood as follows:
+$$
+w = \prod\mathcal{L}<em>i
+$$
+that is, obviously, numerically unstable, or joint log-likelihood:
+$$
+\tau = \log\prod\mathcal{L}</em>{i} = \log(\mathcal{L}_1\cdot \mathcal{L}_2\cdot ~\dots~ \cdot\mathcal{L}_n) = \log{\mathcal{L}_1} + \log{\mathcal{L}_2}+~\dots~+\log{\mathcal{L}<em>n} = \sum</em>{i=1}^n\log\mathcal{L}_i,
+$$
+by doing so we convert product to sum that doesn&rsquo;t lead to numerical underflow issue.</p><p>Quite often we are interested in relative likelihoods, or odds (since we normalize the probability afterwards) for our particles. Assuming that each particle has certain weight, all the weights, or log-weights are stacked into the vector:
+$$
+\begin{gather}
+\mathbf{w} = [w_1,\dots, w_m],\\newline
+\boldsymbol{\tau} = [\tau_1, \dots, \tau_m]
+\end{gather}
+$$
+where $m$ is the number of particles.</p><p>To calculate the relative weight for each particle $j$ we can rewrite the equation:
+$$
+\begin{aligned}
+\hat{w}<em>j &= \frac{w_j}{\max(\mathbf{w})}\\newline &= \exp\log{\frac{w_j}{\max(\mathbf{w})}}\\newline &= \exp\left( \log w_j - \max(\log\mathbf{w}) \right)\\newline &= \exp(\tau_j - \max\boldsymbol{\tau})\\newline &= \exp\left(\sum</em>{i=1}^n\log\mathcal{L}_i - \max\boldsymbol{\tau}\right).
+\end{aligned}
+$$</p><h3 id=probability-normalization>Probability normalization</h3><p>Now, having these <em>relative</em> weights, we can normalize them more conveniently:
+$$
+p_j = \frac{\hat{w}<em>j}{\sum</em>{j=1}^m \hat{w}<em>j},~\sum</em>{j=1}^m{p_j} = 1.
+$$
+Taking the logarithms on both side:
+$$
+\log p_i = \log\hat{w}<em>j - \log\sum</em>{j=1}^m\hat{w}_j,
+$$
+and making the aforementioned substitution $\hat{w}<em>j = \exp(\tau_j - \max\boldsymbol{\tau})$, after some rewriting we end up with:
+$$
+\begin{align}
+\log p_i &= \log\exp(\tau_j - \max\boldsymbol{\tau}) - \log\sum\exp(\tau_j - \max\boldsymbol{\tau})\\newline
+\log p_i &= \tau_j \underbrace{ - \max\boldsymbol{\tau} -\log\sum\exp(\tau_j - \max\boldsymbol{\tau})}</em>{\log\sum\exp(\boldsymbol{\tau})~-~\text{log-sum-exp trick}}
+\\newline
+p_i &= \exp\left( \tau_j - \max\boldsymbol{\tau} -\log\sum\exp(\tau_j - \max\boldsymbol{\tau}) \right)
+\end{align}
+$$
+We ended up with a famous <em>log-sum-exp</em> trick<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup>, the second line from the end is the normalized log-weights, and the last one is the normalized weights. The <strong>underlying meaning</strong> of this trick is apparent now: it scales the weights before normalization, avoiding the numerical under- or overflow.</p><h3 id=effective-sample-size>Effective sample size</h3><p>Quite often the following equation is used to estimate effective sample size:
+$$
+N_{eff} = \frac{1}{\sum_{j=1}^{m} p_j^2}.
+$$
+Since we work with log-likelihoods, substitute $p_j$ with $\exp\log p_j$:
+$$
+\begin{gather}
+\log N_{eff} &= -\log\sum_{j=1}^m \exp\log p_j^2 \\newline
+\log N_{eff} &= -\log\sum_{j=1}^m \exp(2\cdot\log p_j).
+\end{gather}
+$$
+Resulting in the following equation for $N_{eff}$:
+$$
+N_{eff} = \exp\left(-\log\sum_{j=1}^m \exp(2\cdot\log p_i) \right).
+$$</p><h2 id=code-examples>Code examples</h2><p>Assume that we have two likelihoods. By calculating the joint likelihood using multiplication, we, obviously, experience numerical underflow and end up with zeros:</p><div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#555>&gt;&gt;&gt;</span> <span style=color:#069;font-weight:700>import</span> <span style=color:#0cf;font-weight:700>numpy</span> <span style=color:#069;font-weight:700>as</span> <span style=color:#0cf;font-weight:700>np</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#555>&gt;&gt;&gt;</span> likelihoods1 <span style=color:#555>=</span> np<span style=color:#555>.</span>array([<span style=color:#f60>1e-249</span>, <span style=color:#f60>1e-244</span>, <span style=color:#f60>1e-244</span>, <span style=color:#f60>1e-247</span>])
+</span></span><span style=display:flex><span><span style=color:#555>&gt;&gt;&gt;</span> likelihoods2 <span style=color:#555>=</span> np<span style=color:#555>.</span>array([<span style=color:#f60>1e-249</span>, <span style=color:#f60>1e-244</span>, <span style=color:#f60>1e-244</span>, <span style=color:#f60>1e-247</span>])
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#555>&gt;&gt;&gt;</span> likelihoods1 <span style=color:#555>*</span> likelihoods2
+</span></span><span style=display:flex><span>array([<span style=color:#f60>0.</span>, <span style=color:#f60>0.</span>, <span style=color:#f60>0.</span>, <span style=color:#f60>0.</span>])
+</span></span></code></pre></div><p>Let&rsquo;s calculate log-likelihoods and normalize probabilities using naive method:</p><div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#555>&gt;&gt;&gt;</span> log_likelihood1 <span style=color:#555>=</span> np<span style=color:#555>.</span>log(likelihoods1)
+</span></span><span style=display:flex><span><span style=color:#555>&gt;&gt;&gt;</span> log_likelihood2 <span style=color:#555>=</span> np<span style=color:#555>.</span>log(likelihoods2)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#555>&gt;&gt;&gt;</span> tau <span style=color:#555>=</span> log_likelihood1 <span style=color:#555>+</span> log_likelihood2
+</span></span><span style=display:flex><span><span style=color:#555>&gt;&gt;&gt;</span> tau
+</span></span><span style=display:flex><span>array([<span style=color:#555>-</span><span style=color:#f60>1132.87186575</span>, <span style=color:#555>-</span><span style=color:#f60>1123.66152538</span>, <span style=color:#555>-</span><span style=color:#f60>1123.66152538</span>, <span style=color:#555>-</span><span style=color:#f60>1137.47703594</span>])
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#555>&gt;&gt;&gt;</span> np<span style=color:#555>.</span>exp(tau)<span style=color:#555>/</span>np<span style=color:#555>.</span>sum(np<span style=color:#555>.</span>exp(tau))
+</span></span><span style=display:flex><span>array([nan, nan, nan, nan])
+</span></span></code></pre></div><p>And now let&rsquo;s normalize using the derived equation:</p><div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#555>&gt;&gt;&gt;</span> max_tau <span style=color:#555>=</span> tau<span style=color:#555>.</span>max()
+</span></span><span style=display:flex><span><span style=color:#555>&gt;&gt;&gt;</span> tau_normed <span style=color:#555>=</span> tau <span style=color:#555>-</span> max_tau <span style=color:#555>-</span> np<span style=color:#555>.</span>log(np<span style=color:#555>.</span>sum(np<span style=color:#555>.</span>exp(tau <span style=color:#555>-</span> max_tau)))
+</span></span><span style=display:flex><span><span style=color:#555>&gt;&gt;&gt;</span> w_normed <span style=color:#555>=</span> np<span style=color:#555>.</span>exp(tau_normed)
+</span></span><span style=display:flex><span><span style=color:#555>&gt;&gt;&gt;</span> w_normed
+</span></span><span style=display:flex><span>array([<span style=color:#f60>0.00005</span>   , <span style=color:#f60>0.49997475</span>, <span style=color:#f60>0.49997475</span>, <span style=color:#f60>0.0000005</span> ])
+</span></span></code></pre></div><p>If we are interested in effective number of particles:</p><div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#069;font-weight:700>def</span> <span style=color:#c0f>logSumExp</span>(tau):
+</span></span><span style=display:flex><span>    max_tau <span style=color:#555>=</span> np<span style=color:#555>.</span>max(tau)
+</span></span><span style=display:flex><span>    <span style=color:#069;font-weight:700>return</span> max_tau <span style=color:#555>+</span> np<span style=color:#555>.</span>log(np<span style=color:#555>.</span>sum(np<span style=color:#555>.</span>exp(tau <span style=color:#555>-</span> max_tau)))
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#555>&gt;&gt;&gt;</span> tau_normed <span style=color:#555>=</span> tau <span style=color:#555>-</span> logSumExp(tau)
+</span></span><span style=display:flex><span><span style=color:#555>&gt;&gt;&gt;</span> effective_sample_size <span style=color:#555>=</span> np<span style=color:#555>.</span>exp(<span style=color:#555>-</span>logSumExp(<span style=color:#f60>2</span> <span style=color:#555>*</span> tau_normed))
+</span></span><span style=display:flex><span><span style=color:#555>&gt;&gt;&gt;</span> effective_sample_size
+</span></span><span style=display:flex><span><span style=color:#f60>2.00020199509849</span>
+</span></span></code></pre></div><p>Success! Works perfectly!</p><h2 id=references>References</h2><div class=footnotes role=doc-endnotes><hr><ol><li id=fn:1><p><a href=https://mc-stan.org/docs/2_27/stan-users-guide/log-sum-of-exponentials.html>https://mc-stan.org/docs/2_27/stan-users-guide/log-sum-of-exponentials.html</a>&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></div></div><footer><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//mikoff-github-io.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></footer></article><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css integrity=sha384-MlJdn/WNKDGXveldHDdyRP1R4CTHr3FeuDNfhsLPYrq2t0UBkUdK2jyTnXPEK1NQ crossorigin=anonymous><script defer src=https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js integrity=sha384-VQ8d8WVFw0yHhCk5E8I86oOhv48xLpnDZx5T9GogA/Y84DcCKWXDmSDfn13bzFZY crossorigin=anonymous></script>
+<script defer src=https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js integrity=sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR crossorigin=anonymous onload='renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}]})'></script></section></div><footer class=footer><section class=container>© 2023
+Aleksandr Mikoff
+·
+Powered by <a href=https://gohugo.io/>Hugo</a> & <a href=https://github.com/luizdepra/hugo-coder/>Coder</a>.</section></footer><script src=//cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.slim.min.js></script></main></body></html>
