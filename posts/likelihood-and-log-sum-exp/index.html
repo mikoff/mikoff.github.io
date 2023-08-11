@@ -17,11 +17,11 @@ $$
 $$
 Now, if we have independent measurements $i=1,\dots,n$ and associated likelihoods $\mathbf{L} = [\mathcal{L}_1, \dots, \mathcal{L}_n]$ we can calculate the joint likelihood as follows:
 $$
-w = \prod\mathcal{L}<em>i
+w = \prod\mathcal{L}_i
 $$
 that is, obviously, numerically unstable, or joint log-likelihood:
 $$
-\tau = \log\prod\mathcal{L}</em>{i} = \log(\mathcal{L}_1\cdot \mathcal{L}_2\cdot ~\dots~ \cdot\mathcal{L}_n) = \log{\mathcal{L}_1} + \log{\mathcal{L}_2}+~\dots~+\log{\mathcal{L}<em>n} = \sum</em>{i=1}^n\log\mathcal{L}_i,
+\tau = \log\prod\mathcal{L}_{i} = \log(\mathcal{L}_1\cdot \mathcal{L}_2\cdot ~\dots~ \cdot\mathcal{L}_n) = \log{\mathcal{L}_1} + \log{\mathcal{L}_2}+~\dots~+\log{\mathcal{L}_n} = \sum_{i=1}^n\log\mathcal{L}_i,
 $$
 by doing so we convert product to sum that doesn&rsquo;t lead to numerical underflow issue.</p><p>Quite often we are interested in relative likelihoods, or odds (since we normalize the probability afterwards) for our particles. Assuming that each particle has certain weight, all the weights, or log-weights are stacked into the vector:
 $$
@@ -33,21 +33,21 @@ $$
 where $m$ is the number of particles.</p><p>To calculate the relative weight for each particle $j$ we can rewrite the equation:
 $$
 \begin{aligned}
-\hat{w}<em>j &= \frac{w_j}{\max(\mathbf{w})}\\newline &= \exp\log{\frac{w_j}{\max(\mathbf{w})}}\\newline &= \exp\left( \log w_j - \max(\log\mathbf{w}) \right)\\newline &= \exp(\tau_j - \max\boldsymbol{\tau})\\newline &= \exp\left(\sum</em>{i=1}^n\log\mathcal{L}_i - \max\boldsymbol{\tau}\right).
+\hat{w}_j &= \frac{w_j}{\max(\mathbf{w})}\\newline &= \exp\log{\frac{w_j}{\max(\mathbf{w})}}\\newline &= \exp\left( \log w_j - \max(\log\mathbf{w}) \right)\\newline &= \exp(\tau_j - \max\boldsymbol{\tau})\\newline &= \exp\left(\sum_{i=1}^n\log\mathcal{L}_i - \max\boldsymbol{\tau}\right).
 \end{aligned}
 $$</p><h3 id=probability-normalization>Probability normalization</h3><p>Now, having these <em>relative</em> weights, we can normalize them more conveniently:
 $$
-p_j = \frac{\hat{w}<em>j}{\sum</em>{j=1}^m \hat{w}<em>j},~\sum</em>{j=1}^m{p_j} = 1.
+p_j = \frac{\hat{w}_j}{\sum_{j=1}^m \hat{w}_j},~\sum_{j=1}^m{p_j} = 1.
 $$
 Taking the logarithms on both side:
 $$
-\log p_i = \log\hat{w}<em>j - \log\sum</em>{j=1}^m\hat{w}_j,
+\log p_i = \log\hat{w}_j - \log\sum_{j=1}^m\hat{w}_j,
 $$
-and making the aforementioned substitution $\hat{w}<em>j = \exp(\tau_j - \max\boldsymbol{\tau})$, after some rewriting we end up with:
+and making the aforementioned substitution $\hat{w}_j = \exp(\tau_j - \max\boldsymbol{\tau})$, after some rewriting we end up with:
 $$
 \begin{align}
 \log p_i &= \log\exp(\tau_j - \max\boldsymbol{\tau}) - \log\sum\exp(\tau_j - \max\boldsymbol{\tau})\\newline
-\log p_i &= \tau_j \underbrace{ - \max\boldsymbol{\tau} -\log\sum\exp(\tau_j - \max\boldsymbol{\tau})}</em>{\log\sum\exp(\boldsymbol{\tau})~-~\text{log-sum-exp trick}}
+\log p_i &= \tau_j \underbrace{ - \max\boldsymbol{\tau} -\log\sum\exp(\tau_j - \max\boldsymbol{\tau})}_{\log\sum\exp(\boldsymbol{\tau})~-~\text{log-sum-exp trick}}
 \\newline
 p_i &= \exp\left( \tau_j - \max\boldsymbol{\tau} -\log\sum\exp(\tau_j - \max\boldsymbol{\tau}) \right)
 \end{align}
