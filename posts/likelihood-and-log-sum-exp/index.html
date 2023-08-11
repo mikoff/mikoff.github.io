@@ -26,14 +26,14 @@ $$
 by doing so we convert product to sum that doesn&rsquo;t lead to numerical underflow issue.</p><p>Quite often we are interested in relative likelihoods, or odds (since we normalize the probability afterwards) for our particles. Assuming that each particle has certain weight, all the weights, or log-weights are stacked into the vector:
 $$
 \begin{gather}
-\mathbf{w} = [w_1,\dots, w_m],\\newline
+\mathbf{w} = [w_1,\dots, w_m],\
 \boldsymbol{\tau} = [\tau_1, \dots, \tau_m]
 \end{gather}
 $$
 where $m$ is the number of particles.</p><p>To calculate the relative weight for each particle $j$ we can rewrite the equation:
 $$
 \begin{aligned}
-\hat{w}_j &= \frac{w_j}{\max(\mathbf{w})}\\newline &= \exp\log{\frac{w_j}{\max(\mathbf{w})}}\\newline &= \exp\left( \log w_j - \max(\log\mathbf{w}) \right)\\newline &= \exp(\tau_j - \max\boldsymbol{\tau})\\newline &= \exp\left(\sum_{i=1}^n\log\mathcal{L}_i - \max\boldsymbol{\tau}\right).
+\hat{w}_j &= \frac{w_j}{\max(\mathbf{w})}\ &= \exp\log{\frac{w_j}{\max(\mathbf{w})}}\ &= \exp\left( \log w_j - \max(\log\mathbf{w}) \right)\ &= \exp(\tau_j - \max\boldsymbol{\tau})\ &= \exp\left(\sum_{i=1}^n\log\mathcal{L}_i - \max\boldsymbol{\tau}\right).
 \end{aligned}
 $$</p><h3 id=probability-normalization>Probability normalization</h3><p>Now, having these <em>relative</em> weights, we can normalize them more conveniently:
 $$
@@ -46,9 +46,9 @@ $$
 and making the aforementioned substitution $\hat{w}_j = \exp(\tau_j - \max\boldsymbol{\tau})$, after some rewriting we end up with:
 $$
 \begin{align}
-\log p_i &= \log\exp(\tau_j - \max\boldsymbol{\tau}) - \log\sum\exp(\tau_j - \max\boldsymbol{\tau})\\newline
+\log p_i &= \log\exp(\tau_j - \max\boldsymbol{\tau}) - \log\sum\exp(\tau_j - \max\boldsymbol{\tau})\
 \log p_i &= \tau_j \underbrace{ - \max\boldsymbol{\tau} -\log\sum\exp(\tau_j - \max\boldsymbol{\tau})}_{\log\sum\exp(\boldsymbol{\tau})~-~\text{log-sum-exp trick}}
-\\newline
+\
 p_i &= \exp\left( \tau_j - \max\boldsymbol{\tau} -\log\sum\exp(\tau_j - \max\boldsymbol{\tau}) \right)
 \end{align}
 $$
@@ -59,7 +59,7 @@ $$
 Since we work with log-likelihoods, substitute $p_j$ with $\exp\log p_j$:
 $$
 \begin{gather}
-\log N_{eff} &= -\log\sum_{j=1}^m \exp\log p_j^2 \\newline
+\log N_{eff} &= -\log\sum_{j=1}^m \exp\log p_j^2 \
 \log N_{eff} &= -\log\sum_{j=1}^m \exp(2\cdot\log p_j).
 \end{gather}
 $$
