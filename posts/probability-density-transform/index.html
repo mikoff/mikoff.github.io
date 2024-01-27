@@ -32,7 +32,9 @@ Here we have an absolute value because the formula is the same for increasing or
 $$
 g(y) = f(r^{-1}(y))\left|\frac{d}{dy}r^{-1}(y)\right|.
 $$</p><p>What this formula states is that any density $g(y)$ can be obtained from a fixed density $f(x)$.</p><h3 id=example-1>Example 1</h3><p>Suppose that $Y = a + bX$, $a \in \mathcal{R}$ and $b \in \mathcal{R} \backslash {0}$, the distribution of $X$ is known: $f(x)$. What is the pdf of $Y$?</p><p>Since $r(x) = y = a + bx$, we can find inverse function to be $r^{-1}(y) = x = \frac{y - a}{b}$ and the derivative $\frac{dx}{dy} = \frac{1}{b}$.</p><p>Then $g(y) = f(\frac{y - a}{b})\frac{1}{|b|}$.</p><h3 id=example-2>Example 2</h3><p>Suppose that $f(x) = 2 x, x \in [0, 1)$ and $y(x) = x^2$.</p><p>First, derive the inverse of the function $x(y) = \sqrt{y}$.</p><p>Now, having:</p><p>$$
-f(x(y)) = 2 \sqrt{y}<del><del>\text{and}</del></del> \frac{dx}{dy} = \frac{1}{2\sqrt{y}}
+\begin{align}
+f(x(y)) = 2 \sqrt{y}~\text{and}~ \frac{dx}{dy} = \frac{1}{2\sqrt{y}}
+\end{align}
 $$
 we can find $g(y)$ to be:</p><p>$$
 g(y) = f(x(y)) \left|\frac{dx}{dy}\right| = 2 \sqrt{y} \frac{1}{2\sqrt{y}} = 1.
@@ -54,7 +56,9 @@ Let $Y = y(X)$, and $p(y)$ be the pdf associated with $Y$. What is the pdf of $p
 </span></span><span style=display:flex><span><span style=color:#09f;font-style:italic># print(sp.latex(x_y), sp.latex(dx_dy))</span>
 </span></span></code></pre></div></div></div><p>After solving for $y$ and finding the derivative we got:
 $$
-x(y) = \log{\left(- \frac{y}{y - 1.0} \right)} + 5.0 <del><del>\text{and}</del></del> \frac{dx}{dy} = -\frac{1.0}{y \left(y - 1\right)}
+\begin{align}
+x(y) = \log{\left(- \frac{y}{y - 1.0} \right)} + 5.0 ~\text{and}~ \frac{dx}{dy} = -\frac{1.0}{y \left(y - 1\right)}
+\end{align}
 $$</p><div class=spoiler><span class=spoilerText>Spoiler</span>
 <input class=spoilerChecked type=checkbox showtext=Code><div class=spoilerContent><div class=highlight><pre tabindex=0 style=background-color:#f0f3f3;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#069;font-weight:700>import</span> <span style=color:#0cf;font-weight:700>sympy.stats</span>
 </span></span><span style=display:flex><span>
@@ -113,18 +117,18 @@ $$</p><p>Now let&rsquo;s plot everything. First let&rsquo;s plot $p(x)$ and draw
 </span></span><span style=display:flex><span>ax2<span style=color:#555>.</span>grid(axis<span style=color:#555>=</span><span style=color:#c30>&#39;both&#39;</span>)
 </span></span></code></pre></div></div></div><p><img src=output_14_1.png alt=png></p><h3 id=example-4>Example 4</h3><p>For the next example, let&rsquo;s consider coordinate transform.</p><p>The polar coordinate transforms two numbers $(r, \theta)$, where radial distance $r \in [0, \inf)$ and polar angle $\theta \in [0, 2\pi)$ to a point on a plane.
 $$
-\begin{eqnarray}
+\begin{align}
 x = r \cos{\left(\theta \right)} \\
 y = r \sin{\left(\theta \right)}
-\end{eqnarray}
+\end{align}
 $$</p><p>Evaluating the derivatives we get:
 $$
-\begin{eqnarray}
+\begin{align}
 \frac{\partial x}{\partial r} &= \cos(\phi) \\
 \frac{\partial x}{\partial \phi} &= - r \sin(\phi) \\
 \frac{\partial y}{\partial r} &= \sin(\phi) \\
 \frac{\partial x}{\partial \phi} &= r \cos(\phi)
-\end{eqnarray}
+\end{align}
 $$</p><p>We can view this transformation as a multivariate change of variables. In such a case instead of $\frac{dx}{dy}$ we use the determinant of Jacobian ($\mathbf{J}$) that describes how the volume changes under the transformation.</p><p>Now, if we sample a polar coordinate $(r, \theta)$ with probability $f(r, \theta)$, then the distribution $g(x, y)$ is given by:
 $$
 g(x, y) = \frac{f(r, \theta)}{\det\mathbf{J}} = \frac{f(r, \theta)}{r}.
