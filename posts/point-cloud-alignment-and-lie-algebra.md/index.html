@@ -1,0 +1,221 @@
+<!doctype html><html lang=en><head><title>Point cloud alignment using Lie algebra machinery · Aleksandr Mikoff's blog
+</title><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=color-scheme content="light dark"><meta name=author content="Aleksandr Mikoff"><meta name=description content="Point cloud alignment using Lie algebra machinery Link to heading Special Orthogonal group and vectorspaces Link to heading Today I would like to cover the importance of Lie groups to the problems, that often arises in robotics field. The pose of the robot can be described through rotation and translation. Rotations, however, do not belong to the vector space: we are not allowed to sum the rotations or multiply them by a scalar, because the resulting element will not belong to SO(3) group."><meta name=keywords content><meta name=twitter:card content="summary"><meta name=twitter:title content="Point cloud alignment using Lie algebra machinery"><meta name=twitter:description content="Point cloud alignment using Lie algebra machinery Link to heading Special Orthogonal group and vectorspaces Link to heading Today I would like to cover the importance of Lie groups to the problems, that often arises in robotics field. The pose of the robot can be described through rotation and translation. Rotations, however, do not belong to the vector space: we are not allowed to sum the rotations or multiply them by a scalar, because the resulting element will not belong to SO(3) group."><meta property="og:title" content="Point cloud alignment using Lie algebra machinery"><meta property="og:description" content="Point cloud alignment using Lie algebra machinery Link to heading Special Orthogonal group and vectorspaces Link to heading Today I would like to cover the importance of Lie groups to the problems, that often arises in robotics field. The pose of the robot can be described through rotation and translation. Rotations, however, do not belong to the vector space: we are not allowed to sum the rotations or multiply them by a scalar, because the resulting element will not belong to SO(3) group."><meta property="og:type" content="article"><meta property="og:url" content="https://mikoff.github.io/posts/point-cloud-alignment-and-lie-algebra.md/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2020-07-27T19:30:00+03:00"><meta property="article:modified_time" content="2020-07-27T19:30:00+03:00"><link rel=canonical href=https://mikoff.github.io/posts/point-cloud-alignment-and-lie-algebra.md/><link rel=preload href=/fonts/fa-brands-400.woff2 as=font type=font/woff2 crossorigin><link rel=preload href=/fonts/fa-regular-400.woff2 as=font type=font/woff2 crossorigin><link rel=preload href=/fonts/fa-solid-900.woff2 as=font type=font/woff2 crossorigin><link rel=stylesheet href=/css/coder.min.577e3c5ead537873430da16f0964b754a120fd87c4e2203a00686e7c75b51378.css integrity="sha256-V348Xq1TeHNDDaFvCWS3VKEg/YfE4iA6AGhufHW1E3g=" crossorigin=anonymous media=screen><link rel=stylesheet href=/css/coder-dark.min.a00e6364bacbc8266ad1cc81230774a1397198f8cfb7bcba29b7d6fcb54ce57f.css integrity="sha256-oA5jZLrLyCZq0cyBIwd0oTlxmPjPt7y6KbfW/LVM5X8=" crossorigin=anonymous media=screen><link rel=stylesheet href=/css/image.min.c1a5dfc6bac0eb1b85bcd8abf8aba0d18e0bf02fc972f9a0b17d2962f5ca8dd5.css integrity="sha256-waXfxrrA6xuFvNir+Kug0Y4L8C/JcvmgsX0pYvXKjdU=" crossorigin=anonymous media=screen><link rel=stylesheet href=/css/spoiler.min.bf901294afff95f520a8150a4df4249576eb9c49c4f40f5f9c2de750588dd594.css integrity="sha256-v5ASlK//lfUgqBUKTfQklXbrnEnE9A9fnC3nUFiN1ZQ=" crossorigin=anonymous media=screen><link rel=stylesheet href=/plugins/academic-icons/css/academicons.min.f6abb61f6b9b2e784eba22dfb93cd399ce30ee01825791830a2737d6bfcd2be9.css integrity="sha256-9qu2H2ubLnhOuiLfuTzTmc4w7gGCV5GDCic31r/NK+k=" crossorigin=anonymous media=screen><link rel=icon type=image/svg+xml href=/images/favicon.svg sizes=any><link rel=icon type=image/png href=/img/favicon-32x32.png sizes=32x32><link rel=icon type=image/png href=/img/favicon-16x16.png sizes=16x16><link rel=apple-touch-icon href=/images/apple-touch-icon.png><link rel=apple-touch-icon sizes=180x180 href=/images/apple-touch-icon.png><link rel=manifest href=/site.webmanifest><link rel=mask-icon href=/images/safari-pinned-tab.svg color=#5bbad5></head><body class="preload-transitions colorscheme-auto"><div class=float-container><a id=dark-mode-toggle class=colorscheme-toggle><i class="fa-solid fa-adjust fa-fw" aria-hidden=true></i></a></div><main class=wrapper><nav class=navigation><section class=container><a class=navigation-title href=https://mikoff.github.io/>Aleksandr Mikoff's blog
+</a><input type=checkbox id=menu-toggle>
+<label class="menu-button float-right" for=menu-toggle><i class="fa-solid fa-bars fa-fw" aria-hidden=true></i></label><ul class=navigation-list><li class=navigation-item><a class=navigation-link href=/about/>About</a></li><li class=navigation-item><a class=navigation-link href=/posts/>Posts</a></li><li class=navigation-item><a class=navigation-link href=/tags>Tags</a></li></ul></section></nav><div class=content><section class="container post"><article><header><div class=post-title><h1 class=title><a class=title-link href=https://mikoff.github.io/posts/point-cloud-alignment-and-lie-algebra.md/>Point cloud alignment using Lie algebra machinery</a></h1></div><div class=post-meta><div class=date><span class=posted-on><i class="fa-solid fa-calendar" aria-hidden=true></i>
+<time datetime=2020-07-27T19:30:00+03:00>July 27, 2020
+</time></span><span class=reading-time><i class="fa-solid fa-clock" aria-hidden=true></i>
+8-minute read</span></div><div class=tags><i class="fa-solid fa-tag" aria-hidden=true></i>
+<span class=tag><a href=/tags/iterative-closest-point/>Iterative Closest Point</a>
+</span><span class=separator>•</span>
+<span class=tag><a href=/tags/point-cloud-alignment/>Point Cloud Alignment</a>
+</span><span class=separator>•</span>
+<span class=tag><a href=/tags/lie-groups/>Lie Groups</a>
+</span><span class=separator>•</span>
+<span class=tag><a href=/tags/lie-algebra/>Lie Algebra</a></span></div></div></header><div class=post-content><h1 id=point-cloud-alignment-using-lie-algebra-machinery>Point cloud alignment using Lie algebra machinery
+<a class=heading-link href=#point-cloud-alignment-using-lie-algebra-machinery><i class="fa-solid fa-link" aria-hidden=true title="Link to heading"></i>
+<span class=sr-only>Link to heading</span></a></h1><h2 id=special-orthogonal-group-and-vectorspaces>Special Orthogonal group and vectorspaces
+<a class=heading-link href=#special-orthogonal-group-and-vectorspaces><i class="fa-solid fa-link" aria-hidden=true title="Link to heading"></i>
+<span class=sr-only>Link to heading</span></a></h2><p>Today I would like to cover the importance of Lie groups to the problems, that often arises in robotics field.
+The <em>pose</em> of the robot can be described through <em>rotation</em> and <em>translation</em>. <em>Rotations</em>, however, do not belong to the vector space: we are not allowed to sum the rotations or multiply them by a scalar, because the resulting element will not belong to SO(3) group.</p><p>Why it stands up a problem? Quite often we need to use the optimization algorithms to find some optimal element. Most of these algorithms start from some initial guess and update it in some direction $y$:</p>$$
+x = x + \epsilon y
+$$<p>This equation does not make any sense if we operate not in the vectorspace!</p><p>While SO(3) is not a vector space, it can be shown to be matrix Lie group:</p><ul><li>It is a set of all valid rotation matrices $\{\mathbf{C} \in \mathbb{R}^{3\times3}~|~\mathbf{C}\mathbf{C}^T = \mathbf{1},~\det\mathbf{C} = 1\}$</li><li>satisfying the the four properties: closure, associativity, identity and invertability.</li></ul><p>The Lie group theory allows us associate a <em>Lie algebra</em> with every Lie group. This Lie algebra consists of a vectorspace, that provides a standard way to parameterize the rotation matrices and their errors.</p><h2 id=lie-algebra>Lie Algebra
+<a class=heading-link href=#lie-algebra><i class="fa-solid fa-link" aria-hidden=true title="Link to heading"></i>
+<span class=sr-only>Link to heading</span></a></h2><p>The vectorspace of a Lie algebra $\mathfrak{so}(3)$ is the tangent space of the associated Lie group, and it completely describes the local structure of the group.</p><p>The lie algebra, associated with $SO(3)$ is given by</p><ul><li>vectorspace $\mathfrak{so}(3) = \{\mathbf{\Phi} = \mathbf{\phi}^{\wedge}~\in~\mathbb{R}^{3\times3}~|~\mathbf{\phi} \in \mathbb{R}^3\},$</li><li>field $\mathbb{R}$,</li><li>Lie bracket: $[\mathbf{\Phi}_1, \mathbf{\Phi}_2] = \mathbf{\Phi}_1 \mathbf{\Phi}_2 - \mathbf{\Phi}_2, \mathbf{\Phi}_1,$</li></ul><p>where</p>$$
+\mathbf{\phi}^{\wedge} = {\begin{bmatrix} \phi_1 \newline \phi_2 \newline \phi_3 \end{bmatrix}}^{\wedge} =
+\begin{bmatrix} 0 & -\phi_3 & \phi_2 \newline \phi_3 & 0 & -\phi_1 \newline -\phi_2 & \phi_1 & 0 \end{bmatrix}
+$$<p>The exponential map is the key that helps us to switch from our Lie algebra to the associated Lie group.
+This relationship between a vector space $\mathfrak{so}(3)$ and Lie group is what allows us to convert the rotation matrices optimization problems to linear algebra problems and vice versa (the intuition behind is greatly discussed in this <a href="https://www.youtube.com/watch?v=mvmuCPvRoWQ" class=external-link target=_blank rel=noopener>video</a>).</p><p>To verify the Lie algebra element structure, let&rsquo;s assume that we are not aware of its form and only know that it is some arbitrary matrix $\mathbf{M} \in \mathbb{R}^{3\times3}$. By the definition of SO(3) it should fullfill the following properties:</p><ul><li>$\exp(\mathbf{M}) \exp(\mathbf{M})^T = \mathbf{1}$</li><li>$\det(\exp(\mathbf{M})) = 1.$</li></ul><p>For the first property, it is easy to show through Taylor series expansion that $\exp(\mathbf{M})^T = \exp(\mathbf{M^T})$ is valid for any matrix. Also we know that $\exp(\mathbf{0}) = \mathbf{1}$. Therefore:</p>$$\exp(\mathbf{M}) \exp(\mathbf{M})^T = \mathbf{1}$$
+$$\exp(\mathbf{M} + \mathbf{M}^T) = \exp(\mathbf{0})$$
+$$\mathbf{M} + \mathbf{M}^T = \mathbf{0} $$
+$$\mathbf{M} = - \mathbf{M}^T$$<p>We see, that the first property leads us the the neccessitiy for our Lie algebra to be skew-symmetric.</p><p>To check the second property let&rsquo;s recall the following identity:</p>$$
+\det(\exp(\mathbf{M})) = \exp(\mathrm{tr}(\mathbf{M}))
+$$<p>It can only happen when the trace of our matrix is equal to 0. Any skew-symmetric matrix fullfills this property.</p><h2 id=point-cloud-alignment-with-known-correspondences>Point cloud alignment with known correspondences
+<a class=heading-link href=#point-cloud-alignment-with-known-correspondences><i class="fa-solid fa-link" aria-hidden=true title="Link to heading"></i>
+<span class=sr-only>Link to heading</span></a></h2><p>The implemented approach is greatly discussed <a href=http://asrl.utias.utoronto.ca/~tdb/bib/barfoot_ser17.pdf class=external-link target=_blank rel=noopener>here</a>. I will just point out some key ideas:</p><ul><li>Since the optimization is unconstrained, the SVD or eigen decomposition is not required.</li><li>The result is not optimal globally, but locally. However, if there is a unique global minimum, there is no any local minima.</li></ul><p>Let&rsquo;s pretend that we have:</p><ul><li>$M$ measurements $\mathbf{y}_j = \mathbf{r}_{v_k}^{p_j v_k}$, where $j = 1\dots M$, of points from the vehicle (expressed in vehicle frame).</li><li>The coordinates of these points in non-moving frame $i$: $\mathbf{p}_j = \mathbf{r}_{i}^{p_j i}$.</li></ul><p>Our goal is to align a collection of points, expressed in two reference frames: find the rotation and translation between them.</p><p>To solve the problem we require the following:</p><ul><li><p>$\mathbf{W} = \frac{1}{w} \sum_{j=1}^M w_j (\mathbf{y}_j - \mathbf{y})(\mathbf{p}_j - \mathbf{p})^T,$</p><p>that captures the spread of the points and where $w_j$ is the scalar weight for point pair $j$.</p></li><li><p>$\mathbf{I} = -\frac{1}{w} \sum_{j=1}^M w_j (\mathbf{p}_j - \mathbf{p})^\wedge (\mathbf{p}_j - \mathbf{p})^\wedge.$</p></li><li><p>$\mathbf{b} = [\mathrm{tr}(\mathbf{1}_i^\wedge \mathbf{C}_{op}) \mathbf{W}^T)]_i,$</p><p>where $i$ is the $i$-th column of the identity matrix and the corresponding $i$-th row of column vector $\mathbf{b}$.</p></li></ul><p>The update for our goal rotation matrix $\mathbf{C}_{op}$ can be written as:</p>$$
+\mathbf{C}_{op} \leftarrow \exp \left(\mathbf{\psi}^{{\*}^{\wedge}} \right)\mathbf{C}_{op},
+$$<p>where the optimal update for $\mathbf{\psi}^{\*}$ is defined as:</p>$$
+\mathbf{\psi}^{\*} = \mathbf{C}_{op} \mathbf{I}^{-1} \mathbf{C}_{op}^T \mathbf{b}.
+$$<p>The following sequence is itereated until convergence, where $\hat{\mathbf{C}}_{v_k i} = \mathbf{C}_{op}$. Then the translation can be found as:
+$\hat{\mathbf{r}}_i^{v_k i} = \mathbf{p} - \hat{\mathbf{C}}_{v_k i} \mathbf{y}$.</p><p>Now let&rsquo;s move the example:</p><div class=highlight><pre tabindex=0 style=color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python3 data-lang=python3><span style=display:flex><span><span style=color:#fff;font-weight:700>import</span> numpy <span style=color:#fff;font-weight:700>as</span> np
+</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>from</span> scipy.linalg <span style=color:#fff;font-weight:700>import</span> fractional_matrix_power
+</span></span><span style=display:flex><span>np.set_printoptions(precision=<span style=color:#ff0;font-weight:700>3</span>)
+</span></span><span style=display:flex><span>np.set_printoptions(suppress=<span style=color:#fff;font-weight:700>True</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>def</span> skew(x): 
+</span></span><span style=display:flex><span>      <span style=color:#fff;font-weight:700>if</span> (<span style=color:#fff;font-weight:700>isinstance</span>(x, np.ndarray) and <span style=color:#fff;font-weight:700>len</span>(x.shape)&gt;=<span style=color:#ff0;font-weight:700>2</span>): 
+</span></span><span style=display:flex><span>          <span style=color:#fff;font-weight:700>return</span> np.array([[<span style=color:#ff0;font-weight:700>0</span>, -x[<span style=color:#ff0;font-weight:700>2</span>][<span style=color:#ff0;font-weight:700>0</span>], x[<span style=color:#ff0;font-weight:700>1</span>][<span style=color:#ff0;font-weight:700>0</span>]], 
+</span></span><span style=display:flex><span>                           [x[<span style=color:#ff0;font-weight:700>2</span>][<span style=color:#ff0;font-weight:700>0</span>], <span style=color:#ff0;font-weight:700>0</span>, -x[<span style=color:#ff0;font-weight:700>0</span>][<span style=color:#ff0;font-weight:700>0</span>]], 
+</span></span><span style=display:flex><span>                           [-x[<span style=color:#ff0;font-weight:700>1</span>][<span style=color:#ff0;font-weight:700>0</span>], x[<span style=color:#ff0;font-weight:700>0</span>][<span style=color:#ff0;font-weight:700>0</span>], <span style=color:#ff0;font-weight:700>0</span>]]) 
+</span></span><span style=display:flex><span>      <span style=color:#fff;font-weight:700>else</span>: 
+</span></span><span style=display:flex><span>          <span style=color:#fff;font-weight:700>return</span> np.array([[<span style=color:#ff0;font-weight:700>0</span>, -x[<span style=color:#ff0;font-weight:700>2</span>], x[<span style=color:#ff0;font-weight:700>1</span>]], 
+</span></span><span style=display:flex><span>                           [x[<span style=color:#ff0;font-weight:700>2</span>], <span style=color:#ff0;font-weight:700>0</span>, -x[<span style=color:#ff0;font-weight:700>0</span>]], 
+</span></span><span style=display:flex><span>                           [-x[<span style=color:#ff0;font-weight:700>1</span>], x[<span style=color:#ff0;font-weight:700>0</span>], <span style=color:#ff0;font-weight:700>0</span>]])
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>def</span> skewExponent(psi):
+</span></span><span style=display:flex><span>    psiNorm = np.linalg.norm(psi)
+</span></span><span style=display:flex><span>    a = np.array(psi) / psiNorm
+</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>return</span> np.cos(psiNorm) * np.eye(<span style=color:#ff0;font-weight:700>3</span>) + (<span style=color:#ff0;font-weight:700>1</span> - np.cos(psiNorm)) * a @ a.T + np.sin(psiNorm) * skew(a)
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python3 data-lang=python3><span style=display:flex><span><span style=color:#007f7f># define point set P: the point coordinates in non-moving frame</span>
+</span></span><span style=display:flex><span>P = np.array(
+</span></span><span style=display:flex><span>      [[ <span style=color:#ff0;font-weight:700>3.</span>,  <span style=color:#ff0;font-weight:700>0.</span>,  <span style=color:#ff0;font-weight:700>0.</span>, -<span style=color:#ff0;font-weight:700>3.</span>, -<span style=color:#ff0;font-weight:700>0.</span>, -<span style=color:#ff0;font-weight:700>0.</span>],
+</span></span><span style=display:flex><span>       [ <span style=color:#ff0;font-weight:700>0.</span>,  <span style=color:#ff0;font-weight:700>2.</span>,  <span style=color:#ff0;font-weight:700>0.</span>, -<span style=color:#ff0;font-weight:700>0.</span>, -<span style=color:#ff0;font-weight:700>2.</span>, -<span style=color:#ff0;font-weight:700>0.</span>],
+</span></span><span style=display:flex><span>       [ <span style=color:#ff0;font-weight:700>0.</span>,  <span style=color:#ff0;font-weight:700>0.</span>,  <span style=color:#ff0;font-weight:700>1.</span>, -<span style=color:#ff0;font-weight:700>0.</span>, -<span style=color:#ff0;font-weight:700>0.</span>, -<span style=color:#ff0;font-weight:700>1.</span>]])\
+</span></span><span style=display:flex><span>    + np.array([[<span style=color:#ff0;font-weight:700>100</span>], [<span style=color:#ff0;font-weight:700>200</span>], [<span style=color:#ff0;font-weight:700>300</span>]])
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#007f7f># define point set Y: the point coordinates in vehicle frame</span>
+</span></span><span style=display:flex><span>Y = np.array(
+</span></span><span style=display:flex><span>      [[-<span style=color:#ff0;font-weight:700>3.</span>, -<span style=color:#ff0;font-weight:700>0.</span>, -<span style=color:#ff0;font-weight:700>0.</span>,  <span style=color:#ff0;font-weight:700>3.</span>,  <span style=color:#ff0;font-weight:700>0.</span>,  <span style=color:#ff0;font-weight:700>0.</span>],
+</span></span><span style=display:flex><span>       [-<span style=color:#ff0;font-weight:700>0.</span>, -<span style=color:#ff0;font-weight:700>2.</span>, -<span style=color:#ff0;font-weight:700>0.</span>,  <span style=color:#ff0;font-weight:700>0.</span>,  <span style=color:#ff0;font-weight:700>2.</span>,  <span style=color:#ff0;font-weight:700>0.</span>],
+</span></span><span style=display:flex><span>       [-<span style=color:#ff0;font-weight:700>0.</span>, -<span style=color:#ff0;font-weight:700>0.</span>, -<span style=color:#ff0;font-weight:700>1.</span>,  <span style=color:#ff0;font-weight:700>0.</span>,  <span style=color:#ff0;font-weight:700>0.</span>,  <span style=color:#ff0;font-weight:700>1.</span>]])
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#007f7f># calculate the centers of the point clouds</span>
+</span></span><span style=display:flex><span>meanP = np.mean(P, axis=<span style=color:#ff0;font-weight:700>1</span>).reshape((<span style=color:#ff0;font-weight:700>3</span>, <span style=color:#ff0;font-weight:700>1</span>))
+</span></span><span style=display:flex><span>meanY = np.mean(Y, axis=<span style=color:#ff0;font-weight:700>1</span>).reshape((<span style=color:#ff0;font-weight:700>3</span>, <span style=color:#ff0;font-weight:700>1</span>))
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#007f7f># pre-calcaulate W matrix</span>
+</span></span><span style=display:flex><span>W = np.zeros((<span style=color:#ff0;font-weight:700>3</span>, <span style=color:#ff0;font-weight:700>3</span>))
+</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>for</span> j in <span style=color:#fff;font-weight:700>range</span>(P.shape[<span style=color:#ff0;font-weight:700>1</span>]):
+</span></span><span style=display:flex><span>    W += (Y[:, [j]] - meanY) @ (P[:, [j]] - meanP).T
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span><span style=color:#007f7f># pre-calculate I^-1 matrix</span>
+</span></span><span style=display:flex><span>I = np.zeros((<span style=color:#ff0;font-weight:700>3</span>, <span style=color:#ff0;font-weight:700>3</span>))
+</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>for</span> j in <span style=color:#fff;font-weight:700>range</span>(P.shape[<span style=color:#ff0;font-weight:700>1</span>]):
+</span></span><span style=display:flex><span>    I -= skew(P[:, [j]] - meanP) @ skew(P[:, [j]] - meanP)
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>invI = np.linalg.inv(I)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#007f7f># build initial estimate of our rotation matrix</span>
+</span></span><span style=display:flex><span>C_op = skewExponent([<span style=color:#ff0;font-weight:700>0.2</span>, <span style=color:#ff0;font-weight:700>0.1</span>, -<span style=color:#ff0;font-weight:700>0.2</span>]) @ np.eye(<span style=color:#ff0;font-weight:700>3</span>)
+</span></span><span style=display:flex><span>C_op = fractional_matrix_power(C_op @ C_op.T, -<span style=color:#ff0;font-weight:700>0.5</span>) @ C_op
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>C_op_prev = np.eye(<span style=color:#ff0;font-weight:700>3</span>)
+</span></span><span style=display:flex><span>I3 = np.eye(<span style=color:#ff0;font-weight:700>3</span>)
+</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>while</span> np.linalg.norm(C_op - C_op_prev) &gt; <span style=color:#ff0;font-weight:700>0.001</span>:
+</span></span><span style=display:flex><span>    <span style=color:#007f7f># build b vector</span>
+</span></span><span style=display:flex><span>    b = np.zeros(<span style=color:#ff0;font-weight:700>3</span>)
+</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>for</span> i in <span style=color:#fff;font-weight:700>range</span>(<span style=color:#ff0;font-weight:700>3</span>):
+</span></span><span style=display:flex><span>        b[i] = np.trace(skew(I3[i]) @ C_op @ W.T)
+</span></span><span style=display:flex><span>    b = b.reshape((<span style=color:#ff0;font-weight:700>3</span>, <span style=color:#ff0;font-weight:700>1</span>))
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    psi_star = C_op @ invI @ C_op.T @ b
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    C_op_prev = C_op
+</span></span><span style=display:flex><span>    C_op = skewExponent(psi_star) @ C_op
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span><span style=color:#007f7f># find the translation</span>
+</span></span><span style=display:flex><span>t = meanP - C_op.T @ meanY
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>print</span>(C_op)
+</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>print</span>(t)
+</span></span></code></pre></div><pre><code>[[-1.  0. -0.]
+ [-0. -1.  0.]
+ [-0.  0.  1.]]
+[[100.]
+ [200.]
+ [300.]]
+</code></pre><h2 id=point-cloud-alignment-without-correspondences>Point cloud alignment without correspondences
+<a class=heading-link href=#point-cloud-alignment-without-correspondences><i class="fa-solid fa-link" aria-hidden=true title="Link to heading"></i>
+<span class=sr-only>Link to heading</span></a></h2><p>If we the correspondences between points are not known, then we can use, for example, the Iterative Closest Point algorithm where the correspondences are determined by finding the closest point from the model to the observed point.
+I would like to present a piece of code for this scenario too.</p><div class=highlight><pre tabindex=0 style=color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python3 data-lang=python3><span style=display:flex><span><span style=color:#fff;font-weight:700>def</span> nearest_point(P, Y):
+</span></span><span style=display:flex><span>    P = np.array(P)
+</span></span><span style=display:flex><span>    Y = np.array(Y)
+</span></span><span style=display:flex><span>    distances = np.zeros(P.shape[<span style=color:#ff0;font-weight:700>1</span>])
+</span></span><span style=display:flex><span>    index = np.zeros(Y.shape[<span style=color:#ff0;font-weight:700>1</span>], dtype = np.int)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>for</span> i in <span style=color:#fff;font-weight:700>range</span>(P.shape[<span style=color:#ff0;font-weight:700>1</span>]):
+</span></span><span style=display:flex><span>        minDist = np.inf
+</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>for</span> j in <span style=color:#fff;font-weight:700>range</span>(Y.shape[<span style=color:#ff0;font-weight:700>1</span>]):
+</span></span><span style=display:flex><span>            curDist = np.linalg.norm(P[:, i] - Y[:, j])
+</span></span><span style=display:flex><span>            <span style=color:#fff;font-weight:700>if</span> curDist &lt; minDist:
+</span></span><span style=display:flex><span>                minDist = curDist
+</span></span><span style=display:flex><span>                index[i] = j
+</span></span><span style=display:flex><span>        distances[i] = minDist
+</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>return</span> distances, index
+</span></span></code></pre></div><p>In this simplest ICP form we assume that the number of points is the same and we use all of them for fitting. It is always a good thing to remember that it is not always the case, to solve the problem with outliers and large number of points the following things could be added to the algorithm implementation:</p><ul><li>Randomly select the subset from each point set.</li><li>Split the aligned points to inliers and outliers based on some statistic criteria.</li><li>Throw away the outliers from cloud alignment procedure.</li></ul><p>However, for our illustration purposes this vanilla ICP algorithm should work fine. Let&rsquo;s verify it.</p><div class=highlight><pre tabindex=0 style=color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python3 data-lang=python3><span style=display:flex><span><span style=color:#007f7f># read the rabbit data and make it column-wise</span>
+</span></span><span style=display:flex><span>P = np.loadtxt(<span style=color:#0ff;font-weight:700>&#34;data.xyz&#34;</span>).T * <span style=color:#ff0;font-weight:700>200</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#007f7f># generate random rotation and translation</span>
+</span></span><span style=display:flex><span>C = skewExponent([<span style=color:#ff0;font-weight:700>0.8</span>, <span style=color:#ff0;font-weight:700>0.6</span>, -<span style=color:#ff0;font-weight:700>0.4</span>]) @ np.eye(<span style=color:#ff0;font-weight:700>3</span>)
+</span></span><span style=display:flex><span>C = fractional_matrix_power(C @ C.T, -<span style=color:#ff0;font-weight:700>0.5</span>) @ C
+</span></span><span style=display:flex><span>translation = np.array([[<span style=color:#ff0;font-weight:700>10</span>], [<span style=color:#ff0;font-weight:700>20</span>], [<span style=color:#ff0;font-weight:700>30</span>]])
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#007f7f># rotate and translate original points, add noise</span>
+</span></span><span style=display:flex><span>Y = C @ (P - translation) + np.random.normal(<span style=color:#ff0;font-weight:700>0.0</span>, <span style=color:#ff0;font-weight:700>0.1</span>, size=P.shape)
+</span></span><span style=display:flex><span><span style=color:#007f7f># randomly shuffle the columns to find the correspondences using ICP</span>
+</span></span><span style=display:flex><span>np.random.shuffle(Y.T)
+</span></span><span style=display:flex><span>Y_original = np.array(Y)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#007f7f># build initial estimate of our rotation matrix</span>
+</span></span><span style=display:flex><span>C_op = np.eye(<span style=color:#ff0;font-weight:700>3</span>)
+</span></span><span style=display:flex><span>C_op_prev = np.diag([np.inf, np.inf, np.inf])
+</span></span><span style=display:flex><span>I3 = np.eye(<span style=color:#ff0;font-weight:700>3</span>)
+</span></span><span style=display:flex><span>distances = np.inf
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>MAX_ITER = <span style=color:#ff0;font-weight:700>20</span>
+</span></span><span style=display:flex><span>iteration = <span style=color:#ff0;font-weight:700>0</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>while</span> (np.linalg.norm(C_op - C_op_prev) &gt; <span style=color:#ff0;font-weight:700>0.001</span> or np.sum(distances) &gt; <span style=color:#ff0;font-weight:700>1.0</span>) and iteration &lt; MAX_ITER:
+</span></span><span style=display:flex><span>    <span style=color:#007f7f># calculate the centers of the point clouds</span>
+</span></span><span style=display:flex><span>    meanP = np.mean(P, axis=<span style=color:#ff0;font-weight:700>1</span>).reshape((<span style=color:#ff0;font-weight:700>3</span>, <span style=color:#ff0;font-weight:700>1</span>))
+</span></span><span style=display:flex><span>    meanY = np.mean(Y, axis=<span style=color:#ff0;font-weight:700>1</span>).reshape((<span style=color:#ff0;font-weight:700>3</span>, <span style=color:#ff0;font-weight:700>1</span>))
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#007f7f># calculate W matrix</span>
+</span></span><span style=display:flex><span>    W = np.zeros((<span style=color:#ff0;font-weight:700>3</span>, <span style=color:#ff0;font-weight:700>3</span>))
+</span></span><span style=display:flex><span>    W = (Y - meanY) @ (P - meanP).T
+</span></span><span style=display:flex><span>      
+</span></span><span style=display:flex><span>    <span style=color:#007f7f># build b vector</span>
+</span></span><span style=display:flex><span>    b = np.zeros(<span style=color:#ff0;font-weight:700>3</span>)
+</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>for</span> i in <span style=color:#fff;font-weight:700>range</span>(<span style=color:#ff0;font-weight:700>3</span>):
+</span></span><span style=display:flex><span>        b[i] = np.trace(skew(I3[i]) @ C_op @ W.T)
+</span></span><span style=display:flex><span>    b = b.reshape((<span style=color:#ff0;font-weight:700>3</span>, <span style=color:#ff0;font-weight:700>1</span>))
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#007f7f># calculate I matrix</span>
+</span></span><span style=display:flex><span>    I = np.zeros((<span style=color:#ff0;font-weight:700>3</span>, <span style=color:#ff0;font-weight:700>3</span>))
+</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>for</span> p in P.T:
+</span></span><span style=display:flex><span>        skewP = skew(p - meanP.ravel())
+</span></span><span style=display:flex><span>        I -= skewP @ skewP
+</span></span><span style=display:flex><span>    psi_star = C_op @ np.linalg.inv(I) @ C_op.T @ b
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    C_op_prev = C_op
+</span></span><span style=display:flex><span>    C_op = skewExponent(psi_star) @ C_op
+</span></span><span style=display:flex><span>    t = meanP - C_op.T @ meanY
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#007f7f># find correspondences using ICP</span>
+</span></span><span style=display:flex><span>    distances, index = nearest_point(P, t + C_op.T @ Y_original)
+</span></span><span style=display:flex><span>    <span style=color:#007f7f># replace the point set with correspondences</span>
+</span></span><span style=display:flex><span>    Y = Y_original[:, index]
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    iteration += <span style=color:#ff0;font-weight:700>1</span>
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>print</span>(C_op)
+</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>print</span>(t)
+</span></span></code></pre></div><pre><code>[[ 0.865  0.16   0.475]
+ [ 0.163  0.806 -0.569]
+ [-0.474  0.57   0.672]]
+[[ 9.995]
+ [20.001]
+ [30.   ]]
+</code></pre><p>If we are talking about the vehicle positioning, then we have found the rotation matrix $\hat{\mathbf{C}}_{v_k i}$ and the translation $\hat{\mathbf{r}}_i^{v_k i}$.
+Now we can apply the found rotation and translation to the transformed dataset to visually check the algorithm performance.</p><div class=highlight><pre tabindex=0 style=color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python3 data-lang=python3><span style=display:flex><span><span style=color:#fff;font-weight:700>from</span> mpl_toolkits.mplot3d.axes3d <span style=color:#fff;font-weight:700>import</span> Axes3D
+</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>import</span> matplotlib.pyplot <span style=color:#fff;font-weight:700>as</span> plt
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>fig, ax = plt.subplots(<span style=color:#ff0;font-weight:700>1</span>, <span style=color:#ff0;font-weight:700>2</span>, subplot_kw={<span style=color:#0ff;font-weight:700>&#39;projection&#39;</span>: <span style=color:#0ff;font-weight:700>&#39;3d&#39;</span>}, figsize=(<span style=color:#ff0;font-weight:700>8</span>, <span style=color:#ff0;font-weight:700>4</span>))
+</span></span><span style=display:flex><span>ax[<span style=color:#ff0;font-weight:700>0</span>].scatter(P[<span style=color:#ff0;font-weight:700>0</span>,:], P[<span style=color:#ff0;font-weight:700>1</span>,:], P[<span style=color:#ff0;font-weight:700>2</span>, :], <span style=color:#0ff;font-weight:700>&#39;,&#39;</span>)
+</span></span><span style=display:flex><span>ax[<span style=color:#ff0;font-weight:700>0</span>].scatter(Y_original[<span style=color:#ff0;font-weight:700>0</span>,:], Y_original[<span style=color:#ff0;font-weight:700>1</span>,:], Y_original[<span style=color:#ff0;font-weight:700>2</span>, :], <span style=color:#0ff;font-weight:700>&#39;X&#39;</span>)
+</span></span><span style=display:flex><span>scaling = np.array([<span style=color:#fff;font-weight:700>getattr</span>(ax[<span style=color:#ff0;font-weight:700>0</span>], <span style=color:#0ff;font-weight:700>&#39;get_</span><span style=color:#0ff;font-weight:700>{}</span><span style=color:#0ff;font-weight:700>lim&#39;</span>.format(dim))() <span style=color:#fff;font-weight:700>for</span> dim in <span style=color:#0ff;font-weight:700>&#39;xyz&#39;</span>])
+</span></span><span style=display:flex><span>ax[<span style=color:#ff0;font-weight:700>0</span>].auto_scale_xyz(*[[np.min(scaling), np.max(scaling)]]*<span style=color:#ff0;font-weight:700>3</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>ax[<span style=color:#ff0;font-weight:700>1</span>].scatter(P[<span style=color:#ff0;font-weight:700>0</span>,:], P[<span style=color:#ff0;font-weight:700>1</span>,:], P[<span style=color:#ff0;font-weight:700>2</span>, :], <span style=color:#0ff;font-weight:700>&#39;,&#39;</span>)
+</span></span><span style=display:flex><span>Y = C_op.T @ Y_original + t
+</span></span><span style=display:flex><span>ax[<span style=color:#ff0;font-weight:700>1</span>].scatter(Y[<span style=color:#ff0;font-weight:700>0</span>,:], Y[<span style=color:#ff0;font-weight:700>1</span>,:], Y[<span style=color:#ff0;font-weight:700>2</span>, :], <span style=color:#0ff;font-weight:700>&#39;X&#39;</span>)
+</span></span><span style=display:flex><span>scaling = np.array([<span style=color:#fff;font-weight:700>getattr</span>(ax[<span style=color:#ff0;font-weight:700>1</span>], <span style=color:#0ff;font-weight:700>&#39;get_</span><span style=color:#0ff;font-weight:700>{}</span><span style=color:#0ff;font-weight:700>lim&#39;</span>.format(dim))() <span style=color:#fff;font-weight:700>for</span> dim in <span style=color:#0ff;font-weight:700>&#39;xyz&#39;</span>])
+</span></span><span style=display:flex><span>ax[<span style=color:#ff0;font-weight:700>1</span>].auto_scale_xyz(*[[np.min(scaling), np.max(scaling)]]*<span style=color:#ff0;font-weight:700>3</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>ax[<span style=color:#ff0;font-weight:700>0</span>].view_init(elev=<span style=color:#ff0;font-weight:700>10.</span>, azim=-<span style=color:#ff0;font-weight:700>215</span>)
+</span></span><span style=display:flex><span>ax[<span style=color:#ff0;font-weight:700>1</span>].view_init(elev=<span style=color:#ff0;font-weight:700>10.</span>, azim=<span style=color:#ff0;font-weight:700>215</span>)
+</span></span></code></pre></div><p><img src=output_11_0.png alt=png></p><p>They are quite close!
+Jupyter notebook is available <a href=https://github.com/mikoff/blog_projects/blob/master/notebooks/Point_cloud_alignment_and_Lie_algebra_machinery class=external-link target=_blank rel=noopener>here</a>.</p></div><footer><div id=disqus_thread></div><script>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//mikoff-github-io.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}(),document.addEventListener("themeChanged",function(){document.readyState=="complete"&&DISQUS.reset({reload:!0,config:disqus_config})})</script></footer></article><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css integrity=sha384-vKruj+a13U8yHIkAyGgK1J3ArTLzrFGBbBc0tDp4ad/EyewESeXE/Iv67Aj8gKZ0 crossorigin=anonymous><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js integrity=sha384-PwRUT/YqbnEjkZO0zZxNqcxACrXe+j766U2amXcgMg5457rve2Y7I6ZJSm2A0mS4 crossorigin=anonymous></script><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/contrib/auto-render.min.js integrity=sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05 crossorigin=anonymous onload='renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}]})'></script></section></div><footer class=footer><section class=container>©
+2024
+Aleksandr Mikoff
+·
+Powered by <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> & <a href=https://github.com/luizdepra/hugo-coder/ target=_blank rel=noopener>Coder</a>.</section></footer></main><script src=/js/coder.min.6ae284be93d2d19dad1f02b0039508d9aab3180a12a06dcc71b0b0ef7825a317.js integrity="sha256-auKEvpPS0Z2tHwKwA5UI2aqzGAoSoG3McbCw73gloxc="></script></body></html>
