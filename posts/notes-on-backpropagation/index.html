@@ -40,261 +40,261 @@ For example, if we want to compute $\frac{\partial f}{\partial c}$ we note that 
 \frac{\partial f}{\partial c} = \frac{\partial f}{\partial d}\frac{\partial d}{\partial c} = 1 \cdot 2 \cdot c = 1 \cdot 2 \cdot 3 = -6.
 $$<p>After performing this step we know how much the change in node $c$ affects the node $d$: that is the information, given by the derivative. The gradient shows the direction in which a function grows faster, but during the optimization we want to step towards its <strong>minimum</strong>. To do so we move in the direction of negative gradient. Let&rsquo;s look at numbers: what $d$ wants is to increase $c$ with a force of $6$ (we negate the numbers, because we are looking for minimum, right?). Does it make sense? Yes, our current value of $c$ is $-3$ and if it becomes higher, $d$ decreases.
 If we continue this logic we note that $y$, for example, should decrease (since $-\frac{\partial f}{\partial y} = -6$) when other parameters are fixed: it also makes sense, because if $y$ increases it makes our target $f = (b - y)^2~|~b = 4$ higher and what we want to achieve is the opposite: we want to minimize $f$.</p><p>The nice and short explanation of the gradient flow process is given in <sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup>:</p><blockquote><p>To compute the gradient of some scalar $z$ with respect to one of its ancestors $x$ in the graph, we begin by observing that the gradient with respect to z is equal to 1.
-We can compute the gradient with respect to each parent of $z$ in the graph by multiplying the current gradient by the Jacobian of the operation that produced $z$. We continue multiplying by Jacobians, traveling backward through the graph in this way until we reach $x$.</p></blockquote><p>The forward and backward passes for this case can be written in a few lines of code:</p><div class=highlight><pre tabindex=0 style=color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>x, y = <span style=color:#ff0;font-weight:700>3</span>, <span style=color:#ff0;font-weight:700>7</span>
-</span></span><span style=display:flex><span>w0, w1 = -<span style=color:#ff0;font-weight:700>2</span>, <span style=color:#ff0;font-weight:700>2</span>
+We can compute the gradient with respect to each parent of $z$ in the graph by multiplying the current gradient by the Jacobian of the operation that produced $z$. We continue multiplying by Jacobians, traveling backward through the graph in this way until we reach $x$.</p></blockquote><p>The forward and backward passes for this case can be written in a few lines of code:</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>x, y <span style=color:#000;font-weight:700>=</span> <span style=color:#099>3</span>, <span style=color:#099>7</span>
+</span></span><span style=display:flex><span>w0, w1 <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>-</span><span style=color:#099>2</span>, <span style=color:#099>2</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#007f7f># forward pass</span>
-</span></span><span style=display:flex><span>a = x * w1
-</span></span><span style=display:flex><span>b = a + w0
-</span></span><span style=display:flex><span>c = b - y
-</span></span><span style=display:flex><span>d = c ** <span style=color:#ff0;font-weight:700>2</span>
+</span></span><span style=display:flex><span><span style=color:#998;font-style:italic># forward pass</span>
+</span></span><span style=display:flex><span>a <span style=color:#000;font-weight:700>=</span> x <span style=color:#000;font-weight:700>*</span> w1
+</span></span><span style=display:flex><span>b <span style=color:#000;font-weight:700>=</span> a <span style=color:#000;font-weight:700>+</span> w0
+</span></span><span style=display:flex><span>c <span style=color:#000;font-weight:700>=</span> b <span style=color:#000;font-weight:700>-</span> y
+</span></span><span style=display:flex><span>d <span style=color:#000;font-weight:700>=</span> c <span style=color:#000;font-weight:700>**</span> <span style=color:#099>2</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#007f7f># backward pass</span>
-</span></span><span style=display:flex><span>df_dc = <span style=color:#ff0;font-weight:700>2</span> * c
-</span></span><span style=display:flex><span>df_db = df_dc
-</span></span><span style=display:flex><span>df_da = df_db
-</span></span><span style=display:flex><span>df_dw1 = df_da * x
-</span></span><span style=display:flex><span>df_dw0 = df_db
+</span></span><span style=display:flex><span><span style=color:#998;font-style:italic># backward pass</span>
+</span></span><span style=display:flex><span>df_dc <span style=color:#000;font-weight:700>=</span> <span style=color:#099>2</span> <span style=color:#000;font-weight:700>*</span> c
+</span></span><span style=display:flex><span>df_db <span style=color:#000;font-weight:700>=</span> df_dc
+</span></span><span style=display:flex><span>df_da <span style=color:#000;font-weight:700>=</span> df_db
+</span></span><span style=display:flex><span>df_dw1 <span style=color:#000;font-weight:700>=</span> df_da <span style=color:#000;font-weight:700>*</span> x
+</span></span><span style=display:flex><span>df_dw0 <span style=color:#000;font-weight:700>=</span> df_db
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>print</span>(<span style=color:#0ff;font-weight:700>f</span><span style=color:#0ff;font-weight:700>&#39;df/dw0 = </span><span style=color:#0ff;font-weight:700>{</span>df_dw0<span style=color:#0ff;font-weight:700>}</span><span style=color:#0ff;font-weight:700>, df/dw1 = </span><span style=color:#0ff;font-weight:700>{</span>df_dw1<span style=color:#0ff;font-weight:700>}</span><span style=color:#0ff;font-weight:700>&#39;</span>)
+</span></span><span style=display:flex><span><span style=color:#0086b3>print</span>(<span style=color:#d14>f</span><span style=color:#d14>&#39;df/dw0 = </span><span style=color:#d14>{</span>df_dw0<span style=color:#d14>}</span><span style=color:#d14>, df/dw1 = </span><span style=color:#d14>{</span>df_dw1<span style=color:#d14>}</span><span style=color:#d14>&#39;</span>)
 </span></span></code></pre></div><pre><code>df/dw0 = -6, df/dw1 = -18
 </code></pre><p>Note that even in such a simple case some intermediate results are reusable: we do not compute the results twice (for example, for $\frac{\partial f}{\partial c}$), we use the same <em>cached</em> value.</p><h2 id=patterns>Patterns
 <a class=heading-link href=#patterns><i class="fa-solid fa-link" aria-hidden=true title="Link to heading"></i>
 <span class=sr-only>Link to heading</span></a></h2><p>According to <sup id=fnref:2><a href=#fn:2 class=footnote-ref role=doc-noteref>2</a></sup>, it is useful to keep in mind the interpretation of some operations on intuitive level:</p><ul><li><code>add</code> - takes the gradient and distributes it equally to all the inputs;</li><li><code>max</code> - routes the gradient to the largest value of inputs (only one);</li><li><code>multiply</code> - if we think about the multiplication as a constant term, then the gradients of the output are being split to the inputs inversely proportional to their values.</li></ul><h2 id=implementation>Implementation
 <a class=heading-link href=#implementation><i class="fa-solid fa-link" aria-hidden=true title="Link to heading"></i>
 <span class=sr-only>Link to heading</span></a></h2><p>Thinking about the actual implementation we note that to calculate the final gradients we need to:</p><ul><li>correctly define the forward and backward walking order, it can be done using the graphs;</li><li>store the outputs of the nodes, because the local gradient depends on their values;</li><li>know the derivative of each node w.r.t. its inputs.</li></ul><p>First, let&rsquo;s define the nodes that perform the calculations, store the results and can calculate the gradient of the output w.r.t. the input:</p><div class=spoiler><span class=spoilerText>Spoiler</span>
-<input class=spoilerChecked type=checkbox showtext=Code><div class=spoilerContent><div class=highlight><pre tabindex=0 style=color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#fff;font-weight:700>from</span> abc <span style=color:#fff;font-weight:700>import</span> ABC, abstractmethod
+<input class=spoilerChecked type=checkbox showtext=Code><div class=spoilerContent><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#000;font-weight:700>from</span> <span style=color:#555>abc</span> <span style=color:#000;font-weight:700>import</span> ABC, abstractmethod
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>class</span> Operation(ABC):
-</span></span><span style=display:flex><span>    <span style=color:#0ff;font-weight:700>&#34;&#34;&#34;Base class for node operations.
-</span></span></span><span style=display:flex><span><span style=color:#0ff;font-weight:700>    
-</span></span></span><span style=display:flex><span><span style=color:#0ff;font-weight:700>    On forward pass the inherited class calculates the output of the 
-</span></span></span><span style=display:flex><span><span style=color:#0ff;font-weight:700>    node and nulls the local gradient for future calculations.
-</span></span></span><span style=display:flex><span><span style=color:#0ff;font-weight:700>    
-</span></span></span><span style=display:flex><span><span style=color:#0ff;font-weight:700>    &#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>Operation</span>(ABC):
+</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;&#34;&#34;Base class for node operations.
+</span></span></span><span style=display:flex><span><span style=color:#d14>    
+</span></span></span><span style=display:flex><span><span style=color:#d14>    On forward pass the inherited class calculates the output of the 
+</span></span></span><span style=display:flex><span><span style=color:#d14>    node and nulls the local gradient for future calculations.
+</span></span></span><span style=display:flex><span><span style=color:#d14>    
+</span></span></span><span style=display:flex><span><span style=color:#d14>    &#34;&#34;&#34;</span>
 </span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> __init__(self, inputs):
-</span></span><span style=display:flex><span>        self.inputs = inputs
-</span></span><span style=display:flex><span>        self.output = <span style=color:#fff;font-weight:700>None</span>
-</span></span><span style=display:flex><span>        self.local_grad = <span style=color:#ff0;font-weight:700>0.</span>
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> __init__(<span style=color:#999>self</span>, inputs):
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>inputs <span style=color:#000;font-weight:700>=</span> inputs
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>output <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>None</span>
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>local_grad <span style=color:#000;font-weight:700>=</span> <span style=color:#099>0.</span>
 </span></span><span style=display:flex><span>        
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> forward(self, *args):
-</span></span><span style=display:flex><span>        <span style=color:#0ff;font-weight:700>&#34;&#34;&#34;Calculates the node output given inputs&#34;&#34;&#34;</span>
-</span></span><span style=display:flex><span>        self.local_grad = <span style=color:#ff0;font-weight:700>0.</span>
-</span></span><span style=display:flex><span>        self._forward(*args)
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>forward</span>(<span style=color:#999>self</span>, <span style=color:#000;font-weight:700>*</span>args):
+</span></span><span style=display:flex><span>        <span style=color:#d14>&#34;&#34;&#34;Calculates the node output given inputs&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>local_grad <span style=color:#000;font-weight:700>=</span> <span style=color:#099>0.</span>
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>_forward(<span style=color:#000;font-weight:700>*</span>args)
 </span></span><span style=display:flex><span>        
-</span></span><span style=display:flex><span>    @abstractmethod
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> _forward(self, *inputs):
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>pass</span>
+</span></span><span style=display:flex><span>    <span style=color:#3c5d5d;font-weight:700>@abstractmethod</span>
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>_forward</span>(<span style=color:#999>self</span>, <span style=color:#000;font-weight:700>*</span>inputs):
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>pass</span>
 </span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span>    @abstractmethod
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> backward(self, dz):
-</span></span><span style=display:flex><span>        <span style=color:#0ff;font-weight:700>&#34;&#34;&#34;Returns the local gradient.&#34;&#34;&#34;</span>
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>pass</span>
+</span></span><span style=display:flex><span>    <span style=color:#3c5d5d;font-weight:700>@abstractmethod</span>
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>backward</span>(<span style=color:#999>self</span>, dz):
+</span></span><span style=display:flex><span>        <span style=color:#d14>&#34;&#34;&#34;Returns the local gradient.&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>pass</span>
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>class</span> Multiply(Operation):
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> _forward(self, x, y):
-</span></span><span style=display:flex><span>        self.x = x
-</span></span><span style=display:flex><span>        self.y = y
-</span></span><span style=display:flex><span>        self.output = x * y
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>return</span> self.output
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>Multiply</span>(Operation):
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>_forward</span>(<span style=color:#999>self</span>, x, y):
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>x <span style=color:#000;font-weight:700>=</span> x
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>y <span style=color:#000;font-weight:700>=</span> y
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>output <span style=color:#000;font-weight:700>=</span> x <span style=color:#000;font-weight:700>*</span> y
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>output
 </span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> backward(self, dz):
-</span></span><span style=display:flex><span>        dx = self.y * dz
-</span></span><span style=display:flex><span>        dy = self.x * dz
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>return</span> [dx, dy]
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>backward</span>(<span style=color:#999>self</span>, dz):
+</span></span><span style=display:flex><span>        dx <span style=color:#000;font-weight:700>=</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>y <span style=color:#000;font-weight:700>*</span> dz
+</span></span><span style=display:flex><span>        dy <span style=color:#000;font-weight:700>=</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>x <span style=color:#000;font-weight:700>*</span> dz
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> [dx, dy]
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>class</span> Add(Operation):
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> _forward(self, x, y):
-</span></span><span style=display:flex><span>        self.output = x + y
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>return</span> self.output
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>Add</span>(Operation):
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>_forward</span>(<span style=color:#999>self</span>, x, y):
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>output <span style=color:#000;font-weight:700>=</span> x <span style=color:#000;font-weight:700>+</span> y
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>output
 </span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> backward(self, dz):
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>return</span> [dz, dz]
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>backward</span>(<span style=color:#999>self</span>, dz):
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> [dz, dz]
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>class</span> Sub(Operation):
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> _forward(self, x, y):
-</span></span><span style=display:flex><span>        self.output = x - y
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>return</span> self.output
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>Sub</span>(Operation):
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>_forward</span>(<span style=color:#999>self</span>, x, y):
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>output <span style=color:#000;font-weight:700>=</span> x <span style=color:#000;font-weight:700>-</span> y
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>output
 </span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> backward(self, dz):
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>return</span> [dz, -dz]
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>backward</span>(<span style=color:#999>self</span>, dz):
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> [dz, <span style=color:#000;font-weight:700>-</span>dz]
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>class</span> Square(Operation):
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> _forward(self, x):
-</span></span><span style=display:flex><span>        self.x = x
-</span></span><span style=display:flex><span>        self.output = x * x
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>return</span> self.output
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>Square</span>(Operation):
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>_forward</span>(<span style=color:#999>self</span>, x):
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>x <span style=color:#000;font-weight:700>=</span> x
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>output <span style=color:#000;font-weight:700>=</span> x <span style=color:#000;font-weight:700>*</span> x
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>output
 </span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> backward(self, dz):
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>return</span> [<span style=color:#ff0;font-weight:700>2</span> * self.x * dz]
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>backward</span>(<span style=color:#999>self</span>, dz):
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> [<span style=color:#099>2</span> <span style=color:#000;font-weight:700>*</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>x <span style=color:#000;font-weight:700>*</span> dz]
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>class</span> Sigmoid(Operation):
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> _forward(self, x):
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>from</span> numpy <span style=color:#fff;font-weight:700>import</span> exp
-</span></span><span style=display:flex><span>        self.output = <span style=color:#ff0;font-weight:700>1.</span> / (<span style=color:#ff0;font-weight:700>1.</span> + exp(-x))
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>return</span> self.output
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>Sigmoid</span>(Operation):
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>_forward</span>(<span style=color:#999>self</span>, x):
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>from</span> <span style=color:#555>numpy</span> <span style=color:#000;font-weight:700>import</span> exp
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>output <span style=color:#000;font-weight:700>=</span> <span style=color:#099>1.</span> <span style=color:#000;font-weight:700>/</span> (<span style=color:#099>1.</span> <span style=color:#000;font-weight:700>+</span> exp(<span style=color:#000;font-weight:700>-</span>x))
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>output
 </span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> backward(self, dz):
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>return</span> [(<span style=color:#ff0;font-weight:700>1</span> - self.output) * self.output * dz]
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>backward</span>(<span style=color:#999>self</span>, dz):
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> [(<span style=color:#099>1</span> <span style=color:#000;font-weight:700>-</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>output) <span style=color:#000;font-weight:700>*</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>output <span style=color:#000;font-weight:700>*</span> dz]
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>class</span> Div(Operation):
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> _forward(self, a, b):
-</span></span><span style=display:flex><span>        self.a = a
-</span></span><span style=display:flex><span>        self.b = b
-</span></span><span style=display:flex><span>        self.output = a / b
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>return</span> self.output
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>Div</span>(Operation):
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>_forward</span>(<span style=color:#999>self</span>, a, b):
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>a <span style=color:#000;font-weight:700>=</span> a
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>b <span style=color:#000;font-weight:700>=</span> b
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>output <span style=color:#000;font-weight:700>=</span> a <span style=color:#000;font-weight:700>/</span> b
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>output
 </span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> backward(self, dz):
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>return</span> [<span style=color:#ff0;font-weight:700>1</span> / self.b * dz, - self.a / self.b**<span style=color:#ff0;font-weight:700>2</span> * dz]
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>backward</span>(<span style=color:#999>self</span>, dz):
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> [<span style=color:#099>1</span> <span style=color:#000;font-weight:700>/</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>b <span style=color:#000;font-weight:700>*</span> dz, <span style=color:#000;font-weight:700>-</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>a <span style=color:#000;font-weight:700>/</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>b<span style=color:#000;font-weight:700>**</span><span style=color:#099>2</span> <span style=color:#000;font-weight:700>*</span> dz]
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>class</span> Inv(Operation):
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> _forward(self, a):
-</span></span><span style=display:flex><span>        self.a = a
-</span></span><span style=display:flex><span>        self.output = <span style=color:#ff0;font-weight:700>1</span> / a
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>return</span> self.output
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> backward(self, dz):
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>return</span> [-<span style=color:#ff0;font-weight:700>1.</span> / self.a**<span style=color:#ff0;font-weight:700>2</span> * dz]
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>Inv</span>(Operation):
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>_forward</span>(<span style=color:#999>self</span>, a):
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>a <span style=color:#000;font-weight:700>=</span> a
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>output <span style=color:#000;font-weight:700>=</span> <span style=color:#099>1</span> <span style=color:#000;font-weight:700>/</span> a
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>output
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>backward</span>(<span style=color:#999>self</span>, dz):
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> [<span style=color:#000;font-weight:700>-</span><span style=color:#099>1.</span> <span style=color:#000;font-weight:700>/</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>a<span style=color:#000;font-weight:700>**</span><span style=color:#099>2</span> <span style=color:#000;font-weight:700>*</span> dz]
 </span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>class</span> Input(<span style=color:#fff;font-weight:700>object</span>):
-</span></span><span style=display:flex><span>    <span style=color:#0ff;font-weight:700>&#34;&#34;&#34;Class for input values&#34;&#34;&#34;</span>
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> __init__(self, value):
-</span></span><span style=display:flex><span>        self.output = value
-</span></span><span style=display:flex><span>        self.local_grad = <span style=color:#ff0;font-weight:700>0.0</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>Input</span>(<span style=color:#0086b3>object</span>):
+</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;&#34;&#34;Class for input values&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> __init__(<span style=color:#999>self</span>, value):
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>output <span style=color:#000;font-weight:700>=</span> value
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>local_grad <span style=color:#000;font-weight:700>=</span> <span style=color:#099>0.0</span>
 </span></span></code></pre></div></div></div><p>Now let&rsquo;s define the <code>ComputationalGraph</code> class, that is responsible for chaining and calculating the forward and backward pass for the graph:</p><div class=spoiler><span class=spoilerText>Spoiler</span>
-<input class=spoilerChecked type=checkbox showtext=Code><div class=spoilerContent><div class=highlight><pre tabindex=0 style=color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#fff;font-weight:700>class</span> ComputationalGraph:
-</span></span><span style=display:flex><span>    <span style=color:#0ff;font-weight:700>&#34;&#34;&#34;Computational graph: stores computing nodes, gradients and inputs.
-</span></span></span><span style=display:flex><span><span style=color:#0ff;font-weight:700>    
-</span></span></span><span style=display:flex><span><span style=color:#0ff;font-weight:700>    The computational graph is used to calculate the output of each node
-</span></span></span><span style=display:flex><span><span style=color:#0ff;font-weight:700>    on forward pass and to calculate the local gradients of each node with
-</span></span></span><span style=display:flex><span><span style=color:#0ff;font-weight:700>    respect to the node inputs.
-</span></span></span><span style=display:flex><span><span style=color:#0ff;font-weight:700>    &#34;&#34;&#34;</span>
+<input class=spoilerChecked type=checkbox showtext=Code><div class=spoilerContent><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>ComputationalGraph</span>:
+</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;&#34;&#34;Computational graph: stores computing nodes, gradients and inputs.
+</span></span></span><span style=display:flex><span><span style=color:#d14>    
+</span></span></span><span style=display:flex><span><span style=color:#d14>    The computational graph is used to calculate the output of each node
+</span></span></span><span style=display:flex><span><span style=color:#d14>    on forward pass and to calculate the local gradients of each node with
+</span></span></span><span style=display:flex><span><span style=color:#d14>    respect to the node inputs.
+</span></span></span><span style=display:flex><span><span style=color:#d14>    &#34;&#34;&#34;</span>
 </span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> __init__(self):
-</span></span><span style=display:flex><span>        self.operations = {}
-</span></span><span style=display:flex><span>        self.inputs = {}
-</span></span><span style=display:flex><span>        self.nodes = {}
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> __init__(<span style=color:#999>self</span>):
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>operations <span style=color:#000;font-weight:700>=</span> {}
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>inputs <span style=color:#000;font-weight:700>=</span> {}
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>nodes <span style=color:#000;font-weight:700>=</span> {}
 </span></span><span style=display:flex><span>        
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> add_inputs(self, **kwargs):
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>for</span> name, value in kwargs.items():
-</span></span><span style=display:flex><span>            self.inputs[name] = Input(value)
-</span></span><span style=display:flex><span>            self.nodes[name] = self.inputs[name]
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>add_inputs</span>(<span style=color:#999>self</span>, <span style=color:#000;font-weight:700>**</span>kwargs):
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>for</span> name, value <span style=color:#000;font-weight:700>in</span> kwargs<span style=color:#000;font-weight:700>.</span>items():
+</span></span><span style=display:flex><span>            <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>inputs[name] <span style=color:#000;font-weight:700>=</span> Input(value)
+</span></span><span style=display:flex><span>            <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>nodes[name] <span style=color:#000;font-weight:700>=</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>inputs[name]
 </span></span><span style=display:flex><span>            
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> add_computation_node(self, name, operation, inputs):
-</span></span><span style=display:flex><span>        self.operations[name] = operation(inputs)
-</span></span><span style=display:flex><span>        self.nodes[name] = self.operations[name]
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>add_computation_node</span>(<span style=color:#999>self</span>, name, operation, inputs):
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>operations[name] <span style=color:#000;font-weight:700>=</span> operation(inputs)
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>nodes[name] <span style=color:#000;font-weight:700>=</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>operations[name]
 </span></span><span style=display:flex><span>        
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> _get_traverse_order(self, root):
-</span></span><span style=display:flex><span>        route = []
-</span></span><span style=display:flex><span>        queue = [root]
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>while</span> <span style=color:#fff;font-weight:700>len</span>(queue):
-</span></span><span style=display:flex><span>            prev = queue.pop(<span style=color:#ff0;font-weight:700>0</span>)
-</span></span><span style=display:flex><span>            <span style=color:#fff;font-weight:700>if</span> prev not in self.inputs:
-</span></span><span style=display:flex><span>                route.append(prev)
-</span></span><span style=display:flex><span>            <span style=color:#fff;font-weight:700>if</span> prev in self.operations:
-</span></span><span style=display:flex><span>                queue.extend(self.operations[prev].inputs)
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>return</span> route
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>_get_traverse_order</span>(<span style=color:#999>self</span>, root):
+</span></span><span style=display:flex><span>        route <span style=color:#000;font-weight:700>=</span> []
+</span></span><span style=display:flex><span>        queue <span style=color:#000;font-weight:700>=</span> [root]
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>while</span> <span style=color:#0086b3>len</span>(queue):
+</span></span><span style=display:flex><span>            prev <span style=color:#000;font-weight:700>=</span> queue<span style=color:#000;font-weight:700>.</span>pop(<span style=color:#099>0</span>)
+</span></span><span style=display:flex><span>            <span style=color:#000;font-weight:700>if</span> prev <span style=color:#000;font-weight:700>not</span> <span style=color:#000;font-weight:700>in</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>inputs:
+</span></span><span style=display:flex><span>                route<span style=color:#000;font-weight:700>.</span>append(prev)
+</span></span><span style=display:flex><span>            <span style=color:#000;font-weight:700>if</span> prev <span style=color:#000;font-weight:700>in</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>operations:
+</span></span><span style=display:flex><span>                queue<span style=color:#000;font-weight:700>.</span>extend(<span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>operations[prev]<span style=color:#000;font-weight:700>.</span>inputs)
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> route
 </span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> forward(self, root):
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>for</span> name in <span style=color:#fff;font-weight:700>reversed</span>(self._get_traverse_order(root)):
-</span></span><span style=display:flex><span>            node = self.nodes[name]
-</span></span><span style=display:flex><span>            node.forward(*[self.nodes[i].output <span style=color:#fff;font-weight:700>for</span> i in node.inputs])
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>forward</span>(<span style=color:#999>self</span>, root):
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>for</span> name <span style=color:#000;font-weight:700>in</span> <span style=color:#0086b3>reversed</span>(<span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>_get_traverse_order(root)):
+</span></span><span style=display:flex><span>            node <span style=color:#000;font-weight:700>=</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>nodes[name]
+</span></span><span style=display:flex><span>            node<span style=color:#000;font-weight:700>.</span>forward(<span style=color:#000;font-weight:700>*</span>[<span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>nodes[i]<span style=color:#000;font-weight:700>.</span>output <span style=color:#000;font-weight:700>for</span> i <span style=color:#000;font-weight:700>in</span> node<span style=color:#000;font-weight:700>.</span>inputs])
 </span></span><span style=display:flex><span>            
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>for</span> inp in self.inputs:
-</span></span><span style=display:flex><span>            self.inputs[inp].local_grad = <span style=color:#ff0;font-weight:700>0.0</span>
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>for</span> inp <span style=color:#000;font-weight:700>in</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>inputs:
+</span></span><span style=display:flex><span>            <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>inputs[inp]<span style=color:#000;font-weight:700>.</span>local_grad <span style=color:#000;font-weight:700>=</span> <span style=color:#099>0.0</span>
 </span></span><span style=display:flex><span>            
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> backward(self, root):
-</span></span><span style=display:flex><span>        self.operations[root].local_grad = <span style=color:#ff0;font-weight:700>1.</span>
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>for</span> name in self._get_traverse_order(root):
-</span></span><span style=display:flex><span>            local_grad = self.nodes[name].local_grad
-</span></span><span style=display:flex><span>            inputs = self.nodes[name].inputs
-</span></span><span style=display:flex><span>            gradients_wrt_input = self.nodes[name].backward(local_grad)
-</span></span><span style=display:flex><span>            <span style=color:#007f7f># roll back to inputs</span>
-</span></span><span style=display:flex><span>            <span style=color:#fff;font-weight:700>for</span> parent, g in <span style=color:#fff;font-weight:700>zip</span>(inputs, gradients_wrt_input):
-</span></span><span style=display:flex><span>                self.nodes[parent].local_grad += g
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>backward</span>(<span style=color:#999>self</span>, root):
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>operations[root]<span style=color:#000;font-weight:700>.</span>local_grad <span style=color:#000;font-weight:700>=</span> <span style=color:#099>1.</span>
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>for</span> name <span style=color:#000;font-weight:700>in</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>_get_traverse_order(root):
+</span></span><span style=display:flex><span>            local_grad <span style=color:#000;font-weight:700>=</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>nodes[name]<span style=color:#000;font-weight:700>.</span>local_grad
+</span></span><span style=display:flex><span>            inputs <span style=color:#000;font-weight:700>=</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>nodes[name]<span style=color:#000;font-weight:700>.</span>inputs
+</span></span><span style=display:flex><span>            gradients_wrt_input <span style=color:#000;font-weight:700>=</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>nodes[name]<span style=color:#000;font-weight:700>.</span>backward(local_grad)
+</span></span><span style=display:flex><span>            <span style=color:#998;font-style:italic># roll back to inputs</span>
+</span></span><span style=display:flex><span>            <span style=color:#000;font-weight:700>for</span> parent, g <span style=color:#000;font-weight:700>in</span> <span style=color:#0086b3>zip</span>(inputs, gradients_wrt_input):
+</span></span><span style=display:flex><span>                <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>nodes[parent]<span style=color:#000;font-weight:700>.</span>local_grad <span style=color:#000;font-weight:700>+=</span> g
 </span></span><span style=display:flex><span>                
-</span></span><span style=display:flex><span>    <span style=color:#fff;font-weight:700>def</span> get_gradient(self, node):
-</span></span><span style=display:flex><span>        <span style=color:#fff;font-weight:700>if</span> node in self.nodes:
-</span></span><span style=display:flex><span>            <span style=color:#fff;font-weight:700>return</span> self.nodes[node].local_grad
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>get_gradient</span>(<span style=color:#999>self</span>, node):
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>if</span> node <span style=color:#000;font-weight:700>in</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>nodes:
+</span></span><span style=display:flex><span>            <span style=color:#000;font-weight:700>return</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>nodes[node]<span style=color:#000;font-weight:700>.</span>local_grad
 </span></span></code></pre></div></div></div><p>Now we can make the real job, let&rsquo;s calculate the gradient of the following function w.r.t. its inputs, $x$ and $y$:</p>$$
 f(x, y) = \frac{x + \sigma(y)}{\sigma(x) + (x + y)^2}.
-$$<div class=highlight><pre tabindex=0 style=color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>cg = ComputationalGraph()
-</span></span><span style=display:flex><span>cg.add_inputs(x = <span style=color:#ff0;font-weight:700>2.</span>, y = -<span style=color:#ff0;font-weight:700>4.</span>)
-</span></span><span style=display:flex><span>cg.add_computation_node(<span style=color:#0ff;font-weight:700>&#39;sigy&#39;</span>, Sigmoid, (<span style=color:#0ff;font-weight:700>&#39;y&#39;</span>,))
-</span></span><span style=display:flex><span>cg.add_computation_node(<span style=color:#0ff;font-weight:700>&#39;num&#39;</span>, Add, (<span style=color:#0ff;font-weight:700>&#39;x&#39;</span>, <span style=color:#0ff;font-weight:700>&#39;sigy&#39;</span>))
-</span></span><span style=display:flex><span>cg.add_computation_node(<span style=color:#0ff;font-weight:700>&#39;sigx&#39;</span>, Sigmoid, (<span style=color:#0ff;font-weight:700>&#39;x&#39;</span>,))
-</span></span><span style=display:flex><span>cg.add_computation_node(<span style=color:#0ff;font-weight:700>&#39;xpy&#39;</span>, Add, (<span style=color:#0ff;font-weight:700>&#39;x&#39;</span>, <span style=color:#0ff;font-weight:700>&#39;y&#39;</span>))
-</span></span><span style=display:flex><span>cg.add_computation_node(<span style=color:#0ff;font-weight:700>&#39;sq&#39;</span>, Square, (<span style=color:#0ff;font-weight:700>&#39;xpy&#39;</span>,))
-</span></span><span style=display:flex><span>cg.add_computation_node(<span style=color:#0ff;font-weight:700>&#39;denom&#39;</span>, Add, (<span style=color:#0ff;font-weight:700>&#39;sigx&#39;</span>, <span style=color:#0ff;font-weight:700>&#39;sq&#39;</span>))
-</span></span><span style=display:flex><span>cg.add_computation_node(<span style=color:#0ff;font-weight:700>&#39;f&#39;</span>, Div, (<span style=color:#0ff;font-weight:700>&#39;num&#39;</span>, <span style=color:#0ff;font-weight:700>&#39;denom&#39;</span>))
+$$<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>cg <span style=color:#000;font-weight:700>=</span> ComputationalGraph()
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>add_inputs(x <span style=color:#000;font-weight:700>=</span> <span style=color:#099>2.</span>, y <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>-</span><span style=color:#099>4.</span>)
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>add_computation_node(<span style=color:#d14>&#39;sigy&#39;</span>, Sigmoid, (<span style=color:#d14>&#39;y&#39;</span>,))
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>add_computation_node(<span style=color:#d14>&#39;num&#39;</span>, Add, (<span style=color:#d14>&#39;x&#39;</span>, <span style=color:#d14>&#39;sigy&#39;</span>))
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>add_computation_node(<span style=color:#d14>&#39;sigx&#39;</span>, Sigmoid, (<span style=color:#d14>&#39;x&#39;</span>,))
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>add_computation_node(<span style=color:#d14>&#39;xpy&#39;</span>, Add, (<span style=color:#d14>&#39;x&#39;</span>, <span style=color:#d14>&#39;y&#39;</span>))
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>add_computation_node(<span style=color:#d14>&#39;sq&#39;</span>, Square, (<span style=color:#d14>&#39;xpy&#39;</span>,))
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>add_computation_node(<span style=color:#d14>&#39;denom&#39;</span>, Add, (<span style=color:#d14>&#39;sigx&#39;</span>, <span style=color:#d14>&#39;sq&#39;</span>))
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>add_computation_node(<span style=color:#d14>&#39;f&#39;</span>, Div, (<span style=color:#d14>&#39;num&#39;</span>, <span style=color:#d14>&#39;denom&#39;</span>))
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>cg.forward(<span style=color:#0ff;font-weight:700>&#39;f&#39;</span>)
-</span></span><span style=display:flex><span>cg.backward(<span style=color:#0ff;font-weight:700>&#39;f&#39;</span>)
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>forward(<span style=color:#d14>&#39;f&#39;</span>)
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>backward(<span style=color:#d14>&#39;f&#39;</span>)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>dx = cg.get_gradient(<span style=color:#0ff;font-weight:700>&#39;x&#39;</span>)
-</span></span><span style=display:flex><span>dy = cg.get_gradient(<span style=color:#0ff;font-weight:700>&#39;y&#39;</span>)
-</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>print</span>(<span style=color:#0ff;font-weight:700>f</span><span style=color:#0ff;font-weight:700>&#39;df/dx = </span><span style=color:#0ff;font-weight:700>{</span>dx<span style=color:#0ff;font-weight:700>}</span><span style=color:#0ff;font-weight:700>, df/dy = </span><span style=color:#0ff;font-weight:700>{</span>dy<span style=color:#0ff;font-weight:700>}</span><span style=color:#0ff;font-weight:700>&#39;</span>)
+</span></span><span style=display:flex><span>dx <span style=color:#000;font-weight:700>=</span> cg<span style=color:#000;font-weight:700>.</span>get_gradient(<span style=color:#d14>&#39;x&#39;</span>)
+</span></span><span style=display:flex><span>dy <span style=color:#000;font-weight:700>=</span> cg<span style=color:#000;font-weight:700>.</span>get_gradient(<span style=color:#d14>&#39;y&#39;</span>)
+</span></span><span style=display:flex><span><span style=color:#0086b3>print</span>(<span style=color:#d14>f</span><span style=color:#d14>&#39;df/dx = </span><span style=color:#d14>{</span>dx<span style=color:#d14>}</span><span style=color:#d14>, df/dy = </span><span style=color:#d14>{</span>dy<span style=color:#d14>}</span><span style=color:#d14>&#39;</span>)
 </span></span></code></pre></div><pre><code>df/dx = 0.5348320870757595, df/dy = 0.342460382923052
 </code></pre><p>And verify the result on an additional example that we studied in the beginning:</p>$$
 f(x, \boldsymbol{w}, y) = \left(w_0 + w_1 x - y\right)^2.
-$$<div class=highlight><pre tabindex=0 style=color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>cg = ComputationalGraph()
-</span></span><span style=display:flex><span>cg.add_inputs(x = <span style=color:#ff0;font-weight:700>3.</span>, y = <span style=color:#ff0;font-weight:700>7.</span>, w0 = -<span style=color:#ff0;font-weight:700>2</span>, w1 = <span style=color:#ff0;font-weight:700>2</span>)
-</span></span><span style=display:flex><span>cg.add_computation_node(<span style=color:#0ff;font-weight:700>&#39;w1_times_x&#39;</span>, Multiply, (<span style=color:#0ff;font-weight:700>&#39;w1&#39;</span>, <span style=color:#0ff;font-weight:700>&#39;x&#39;</span>))
-</span></span><span style=display:flex><span>cg.add_computation_node(<span style=color:#0ff;font-weight:700>&#39;prediction&#39;</span>, Add, (<span style=color:#0ff;font-weight:700>&#39;w0&#39;</span>, <span style=color:#0ff;font-weight:700>&#39;w1_times_x&#39;</span>))
-</span></span><span style=display:flex><span>cg.add_computation_node(<span style=color:#0ff;font-weight:700>&#39;l&#39;</span>, Sub, (<span style=color:#0ff;font-weight:700>&#39;prediction&#39;</span>, <span style=color:#0ff;font-weight:700>&#39;y&#39;</span>))
-</span></span><span style=display:flex><span>cg.add_computation_node(<span style=color:#0ff;font-weight:700>&#39;f&#39;</span>, Square, (<span style=color:#0ff;font-weight:700>&#39;l&#39;</span>,))
+$$<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>cg <span style=color:#000;font-weight:700>=</span> ComputationalGraph()
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>add_inputs(x <span style=color:#000;font-weight:700>=</span> <span style=color:#099>3.</span>, y <span style=color:#000;font-weight:700>=</span> <span style=color:#099>7.</span>, w0 <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>-</span><span style=color:#099>2</span>, w1 <span style=color:#000;font-weight:700>=</span> <span style=color:#099>2</span>)
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>add_computation_node(<span style=color:#d14>&#39;w1_times_x&#39;</span>, Multiply, (<span style=color:#d14>&#39;w1&#39;</span>, <span style=color:#d14>&#39;x&#39;</span>))
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>add_computation_node(<span style=color:#d14>&#39;prediction&#39;</span>, Add, (<span style=color:#d14>&#39;w0&#39;</span>, <span style=color:#d14>&#39;w1_times_x&#39;</span>))
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>add_computation_node(<span style=color:#d14>&#39;l&#39;</span>, Sub, (<span style=color:#d14>&#39;prediction&#39;</span>, <span style=color:#d14>&#39;y&#39;</span>))
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>add_computation_node(<span style=color:#d14>&#39;f&#39;</span>, Square, (<span style=color:#d14>&#39;l&#39;</span>,))
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>cg.forward(<span style=color:#0ff;font-weight:700>&#39;f&#39;</span>)
-</span></span><span style=display:flex><span>cg.backward(<span style=color:#0ff;font-weight:700>&#39;f&#39;</span>)
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>forward(<span style=color:#d14>&#39;f&#39;</span>)
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>backward(<span style=color:#d14>&#39;f&#39;</span>)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>dw0 = cg.get_gradient(<span style=color:#0ff;font-weight:700>&#39;w0&#39;</span>)
-</span></span><span style=display:flex><span>dw1 = cg.get_gradient(<span style=color:#0ff;font-weight:700>&#39;w1&#39;</span>)
-</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>print</span>(<span style=color:#0ff;font-weight:700>f</span><span style=color:#0ff;font-weight:700>&#39;df/dw0 = </span><span style=color:#0ff;font-weight:700>{</span>dw0<span style=color:#0ff;font-weight:700>}</span><span style=color:#0ff;font-weight:700>, df/dw1 = </span><span style=color:#0ff;font-weight:700>{</span>dw1<span style=color:#0ff;font-weight:700>}</span><span style=color:#0ff;font-weight:700>&#39;</span>)
+</span></span><span style=display:flex><span>dw0 <span style=color:#000;font-weight:700>=</span> cg<span style=color:#000;font-weight:700>.</span>get_gradient(<span style=color:#d14>&#39;w0&#39;</span>)
+</span></span><span style=display:flex><span>dw1 <span style=color:#000;font-weight:700>=</span> cg<span style=color:#000;font-weight:700>.</span>get_gradient(<span style=color:#d14>&#39;w1&#39;</span>)
+</span></span><span style=display:flex><span><span style=color:#0086b3>print</span>(<span style=color:#d14>f</span><span style=color:#d14>&#39;df/dw0 = </span><span style=color:#d14>{</span>dw0<span style=color:#d14>}</span><span style=color:#d14>, df/dw1 = </span><span style=color:#d14>{</span>dw1<span style=color:#d14>}</span><span style=color:#d14>&#39;</span>)
 </span></span></code></pre></div><pre><code>df/dw0 = -6.0, df/dw1 = -18.0
 </code></pre><p>Result is exactly the same.
 As a final step let&rsquo;s use this scheme to find the minimum of the following function:</p>$$
 f(x, y) = x^2 + y^2 + 400x + 8y
-$$<div class=highlight><pre tabindex=0 style=color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>cg = ComputationalGraph()
-</span></span><span style=display:flex><span>cg.add_inputs(x = <span style=color:#ff0;font-weight:700>0.</span>, y = <span style=color:#ff0;font-weight:700>0.</span>, a = <span style=color:#ff0;font-weight:700>400.</span>, b = <span style=color:#ff0;font-weight:700>8.</span>)
-</span></span><span style=display:flex><span>cg.add_computation_node(<span style=color:#0ff;font-weight:700>&#39;sqx&#39;</span>, Square, (<span style=color:#0ff;font-weight:700>&#39;x&#39;</span>,))
-</span></span><span style=display:flex><span>cg.add_computation_node(<span style=color:#0ff;font-weight:700>&#39;sqy&#39;</span>, Square, (<span style=color:#0ff;font-weight:700>&#39;y&#39;</span>,))
-</span></span><span style=display:flex><span>cg.add_computation_node(<span style=color:#0ff;font-weight:700>&#39;ax&#39;</span>, Multiply, (<span style=color:#0ff;font-weight:700>&#39;a&#39;</span>, <span style=color:#0ff;font-weight:700>&#39;x&#39;</span>))
-</span></span><span style=display:flex><span>cg.add_computation_node(<span style=color:#0ff;font-weight:700>&#39;by&#39;</span>, Multiply, (<span style=color:#0ff;font-weight:700>&#39;b&#39;</span>, <span style=color:#0ff;font-weight:700>&#39;y&#39;</span>))
-</span></span><span style=display:flex><span>cg.add_computation_node(<span style=color:#0ff;font-weight:700>&#39;sqxpsqy&#39;</span>, Add, (<span style=color:#0ff;font-weight:700>&#39;sqx&#39;</span>, <span style=color:#0ff;font-weight:700>&#39;sqy&#39;</span>))
-</span></span><span style=display:flex><span>cg.add_computation_node(<span style=color:#0ff;font-weight:700>&#39;axpby&#39;</span>, Add, (<span style=color:#0ff;font-weight:700>&#39;ax&#39;</span>, <span style=color:#0ff;font-weight:700>&#39;by&#39;</span>))
-</span></span><span style=display:flex><span>cg.add_computation_node(<span style=color:#0ff;font-weight:700>&#39;f&#39;</span>, Add, (<span style=color:#0ff;font-weight:700>&#39;sqxpsqy&#39;</span>, <span style=color:#0ff;font-weight:700>&#39;axpby&#39;</span>))
+$$<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>cg <span style=color:#000;font-weight:700>=</span> ComputationalGraph()
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>add_inputs(x <span style=color:#000;font-weight:700>=</span> <span style=color:#099>0.</span>, y <span style=color:#000;font-weight:700>=</span> <span style=color:#099>0.</span>, a <span style=color:#000;font-weight:700>=</span> <span style=color:#099>400.</span>, b <span style=color:#000;font-weight:700>=</span> <span style=color:#099>8.</span>)
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>add_computation_node(<span style=color:#d14>&#39;sqx&#39;</span>, Square, (<span style=color:#d14>&#39;x&#39;</span>,))
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>add_computation_node(<span style=color:#d14>&#39;sqy&#39;</span>, Square, (<span style=color:#d14>&#39;y&#39;</span>,))
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>add_computation_node(<span style=color:#d14>&#39;ax&#39;</span>, Multiply, (<span style=color:#d14>&#39;a&#39;</span>, <span style=color:#d14>&#39;x&#39;</span>))
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>add_computation_node(<span style=color:#d14>&#39;by&#39;</span>, Multiply, (<span style=color:#d14>&#39;b&#39;</span>, <span style=color:#d14>&#39;y&#39;</span>))
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>add_computation_node(<span style=color:#d14>&#39;sqxpsqy&#39;</span>, Add, (<span style=color:#d14>&#39;sqx&#39;</span>, <span style=color:#d14>&#39;sqy&#39;</span>))
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>add_computation_node(<span style=color:#d14>&#39;axpby&#39;</span>, Add, (<span style=color:#d14>&#39;ax&#39;</span>, <span style=color:#d14>&#39;by&#39;</span>))
+</span></span><span style=display:flex><span>cg<span style=color:#000;font-weight:700>.</span>add_computation_node(<span style=color:#d14>&#39;f&#39;</span>, Add, (<span style=color:#d14>&#39;sqxpsqy&#39;</span>, <span style=color:#d14>&#39;axpby&#39;</span>))
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>for</span> i in <span style=color:#fff;font-weight:700>range</span>(<span style=color:#ff0;font-weight:700>0</span>, <span style=color:#ff0;font-weight:700>50</span>):
-</span></span><span style=display:flex><span>    cg.forward(<span style=color:#0ff;font-weight:700>&#39;f&#39;</span>)
-</span></span><span style=display:flex><span>    cg.backward(<span style=color:#0ff;font-weight:700>&#39;f&#39;</span>)
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>for</span> i <span style=color:#000;font-weight:700>in</span> <span style=color:#0086b3>range</span>(<span style=color:#099>0</span>, <span style=color:#099>50</span>):
+</span></span><span style=display:flex><span>    cg<span style=color:#000;font-weight:700>.</span>forward(<span style=color:#d14>&#39;f&#39;</span>)
+</span></span><span style=display:flex><span>    cg<span style=color:#000;font-weight:700>.</span>backward(<span style=color:#d14>&#39;f&#39;</span>)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    dx = cg.get_gradient(<span style=color:#0ff;font-weight:700>&#39;x&#39;</span>)
-</span></span><span style=display:flex><span>    dy = cg.get_gradient(<span style=color:#0ff;font-weight:700>&#39;y&#39;</span>)
-</span></span><span style=display:flex><span>    cg.inputs[<span style=color:#0ff;font-weight:700>&#39;x&#39;</span>].output -= dx * <span style=color:#ff0;font-weight:700>0.1</span>
-</span></span><span style=display:flex><span>    cg.inputs[<span style=color:#0ff;font-weight:700>&#39;y&#39;</span>].output -= dy * <span style=color:#ff0;font-weight:700>0.1</span>
+</span></span><span style=display:flex><span>    dx <span style=color:#000;font-weight:700>=</span> cg<span style=color:#000;font-weight:700>.</span>get_gradient(<span style=color:#d14>&#39;x&#39;</span>)
+</span></span><span style=display:flex><span>    dy <span style=color:#000;font-weight:700>=</span> cg<span style=color:#000;font-weight:700>.</span>get_gradient(<span style=color:#d14>&#39;y&#39;</span>)
+</span></span><span style=display:flex><span>    cg<span style=color:#000;font-weight:700>.</span>inputs[<span style=color:#d14>&#39;x&#39;</span>]<span style=color:#000;font-weight:700>.</span>output <span style=color:#000;font-weight:700>-=</span> dx <span style=color:#000;font-weight:700>*</span> <span style=color:#099>0.1</span>
+</span></span><span style=display:flex><span>    cg<span style=color:#000;font-weight:700>.</span>inputs[<span style=color:#d14>&#39;y&#39;</span>]<span style=color:#000;font-weight:700>.</span>output <span style=color:#000;font-weight:700>-=</span> dy <span style=color:#000;font-weight:700>*</span> <span style=color:#099>0.1</span>
 </span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>print</span>(<span style=color:#0ff;font-weight:700>&#39;Minimum:&#39;</span>, cg.inputs[<span style=color:#0ff;font-weight:700>&#39;x&#39;</span>].output, cg.inputs[<span style=color:#0ff;font-weight:700>&#39;y&#39;</span>].output)
+</span></span><span style=display:flex><span><span style=color:#0086b3>print</span>(<span style=color:#d14>&#39;Minimum:&#39;</span>, cg<span style=color:#000;font-weight:700>.</span>inputs[<span style=color:#d14>&#39;x&#39;</span>]<span style=color:#000;font-weight:700>.</span>output, cg<span style=color:#000;font-weight:700>.</span>inputs[<span style=color:#d14>&#39;y&#39;</span>]<span style=color:#000;font-weight:700>.</span>output)
 </span></span></code></pre></div><pre><code>Minimum: -199.9971455046146 -3.9999429100922916
 </code></pre><p>All done! Minimum was correctly found, it is time to visual assess it.</p><div class=spoiler><span class=spoilerText>Spoiler</span>
-<input class=spoilerChecked type=checkbox showtext=Code><div class=spoilerContent><div class=highlight><pre tabindex=0 style=color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#fff;font-weight:700>import</span> matplotlib.pylab <span style=color:#fff;font-weight:700>as</span> plt
-</span></span><span style=display:flex><span><span style=color:#fff;font-weight:700>import</span> numpy <span style=color:#fff;font-weight:700>as</span> np
-</span></span><span style=display:flex><span>%matplotlib inline
-</span></span><span style=display:flex><span>%config InlineBackend.figure_format=<span style=color:#0ff;font-weight:700>&#39;retina&#39;</span>
+<input class=spoilerChecked type=checkbox showtext=Code><div class=spoilerContent><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>matplotlib.pylab</span> <span style=color:#000;font-weight:700>as</span> <span style=color:#555>plt</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>numpy</span> <span style=color:#000;font-weight:700>as</span> <span style=color:#555>np</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>%</span>matplotlib inline
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>%</span>config InlineBackend<span style=color:#000;font-weight:700>.</span>figure_format<span style=color:#000;font-weight:700>=</span><span style=color:#d14>&#39;retina&#39;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>x, y = np.meshgrid(np.arange(-<span style=color:#ff0;font-weight:700>800</span>, <span style=color:#ff0;font-weight:700>800</span>), np.arange(-<span style=color:#ff0;font-weight:700>400</span>, <span style=color:#ff0;font-weight:700>400</span>))
-</span></span><span style=display:flex><span>z = x**<span style=color:#ff0;font-weight:700>2</span> + y**<span style=color:#ff0;font-weight:700>2</span> + <span style=color:#ff0;font-weight:700>400</span>*x + <span style=color:#ff0;font-weight:700>8</span>*y 
-</span></span><span style=display:flex><span>fig, ax = plt.subplots(<span style=color:#ff0;font-weight:700>1</span>, <span style=color:#ff0;font-weight:700>1</span>, figsize = (<span style=color:#ff0;font-weight:700>6</span>, <span style=color:#ff0;font-weight:700>3</span>))
-</span></span><span style=display:flex><span>ax.imshow(z, extent=[x.min(), x.max(), y.min(), y.max()], origin=<span style=color:#0ff;font-weight:700>&#34;lower&#34;</span>, cmap=<span style=color:#0ff;font-weight:700>&#39;cool&#39;</span>)
-</span></span><span style=display:flex><span>ax.scatter([cg.inputs[<span style=color:#0ff;font-weight:700>&#39;x&#39;</span>].output], [cg.inputs[<span style=color:#0ff;font-weight:700>&#39;y&#39;</span>].output], c = <span style=color:#0ff;font-weight:700>&#39;red&#39;</span>, label=<span style=color:#0ff;font-weight:700>&#39;Min&#39;</span>)
-</span></span><span style=display:flex><span>ax.set(xlabel=<span style=color:#0ff;font-weight:700>&#39;$x$&#39;</span>, ylabel=<span style=color:#0ff;font-weight:700>&#39;$y$&#39;</span>)
-</span></span><span style=display:flex><span>ax.legend()
+</span></span><span style=display:flex><span>x, y <span style=color:#000;font-weight:700>=</span> np<span style=color:#000;font-weight:700>.</span>meshgrid(np<span style=color:#000;font-weight:700>.</span>arange(<span style=color:#000;font-weight:700>-</span><span style=color:#099>800</span>, <span style=color:#099>800</span>), np<span style=color:#000;font-weight:700>.</span>arange(<span style=color:#000;font-weight:700>-</span><span style=color:#099>400</span>, <span style=color:#099>400</span>))
+</span></span><span style=display:flex><span>z <span style=color:#000;font-weight:700>=</span> x<span style=color:#000;font-weight:700>**</span><span style=color:#099>2</span> <span style=color:#000;font-weight:700>+</span> y<span style=color:#000;font-weight:700>**</span><span style=color:#099>2</span> <span style=color:#000;font-weight:700>+</span> <span style=color:#099>400</span><span style=color:#000;font-weight:700>*</span>x <span style=color:#000;font-weight:700>+</span> <span style=color:#099>8</span><span style=color:#000;font-weight:700>*</span>y 
+</span></span><span style=display:flex><span>fig, ax <span style=color:#000;font-weight:700>=</span> plt<span style=color:#000;font-weight:700>.</span>subplots(<span style=color:#099>1</span>, <span style=color:#099>1</span>, figsize <span style=color:#000;font-weight:700>=</span> (<span style=color:#099>6</span>, <span style=color:#099>3</span>))
+</span></span><span style=display:flex><span>ax<span style=color:#000;font-weight:700>.</span>imshow(z, extent<span style=color:#000;font-weight:700>=</span>[x<span style=color:#000;font-weight:700>.</span>min(), x<span style=color:#000;font-weight:700>.</span>max(), y<span style=color:#000;font-weight:700>.</span>min(), y<span style=color:#000;font-weight:700>.</span>max()], origin<span style=color:#000;font-weight:700>=</span><span style=color:#d14>&#34;lower&#34;</span>, cmap<span style=color:#000;font-weight:700>=</span><span style=color:#d14>&#39;cool&#39;</span>)
+</span></span><span style=display:flex><span>ax<span style=color:#000;font-weight:700>.</span>scatter([cg<span style=color:#000;font-weight:700>.</span>inputs[<span style=color:#d14>&#39;x&#39;</span>]<span style=color:#000;font-weight:700>.</span>output], [cg<span style=color:#000;font-weight:700>.</span>inputs[<span style=color:#d14>&#39;y&#39;</span>]<span style=color:#000;font-weight:700>.</span>output], c <span style=color:#000;font-weight:700>=</span> <span style=color:#d14>&#39;red&#39;</span>, label<span style=color:#000;font-weight:700>=</span><span style=color:#d14>&#39;Min&#39;</span>)
+</span></span><span style=display:flex><span>ax<span style=color:#000;font-weight:700>.</span>set(xlabel<span style=color:#000;font-weight:700>=</span><span style=color:#d14>&#39;$x$&#39;</span>, ylabel<span style=color:#000;font-weight:700>=</span><span style=color:#d14>&#39;$y$&#39;</span>)
+</span></span><span style=display:flex><span>ax<span style=color:#000;font-weight:700>.</span>legend()
 </span></span></code></pre></div></div></div><p><img src=output_23_1.png#center alt=png></p><p>The code is available here:
 <a href=https://github.com/mikoff/blog_projects/tree/master/auto_differentation class=external-link target=_blank rel=noopener>https://github.com/mikoff/blog_projects/tree/master/auto_differentation</a></p><h2 id=references>References
 <a class=heading-link href=#references><i class="fa-solid fa-link" aria-hidden=true title="Link to heading"></i>
